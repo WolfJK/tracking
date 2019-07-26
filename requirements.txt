@@ -1,0 +1,16 @@
+# framework
+Django==1.8.7
+uwsgi==2.0.18
+
+# network
+django-cors-headers==1.1.0
+
+# cache
+redis==2.10.3
+django-redis-sessions==0.6.1
+
+# database
+MySQL-python==1.2.5
+
+# util
+python-dateutil==2.7.3

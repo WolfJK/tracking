@@ -1,0 +1,28 @@
+# framework
+Django==1.8.7
+#james uwsgi==2.0.18
+
+# network
+django-cors-headers==1.1.0
+
+# cache
+redis==2.10.3
+django-redis-sessions==0.6.1
+
+# database
+#james MySQL-python==1.2.5
+
+# util
+python-dateutil==2.7.3
+pandas==0.23.0
+
+#crawl need
+requests==2.11.1
+lxml==3.6.0
+pymongo==3.6.1
+
+# sms
+top==1.0.0
+
+# uniout
+uniout
