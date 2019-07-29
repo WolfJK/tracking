@@ -11,4 +11,5 @@ urlpatterns = patterns('common.user.views',
     url(r"^get-user-menus/$", "get_user_menus"),
     url(r"^get-user-menus-apis/$", "get_user_menus_apis"),
     url(r"^asign-user/$", "asign_user"),
+    url(r"^change-password/$", "change_password"),
 )

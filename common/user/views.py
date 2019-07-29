@@ -52,3 +52,18 @@ def code(request):
     ca.type = "word"
 
     return ca.display()
+
+
+# change_password
+def change_password(request):
+    print "request", request.user
+    old_password = request.POST.get('old_password')
+    new_password_confirm = request.POST.get('confirm_password')
+    new_password = request.POST.get('new_password')
+    if not old_password: raise Exception('请输入旧密码')
+    if not new_password: raise Exception('请输入新密码')
+    if new_password == old_password: raise Exception('新密码必须与旧密码不同')
+    if not new_password_confirm: raise Exception('请输入确认密码')
+    if new_password != new_password_confirm: raise Exception('确认密码必须与新密码一致')
+    apis.set_owner_password(request.user, new_password, old_password)
+    return HttpResponse()

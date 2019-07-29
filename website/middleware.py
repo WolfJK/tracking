@@ -81,10 +81,10 @@ class AuthMiddleware(MpMiddleware):
         if not request.user.is_authenticated():
             return self._build_response_with_code("用户未登录或登录已失效", HTTP_CODE.UNAUTHORIZED_401)
 
-        if not request.user.is_active():
+        if not request.user.is_active:
             return self._build_response_with_code('用户已被禁用，请联系管理员', HTTP_CODE.LOCKED_402)
 
-        if request.user.is_admin():
+        if request.user.is_admin:
             return
 
         if not user_apis.auth_api_url(request):
