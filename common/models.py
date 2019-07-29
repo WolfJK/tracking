@@ -151,6 +151,8 @@ class Report(models.Model):
         (5, "摸鱼中"),
     )
     name = models.CharField(max_length=32, help_text="报告名称")
+    user = models.ForeignKey(SmUser, help_text="所属用户", on_delete=models.DO_NOTHING)
+    industry = models.ForeignKey(DimIndustry, help_text="行业", on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=64, help_text="报告主题")
     tag = models.CharField(max_length=256, help_text="活动标签，逗号分隔")
 
@@ -169,6 +171,8 @@ class Report(models.Model):
     status = models.IntegerField(help_text="状态", choices=STATUS_CHOICE)
     data = models.TextField(help_text="报表数据，JSon格式")
     error_info = models.TextField(help_text="错误信息")
+    create_time = models.DateTimeField(help_text="创建时间", auto_now_add=True)
+    update_time = models.DateTimeField(help_text="更新时间", null=True)
 
     class Meta:
         db_table = "report"
