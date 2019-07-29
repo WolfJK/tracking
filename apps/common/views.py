@@ -9,9 +9,9 @@ from . import apis
 # ############################# 活动有效性评估 相关参数列表 #################################
 
 
-def report_config_param(request):
+def common_param(request):
     '''
-    报告->活动有效性评估->参数列表
+    公共参数
     :param request:
     :return:
     '''
@@ -56,6 +56,17 @@ def category_list(request):
 def sales_point_list(request):
     '''
     宣传卖点列表
+    :param request:
+    :return:
+    '''
+    data = []
+
+    return JsonResponse(data)
+
+
+def report_template_list(request):
+    '''
+    报告模板列表
     :param request:
     :return:
     '''

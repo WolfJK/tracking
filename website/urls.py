@@ -6,5 +6,5 @@ from django.conf.urls import *
 urlpatterns = [
     url(r'^$', 'app_apps.bar.views.hello'),
     url(r'^user/', include('common.urls')),
-    url(r'^', include('apps.urls')),
+    url(r'^apps/', include('apps.urls')),
 ]

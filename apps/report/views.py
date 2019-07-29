@@ -7,19 +7,6 @@ from . import apis
 
 
 # ############################# 活动有效性评估 #################################
-
-
-def report_config_param(request):
-    '''
-    报告->活动有效性评估->参数列表
-    :param request:
-    :return:
-    '''
-    data = []
-
-    return JsonResponse(data)
-
-
 def report_config_list(request):
     '''
     报告->活动有效性评估->报告配置列表
@@ -45,6 +32,17 @@ def report_config_delete(request):
 def report_config_create(request):
     '''
     报告->活动有效性评估->报告配置新建
+    :param request:
+    :return:
+    '''
+    data = []
+
+    return JsonResponse(data)
+
+
+def report_config_edit(request):
+    '''
+    报告->活动有效性评估->报告配置编辑
     :param request:
     :return:
     '''
