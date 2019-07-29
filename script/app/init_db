@@ -6,3 +6,143 @@ CREATE USER 'tracking'@'%' IDENTIFIED with 'mysql_native_password' BY 'Mp@2019_t
 GRANT ALL ON tracking.* to 'tracking'@'%' WITH GRANT OPTION;
 
 flush privileges;
+
+
+-- ------ 2、初始化数据
+
+-- 2.1、 dim_industry
+truncate table dim_industry;
+insert into dim_industry(name) values ('母婴');
+insert into dim_industry(name) values ('医疗');
+
+-- 2.2、 dim_category
+truncate table dim_category;
+insert into dim_category(name) values ('奶粉');
+insert into dim_category(name) values ('尿不湿');
+
+
+-- 2.3、 dim_brand
+truncate table dim_brand;
+insert into dim_brand(name, industry_id, keyword) values ('a2奶粉', '1', 'a2');
+insert into dim_brand(name, industry_id, keyword) values ('佳贝艾特', '1', '佳贝艾特');
+insert into dim_brand(name, industry_id, keyword) values ('可瑞康', '1', '可瑞康|karicare');
+insert into dim_brand(name, industry_id, keyword) values ('arla', '1', 'arla');
+insert into dim_brand(name, industry_id, keyword) values ('爱达力', '1', '爱达力');
+insert into dim_brand(name, industry_id, keyword) values ('爱荷美', '1', '爱荷美');
+insert into dim_brand(name, industry_id, keyword) values ('爱普安', '1', '爱普安');
+insert into dim_brand(name, industry_id, keyword) values ('爱瑞嘉', '1', '爱瑞嘉|akara');
+insert into dim_brand(name, industry_id, keyword) values ('爱睿惠', '1', '爱睿惠');
+insert into dim_brand(name, industry_id, keyword) values ('安吉兰德', '1', '安吉兰德');
+insert into dim_brand(name, industry_id, keyword) values ('安琪儿', '1', '安琪儿');
+insert into dim_brand(name, industry_id, keyword) values ('澳仕卡牛', '1', '澳仕卡牛');
+insert into dim_brand(name, industry_id, keyword) values ('澳佑宝', '1', '澳佑宝');
+insert into dim_brand(name, industry_id, keyword) values ('百立乐', '1', '百立乐');
+insert into dim_brand(name, industry_id, keyword) values ('伴宝乐', '1', '伴宝乐');
+insert into dim_brand(name, industry_id, keyword) values ('贝拉米', '1', '贝拉米');
+insert into dim_brand(name, industry_id, keyword) values ('贝欧莱', '1', '贝欧莱');
+insert into dim_brand(name, industry_id, keyword) values ('贝维他', '1', '贝维他');
+insert into dim_brand(name, industry_id, keyword) values ('倍滋曼', '1', '倍滋曼');
+insert into dim_brand(name, industry_id, keyword) values ('法兰贝尔', '1', '法兰贝尔');
+insert into dim_brand(name, industry_id, keyword) values ('菲思力', '1', '菲思力');
+insert into dim_brand(name, industry_id, keyword) values ('斐婴宝', '1', '斐婴宝');
+insert into dim_brand(name, industry_id, keyword) values ('高培', '1', '高培');
+insert into dim_brand(name, industry_id, keyword) values ('歌德乳', '1', '歌德乳');
+insert into dim_brand(name, industry_id, keyword) values ('格力高', '1', '格力高');
+insert into dim_brand(name, industry_id, keyword) values ('桂格', '1', '桂格');
+insert into dim_brand(name, industry_id, keyword) values ('和光堂', '1', '和光堂');
+insert into dim_brand(name, industry_id, keyword) values ('荷维', '1', '荷维');
+insert into dim_brand(name, industry_id, keyword) values ('亨氏', '1', '亨氏');
+insert into dim_brand(name, industry_id, keyword) values ('泓乐', '1', '泓乐');
+insert into dim_brand(name, industry_id, keyword) values ('吉特士', '1', '吉特士');
+insert into dim_brand(name, industry_id, keyword) values ('佳思敏', '1', '佳思敏');
+insert into dim_brand(name, industry_id, keyword) values ('康敏金', '1', '康敏金');
+insert into dim_brand(name, industry_id, keyword) values ('可瑞乐', '1', '可瑞乐');
+insert into dim_brand(name, industry_id, keyword) values ('莱那珂', '1', '莱那珂');
+insert into dim_brand(name, industry_id, keyword) values ('乐博', '1', '乐博');
+insert into dim_brand(name, industry_id, keyword) values ('林贝儿', '1', '林贝儿');
+insert into dim_brand(name, industry_id, keyword) values ('迈高', '1', '迈高');
+insert into dim_brand(name, industry_id, keyword) values ('美捷诚', '1', '美捷诚');
+insert into dim_brand(name, industry_id, keyword) values ('美康喜', '1', '美康喜');
+insert into dim_brand(name, industry_id, keyword) values ('美林', '1', '美林');
+insert into dim_brand(name, industry_id, keyword) values ('明治', '1', '明治|meiji');
+insert into dim_brand(name, industry_id, keyword) values ('纽菲特', '1', '纽菲特');
+insert into dim_brand(name, industry_id, keyword) values ('纽韵', '1', '纽韵');
+insert into dim_brand(name, industry_id, keyword) values ('欧比佳', '1', '欧比佳');
+insert into dim_brand(name, industry_id, keyword) values ('森宝', '1', 'semper|森宝');
+insert into dim_brand(name, industry_id, keyword) values ('森永', '1', '森永');
+insert into dim_brand(name, industry_id, keyword) values ('特福芬', '1', '特福芬|topfer');
+insert into dim_brand(name, industry_id, keyword) values ('天赋力', '1', 'herobaby|天赋力');
+insert into dim_brand(name, industry_id, keyword) values ('喜安智', '1', '喜安智');
+insert into dim_brand(name, industry_id, keyword) values ('喜宝', '1', '喜宝|hipp');
+insert into dim_brand(name, industry_id, keyword) values ('喜丽雅', '1', '喜丽雅');
+insert into dim_brand(name, industry_id, keyword) values ('旭贝尔', '1', '旭贝尔');
+insert into dim_brand(name, industry_id, keyword) values ('伊卡蓓尔', '1', '伊卡蓓尔');
+insert into dim_brand(name, industry_id, keyword) values ('英博', '1', '英博');
+insert into dim_brand(name, industry_id, keyword) values ('英氏', '1', '英氏');
+insert into dim_brand(name, industry_id, keyword) values ('子母', '1', '子母');
+insert into dim_brand(name, industry_id, keyword) values ('艾宝欣', '1', '艾宝欣');
+insert into dim_brand(name, industry_id, keyword) values ('爱必达', '1', '爱必达');
+insert into dim_brand(name, industry_id, keyword) values ('爱迪生', '1', '爱迪生');
+insert into dim_brand(name, industry_id, keyword) values ('爱恩思', '1', '爱恩思');
+insert into dim_brand(name, industry_id, keyword) values ('爱可丁', '1', '爱可丁');
+insert into dim_brand(name, industry_id, keyword) values ('爱美乐', '1', '爱美乐');
+insert into dim_brand(name, industry_id, keyword) values ('爱怡乐', '1', '爱怡乐');
+insert into dim_brand(name, industry_id, keyword) values ('安纽希', '1', '安纽希');
+insert into dim_brand(name, industry_id, keyword) values ('贝贝羊', '1', '贝贝羊');
+insert into dim_brand(name, industry_id, keyword) values ('聪尔壮', '1', '聪尔壮');
+insert into dim_brand(name, industry_id, keyword) values ('多乐特', '1', '多乐特');
+insert into dim_brand(name, industry_id, keyword) values ('高原之宝', '1', '高原之宝');
+insert into dim_brand(name, industry_id, keyword) values ('和氏', '1', '和氏');
+insert into dim_brand(name, industry_id, keyword) values ('红星', '1', '红星');
+insert into dim_brand(name, industry_id, keyword) values ('花冠', '1', '花冠');
+insert into dim_brand(name, industry_id, keyword) values ('欢恩宝', '1', '欢恩宝');
+insert into dim_brand(name, industry_id, keyword) values ('金爱斯佳', '1', '金爱斯佳');
+insert into dim_brand(name, industry_id, keyword) values ('咔哇熊', '1', '咔哇熊|cowala');
+insert into dim_brand(name, industry_id, keyword) values ('玛米力', '1', '玛米力');
+insert into dim_brand(name, industry_id, keyword) values ('美庐', '1', '美庐');
+insert into dim_brand(name, industry_id, keyword) values ('蒙牛', '1', '蒙牛');
+insert into dim_brand(name, industry_id, keyword) values ('明一', '1', '明一');
+insert into dim_brand(name, industry_id, keyword) values ('纽贝滋', '1', '纽贝滋');
+insert into dim_brand(name, industry_id, keyword) values ('纽瑞滋', '1', '纽瑞滋');
+insert into dim_brand(name, industry_id, keyword) values ('欧贝嘉', '1', '欧贝嘉');
+insert into dim_brand(name, industry_id, keyword) values ('人之初', '1', '人之初');
+insert into dim_brand(name, industry_id, keyword) values ('三元', '1', '三元');
+insert into dim_brand(name, industry_id, keyword) values ('诗幼乐', '1', '诗幼乐');
+insert into dim_brand(name, industry_id, keyword) values ('施恩', '1', '施恩');
+insert into dim_brand(name, industry_id, keyword) values ('太子乐', '1', '太子乐');
+insert into dim_brand(name, industry_id, keyword) values ('完达山', '1', '完达山');
+insert into dim_brand(name, industry_id, keyword) values ('味全', '1', '味全');
+insert into dim_brand(name, industry_id, keyword) values ('雅士利', '1', '雅士利|雅士利');
+insert into dim_brand(name, industry_id, keyword) values ('摇篮', '1', '摇篮');
+insert into dim_brand(name, industry_id, keyword) values ('尤爱倍特', '1', '尤爱倍特');
+insert into dim_brand(name, industry_id, keyword) values ('御宝', '1', '御宝');
+insert into dim_brand(name, industry_id, keyword) values ('爱他美', '1', '爱他美|aptamil');
+insert into dim_brand(name, industry_id, keyword) values ('澳优', '1', '澳优|悠蓝|幽兰|幽蓝|优篮|爱优|能立多');
+insert into dim_brand(name, industry_id, keyword) values ('海普诺凯', '1', '海普诺凯');
+insert into dim_brand(name, industry_id, keyword) values ('多美滋', '1', '多美滋|多美资');
+insert into dim_brand(name, industry_id, keyword) values ('惠氏', '1', '惠氏|铂臻|ultima|爱儿复|爱儿素|爱儿加');
+insert into dim_brand(name, industry_id, keyword) values ('惠氏S-26', '1', '惠氏S-26|惠氏s26');
+insert into dim_brand(name, industry_id, keyword) values ('惠氏启赋', '1', '启赋|illuma');
+insert into dim_brand(name, industry_id, keyword) values ('美素佳儿', '1', '美素|friso|frisolac|美术佳儿');
+insert into dim_brand(name, industry_id, keyword) values ('美赞臣', '1', '美赞臣|meadjohnson|美赞辰|美占臣|美赞成|安婴儿|安婴宝|安儿宝|安儿健|enfamil|enfapro|enfakiD');
+insert into dim_brand(name, industry_id, keyword) values ('美赞臣蓝臻', '1', '蓝臻');
+insert into dim_brand(name, industry_id, keyword) values ('纽迪希亚', '1', '纽康特|Neocate|钮康特|纽太特|纽肽特|钮太特|钮肽特');
+insert into dim_brand(name, industry_id, keyword) values ('诺优能', '1', '诺优能|牛栏|nutrilon');
+insert into dim_brand(name, industry_id, keyword) values ('雀巢健康科学', '1', '爱蔼舒|蔼儿舒|霭尔舒|霭儿舒|恩敏舒|肽敏舒|小百肽');
+insert into dim_brand(name, industry_id, keyword) values ('雀巢能恩', '1', '能恩');
+insert into dim_brand(name, industry_id, keyword) values ('雀巢奶粉', '1', '雀巢|力多精');
+insert into dim_brand(name, industry_id, keyword) values ('雅培菁智', '1', '菁智|eleva');
+insert into dim_brand(name, industry_id, keyword) values ('雅培', '1', '雅培|abbott|爱心美|小安素');
+insert into dim_brand(name, industry_id, keyword) values ('贝因美', '1', '贝因美');
+insert into dim_brand(name, industry_id, keyword) values ('飞鹤', '1', '飞鹤|飞帆|星阶优护|智纯臻稚');
+insert into dim_brand(name, industry_id, keyword) values ('合生元', '1', '合生元');
+insert into dim_brand(name, industry_id, keyword) values ('君乐宝', '1', '君乐宝|乐钙|小小鲁班|至臻|益生智慧|舒适成长');
+insert into dim_brand(name, industry_id, keyword) values ('圣元优博', '1', '优博');
+insert into dim_brand(name, industry_id, keyword) values ('圣元', '1', '圣元|优强');
+insert into dim_brand(name, industry_id, keyword) values ('伊利金领冠', '1', '金领冠');
+insert into dim_brand(name, industry_id, keyword) values ('伊利奶粉', '1', '伊利奶粉|托菲尔|倍冠');
+
+
+-- 2.4、 dim_brand
+truncate table dim_brand_category;
+insert into dim_brand_category(brand_id, category_id) select id, 1 from dim_brand;

@@ -40,9 +40,45 @@ class SmRole(models.Model):
         return self.name
 
 
+class DimIndustry(models.Model):
+    """
+    行业表
+    """
+    name = models.CharField(max_length=32, help_text="行业")
+
+    class Meta:
+        db_table = "dim_industry"
+
+
 class DimBrand(models.Model):
     # TODO 和品类是 那种关系 M - M
     name = models.CharField(max_length=32, help_text="品牌名称")
+    keyword = models.CharField(max_length=512, help_text="抓取关键词")
+    industry = models.ForeignKey(DimIndustry, help_text="所属行业", on_delete=models.DO_NOTHING)
+
+    class Meta:
+        db_table = "dim_brand"
+
+
+class DimCategory(models.Model):
+    """
+    品类表
+    """
+    name = models.CharField(max_length=32, help_text="品类名称")
+
+    class Meta:
+        db_table = "dim_category"
+
+
+class DimBrandCategory(models.Model):
+    """
+    品牌 品类关系表
+    """
+    brand = models.ForeignKey(DimBrand, help_text="品牌", on_delete=models.DO_NOTHING)
+    category = models.ForeignKey(DimCategory, help_text="品类", on_delete=models.DO_NOTHING)
+
+    class Meta:
+        db_table = "dim_brand_category"
 
 
 class SmUser(AbstractBaseUser):
@@ -65,9 +101,12 @@ class SmUser(AbstractBaseUser):
         (2, "外部用户")
     )
     username = models.CharField(help_text="用户名", max_length=32, unique=True)
-    # password = models.CharField
     corporation = models.CharField(max_length=32, help_text="所属公司")
+
+    industry = models.ForeignKey(DimIndustry, help_text="所属行业")
+    category = models.ForeignKey(DimCategory, help_text="所属所属品类")
     brand = models.ForeignKey(DimBrand, help_text="所属品牌")
+
     is_active = models.BooleanField(help_text="是否可用", default=True)
     is_admin = models.BooleanField(help_text="是否是管理员", default=False)
     user_type = models.IntegerField(choices=USER_TYPE_CHOICE, help_text="用户类型")
@@ -78,13 +117,6 @@ class SmUser(AbstractBaseUser):
 
     def __str__(self):
         return self.username
-    
-
-class DimCategory(models.Model):
-    """
-    品类表
-    """
-    name = models.CharField(max_length=32, help_text="品类名称")
 
 
 class DimPlatform(models.Model):
@@ -94,19 +126,18 @@ class DimPlatform(models.Model):
     name = models.CharField(max_length=32, help_text="平台名称")
     parent = models.CharField(max_length=32, help_text="父平台名称")
 
-
-class DimIndustry(models.Model):
-    """
-    行业表
-    """
-    name = models.CharField(max_length=32, help_text="行业")
+    class Meta:
+        db_table = "dim_platform"
 
 
-class SalesPoint(models.Model):
+class DimSalesPoint(models.Model):
     """
     宣传卖点 - 标签表
     """
     name = models.CharField(max_length=64, help_text="宣传卖点")
+
+    class Meta:
+        db_table = "dim_sales_point"
 
 
 class Report(models.Model):
@@ -139,6 +170,9 @@ class Report(models.Model):
     data = models.TextField(help_text="报表数据，JSon格式")
     error_info = models.TextField(help_text="错误信息")
 
+    class Meta:
+        db_table = "report"
+
 
 class APILog(models.Model):
     uri = models.CharField(max_length=64, help_text="访问 url")
@@ -147,6 +181,9 @@ class APILog(models.Model):
     params = models.TextField(help_text="访问参数", blank=True)
     error_info = models.TextField(blank=True, help_text="错误信息")
     create_date = models.DateTimeField(help_text="访问时间")
+
+    class Meta:
+        db_table = "api_log"
 
 
 # TODO 检测结束时间和检测周期什么关系
