@@ -10,6 +10,9 @@ from common.models import *
 from datetime import datetime
 from django.db.models import F, Q, Func
 from common.db_helper import DB
+from StringIO import StringIO
+from io import BytesIO
+import pandas
 
 report_affilication = {
     "1": "本品",
@@ -350,3 +353,16 @@ def cancel_report(user, report_id):
             report.save()
         else:
             raise Exception(error_message)
+
+
+def download_file(parametes):
+    # 创建Excel内存对象，用StringIO填充
+    output = BytesIO()
+    writer = pandas.ExcelWriter(output, engine="xlsxwriter")
+
+    dimension_df = pandas.DataFrame.from_records(list(), columns=["BGL", "所在地", "帐号"])
+    for paramete in parametes:
+        dimension_df.to_excel(writer, sheet_name=paramete, index=0)
+    writer.save()
+    output.seek(0)
+    return output.getvalue(), "{0}.xlsx".format("下载模板" + str(datetime.now().date()))

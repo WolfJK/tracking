@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 from django.http.response import JsonResponse, HttpResponse
 from . import apis
 from apps import apis as apps_apis
+from django.utils.http import urlquote
+import json
 
 
 # ############################# 活动有效性评估 #################################
@@ -120,3 +122,26 @@ def report_config_cancel(request):
 
     apis.cancel_report(user, report_id)
     return HttpResponse("")
+
+
+def upload_account(request):
+    # 上传帐号
+    pass
+
+
+def download_account(request):
+    parametes = request.POST.get("channel")
+    if not parametes:
+        raise Exception("请先传入渠道参数列表")
+    try:
+        parametes = json.loads(parametes)
+    except Exception:
+        raise Exception("参数格式错误,list形式的字符串")
+    # 下载模板
+    download_file, file_name = apis.download_file(parametes)
+    response = HttpResponse(download_file)
+    # 返回中文名文件
+    response["Content-Type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    response["Content-Disposition"] = "attachment; filename={0}".format(urlquote(file_name))
+
+    return response
