@@ -95,3 +95,8 @@ def report_common_info(request):
     }, safe=False)
 
 
+def report_config_cancel(request):
+    # 取消报告
+    data = []
+
+    return JsonResponse(data)

@@ -148,7 +148,7 @@ class Report(models.Model):
         (2, "爬取中"),
         (3, "入库中"),
         (4, "计算中"),
-        (5, "摸鱼中"),
+        (5, "已取消"),
     )
     name = models.CharField(max_length=32, help_text="报告名称")
     user = models.ForeignKey(SmUser, help_text="所属用户", on_delete=models.DO_NOTHING)
@@ -160,7 +160,7 @@ class Report(models.Model):
     monitor_end_date = models.DateField(help_text="检测周期结束时间")
     platform = models.CharField(max_length=64, help_text="渠道，逗号分隔")
 
-    industry = models.ForeignKey(DimIndustry, help_text="行业", on_delete=models.DO_NOTHING)
+    # industry = models.ForeignKey(DimIndustry, help_text="行业", on_delete=models.DO_NOTHING)
     brand = models.ForeignKey(DimBrand, help_text="品牌", on_delete=models.DO_NOTHING)
     category = models.ForeignKey(DimCategory, help_text="品类", on_delete=models.DO_NOTHING)
     product_line = models.CharField(max_length=32, help_text="产品线")

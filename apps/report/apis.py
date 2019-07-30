@@ -318,3 +318,5 @@ def delete_report(user, report_id):
             Report.objects.get(id=report_id).delete()
         else:
             raise Exception(error_message)
+
+
