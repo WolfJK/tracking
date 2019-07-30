@@ -300,3 +300,21 @@ def report_details(report_id):
     )
     return data
 
+
+def delete_report(user, report_id):
+    # 删除报告 公司管理员可以删除公司的所有报告， 普通用户只能删除自己的报告
+    report_id = int(report_id)
+    error_message = "报告未生成,不允许删除"
+    if user.is_admin:
+        corporation = user.corporation
+        report_list = Report.objects.filter(user__corporation=corporation, status=0).values_list("id", flat=True)
+        if report_id in report_list:
+            Report.objects.get(id=report_id).delete()
+        else:
+            raise Exception(error_message)
+    else:
+        report_list = Report.objects.filter(user_id=user.id, status=0).value_list("id", flat=True)
+        if report_id in report_list:
+            Report.objects.get(id=report_id).delete()
+        else:
+            raise Exception(error_message)

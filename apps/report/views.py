@@ -2,7 +2,7 @@
 # __author__: 'GUO'
 from __future__ import unicode_literals
 
-from django.http.response import JsonResponse
+from django.http.response import JsonResponse, HttpResponse
 from . import apis
 from apps import apis as apps_apis
 
@@ -30,9 +30,13 @@ def report_config_delete(request):
     :param request:
     :return:
     '''
-    data = []
+    user = request.user
+    report_id = request.POST.get("report_id")
+    if not report_id:
+        raise Exception("请输入报告id")
+    apis.delete_report(user, report_id)
 
-    return JsonResponse(data)
+    return HttpResponse("")
 
 
 def report_config_create(request):
