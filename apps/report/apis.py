@@ -12,6 +12,7 @@ from django.db.models import F, Q, Func
 from common.db_helper import DB
 from StringIO import StringIO
 from io import BytesIO
+from dateutil.relativedelta import relativedelta
 import pandas
 
 report_affilication = {
@@ -47,9 +48,11 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
     sql_format = []
     values = ("monitor_start_date", "monitor_end_date", "create_time", "username", "status")
     db = DB()
-    sql = "select * from report "
-    if report_status or monitor_end_time or monitor_cycle or key_word:
-        sql = "select * from report where {}"
+    print user.is_admin
+    sql = "SELECT * FROM report ORDER BY create_time DESC"
+    if report_status or monitor_end_time or monitor_cycle or key_word or(not(user.is_admin and user.user_type == 1)):
+        sql = "SELECT * FROM report WHERE {} ORDER BY create_time DESC"
+
     if report_status:
         sql_format.append("{}={}".format("status", report_status))
     if monitor_end_time:
@@ -83,22 +86,43 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
 
     # 判断是管理员内部用户
     if user.is_admin and user.user_type == 1:
-        sql_format = " and ".join(sql_format)
-        sql = sql.format(sql_format)
+        pass
     elif user.is_admin:
         corporation = user.corporation
         sql_user = "{}={}".format("corporation", corporation)
         sql_format.append(sql_user)
-        sql_format = " and ".join(sql_format)
-        sql = sql.format(sql_format)
+
     else:
         user_id = user.id
         sql_user = "{}={}".format("user_id", user_id)
         sql_format.append(sql_user)
+
+    if sql_format:
         sql_format = " and ".join(sql_format)
         sql = sql.format(sql_format)
     res = db.search(sql)
-    return res
+    data = formatted_report(res)
+    return data
+
+
+def formatted_report(reports):
+    # 格式化表格
+    data_format1 = "%Y-%m-%d"
+    data_format2 = "%Y-%m-%d %H:%M:%S"
+
+    for report in reports:
+        # 一周内的报告加上NEW
+        if report.get("create_time") >= datetime.now() - relativedelta(weeks=1):
+            report.update(is_new=True)
+        else:
+            report.update(is_new=False)
+        monitor_start_date = report.get("monitor_start_date").strftime(data_format1)
+        monitor_end_date = report.get("monitor_end_date").strftime(data_format1)
+        create_time = report.get("create_time").strftime(data_format2)
+        report.update(monitor_start_date=monitor_start_date)
+        report.update(create_time=create_time)
+        report.update(monitor_end_date=monitor_end_date)
+    return reports
 
 
 def get_common_info():
