@@ -135,7 +135,8 @@ class DimSalesPoint(models.Model):
     宣传卖点 - 标签表
     """
     name = models.CharField(max_length=64, help_text="宣传卖点")
-
+    category = models.ForeignKey(DimCategory, help_text="品类", on_delete=models.DO_NOTHING)
+    
     class Meta:
         db_table = "dim_sales_point"
 
