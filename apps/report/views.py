@@ -127,7 +127,13 @@ def report_config_cancel(request):
 
 def upload_account(request):
     # 上传帐号
-    pass
+
+    file_obj = request.FILES.get("filename")  # 获取上传内容
+    print("file_obj", file_obj)
+    if not file_obj:
+        raise Exception("没有找到文件")
+    data = apis.read_excle(file_obj)
+    return JsonResponse(data, safe=False)
 
 
 def download_account(request):

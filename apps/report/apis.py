@@ -375,3 +375,15 @@ def download_file(parametes):
     writer.save()
     output.seek(0)
     return output.getvalue(), "{0}.xlsx".format("下载模板" + str(datetime.now().date()))
+
+
+def read_excle(file):
+    xl = pandas.ExcelFile(file)
+    sheets = xl.sheet_names
+    data_list =list()
+    for num, value in enumerate(sheets):
+        df1 = pandas.read_excel(file, encoding="utf8", sheet_name=sheets[num])
+        df1["name"] = value
+        dict_df = df1.to_dict("records")
+        data_list.append(dict_df)
+    return data_list
