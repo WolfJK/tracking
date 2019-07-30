@@ -324,6 +324,22 @@ def report_config_create(param, user):
     Report(**param).save()
 
 
+def get_report_config(report_id, user):
+    """
+    生成报告
+    :param report_id: 报告id
+    :param user: 当前用户
+    :return:
+    """
+    user = SmUser.objects.get(id=2)
+
+    reports = Report.objects.filter(id=report_id, user_id=user.id).values()
+    if len(reports) < 1:
+        raise Exception("权限不足")
+
+    return reports[0]
+
+
 def delete_report(user, report_id):
     # 删除报告 公司管理员可以删除公司的所有报告， 普通用户只能删除自己的报告
     report_id = int(report_id)

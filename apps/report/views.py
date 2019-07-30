@@ -75,9 +75,10 @@ def report_config_edit(request):
     :param request:
     :return:
     '''
-    data = []
+    param = apps_apis.get_parameter(request.POST, [("report_id", "请选择一个报告", "int")])
+    data = apis.get_report_config(param["report_id"], request.user)
 
-    return JsonResponse(data)
+    return JsonResponse(data, safe=False)
 
 
 def report_details(request):
