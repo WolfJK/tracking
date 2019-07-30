@@ -311,8 +311,17 @@ def report_config_create(param, user):
     :param user: 当前用户
     :return:
     """
+    user = SmUser.objects.get(id=2)
     param.update(user=user)
-    Report(param).save()
+
+    if param["report_id"]:
+        reports = Report.objects.filter(id=param["report_id"], user_id=user.id)
+        if len(reports) < 1:
+            raise Exception("权限不足")
+
+        param.update(id=param.pop("report_id"), update_time=datetime.now(), create_time=reports[0].create_time)
+
+    Report(**param).save()
 
 
 def delete_report(user, report_id):

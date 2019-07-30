@@ -172,6 +172,7 @@ class Report(models.Model):
     status = models.IntegerField(help_text="状态", choices=STATUS_CHOICE, default=1)
     data = models.TextField(help_text="报表数据，JSon格式", null=True)
     error_info = models.TextField(help_text="错误信息", null=True)
+    delete = models.BooleanField(default=False, help_text="是否删除")
     create_time = models.DateTimeField(help_text="创建时间", auto_now_add=True)
     update_time = models.DateTimeField(help_text="更新时间", null=True)
 

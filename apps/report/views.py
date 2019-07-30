@@ -48,6 +48,7 @@ def report_config_create(request):
     :return:
     '''
     params = [
+        ("report_id", "", "int"),
         ("industry_id", "请选择行业", "int"),
         ("brand_id", "请选择品牌", "int"),
         ("category_id", "请选择品类", "int"),
@@ -65,7 +66,7 @@ def report_config_create(request):
     param = apps_apis.get_parameter(request.POST, params)
     apis.report_config_create(param, request.user)
 
-    return JsonResponse(data)
+    return HttpResponse()
 
 
 def report_config_edit(request):
