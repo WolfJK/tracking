@@ -14,6 +14,7 @@ from StringIO import StringIO
 from io import BytesIO
 from dateutil.relativedelta import relativedelta
 import pandas
+from compiler import ast
 
 report_affilication = {
     "1": "本品",
@@ -168,12 +169,30 @@ def report_details(report_id):
                 ]
             ),
 
+            # 1.4. 投放渠道分布
+            platform1=[
+                dict(
+                    name="微博",
+                    value=120,
+                    children=[dict(name="weibo", value=120)]
+                ),
+                dict(
+                    name="母垂",
+                    value=24,
+                    children=[
+                        dict(name="宝宝树", value=12),
+                        dict(name="辣妈帮", value=12),
+                    ]
+                ),
+
+            ],
+
             # 1.5. 投放账号分布
             account=[
                 # 账号、所属平台、账号投放声量总计
-                dict(account="张三", platform="微博", post_count=33),
-                dict(account="Edward", platform="宝宝树", post_count=2),
-                dict(account="李四", platform="辣妈帮", post_count=1),
+                dict(account="张三", platform="微博", post_count=33, user_type="BGC"),
+                dict(account="Edward", platform="宝宝树", post_count=2, user_type="KOL"),
+                dict(account="李四", platform="辣妈帮", post_count=1, user_type="水军"),
             ],
 
             # 1.6. 投放声量趋势及账号趋势
@@ -273,6 +292,9 @@ def report_details(report_id):
             # 4.3. 品牌UGC
             ugc_mentioned_brand_count=136,
 
+            # 4.2 - 4.3 补充 活动UGC & 品牌UGC
+            ugc_intersect_count=35,
+
             # 4.4. 活动UGC构成
             ugc_in_activity_composition=[
                 dict(name="提及品牌", value=120),
@@ -284,6 +306,27 @@ def report_details(report_id):
                 # 图中一根柱子里的数据由两行数据表示
                 dict(name="敏事大挑战", value=30, type="提及品牌"),
                 dict(name="敏事大挑战", value=70, type="未提及品牌"),
+            ],
+
+            # 4.6 活动对品牌UGC的贡献
+            # 4.6.1 活动期预测UGC
+            predict=232,
+
+            # 4.6.2 浮动绝对值
+            delta_absolute=-97,
+
+            # 4.6.3 浮动比例
+            delta=-0.42,
+
+            # 4.6.4 年均品牌UGC
+            annual_average_trend=[
+                dict(value=20, date="2019-01-07"),
+                dict(value=30, date="2019-01-14")
+            ],
+            # 4.6.5 实际品牌UGC
+            brand_ugc_trend=[
+                dict(value=20, date="2019-01-07"),
+                dict(value=30, date="2019-01-14")
             ]
         ),
 
@@ -298,12 +341,11 @@ def report_details(report_id):
             # 5.3. 年度品牌关注度
             annual=0.05,
 
-            # 5.4. 年度趋势图
+            # 5.4. 趋势图
             trend=[
-                # 年度品牌关注度是常量，可以将annual填入，一周一行数据
                 dict(value=20, date="2019-01-07"),
                 dict(value=30, date="2019-01-14")
-            ]
+            ],
         ),
 
         # 6. 宣传卖点认知度
@@ -326,6 +368,69 @@ def report_details(report_id):
         )
     )
     return data
+
+
+def get_unscramble(data):
+    '''
+    根据数据 获取解读结果
+    :param data:
+    :return:
+    '''
+    activity_max = max(data["spread_overview"]["activity"], key=lambda x: x["value"])
+    platform_max = max(ast.flatten([x["children"] for x in data["spread_overview"]["platform"]]), key=lambda x: x["value"])
+    platform_post_sum = sum([v["value"] for v in ast.flatten([x["children"] for x in data["spread_overview"]["platform"]])])
+
+
+    param = dict(
+        post_count=data["spread_overview"]["post_count"],
+        account_all=data["spread_overview"]["account_count"],
+        activity_count=len(data["spread_overview"]["activity"]),
+        activity_max=activity_max["name"],
+        activity_post_count=activity_max["value"],
+        platform_max=platform_max["name"],
+        platform_post_count=platform_max["value"],
+        platform_max_ratio=float(platform_max["value"] * 100.0 / platform_post_sum, 2),
+        account_max=float(platform_max["value"] * 100.0 / platform_post_sum, 2),
+    )
+
+
+
+unscramble_rule = dict(
+    transmission=[
+        ("1", "1, 本次活动共投放{post_count}篇帖子，启用{account_all}个账号。\n 2, "),
+        ("{activity_count} > 1", "{activity_max}主题活动投放声量最高（{activity_post_count}篇）；"),
+        ("1", "活动主要在{platform_max}平台投放，共投放{platform_post_count}篇帖子，约占总投放声量的{platform_max_ratio}%。\n"),
+        ("{account_max} == {post_max}", "3, 从账号分布来看，{account_max}账号数量最多（{account_count}个），发布的帖子数也最多（{account_post_count}篇）\n"),
+        ("{account_max} != {post_max}", "3, 从账号分布来看，{account_max}账号数量最多（{account_count}个），而{account_post_max}账号发布帖子数最多（{account_post_count}篇）\n"),
+
+    ],
+    efficiency=[
+        ("{platform_count} > 1 and {cb_platform_max} != {hd_platform_max}", "从平台角度看，本次活动在{cb_platform_max}的累计传播广度最高（{cb_platform_count}人次），而在{hd_platform_max}引发了最高的累计互动量（{hd_platform_count}人次）\n"),
+        ("{platform_count} > 1 and {cb_platform_max} == {hd_platform_max}", "从平台角度看，本次活动在{cb_platform_max}引发了最高的累计互动量（{hd_platform_count}人次）和最高的累计传播广度（{cb_platform_count}人次）\n"),
+        ("{platform_count} == 1", "本次活动累计互动量{hd_platform_count}人次，累计传播广度{cb_platform_max}人次 \n"),
+        ("{hd_account_max} != {cb_account_max}", "从账号角度看，{cb_account_max}的发帖累计传播广度最高（{cb_account_count}人次），而{hd_account_max}的发帖引发了最高的累计互动量（{hd_account_count}人次） \n"),
+        ("{hd_account_max} == {cb_account_max}", "从账号角度看，{cb_account_max}的发帖累计传播广度最高（{cb_account_count}人次），且引发了最高的累计互动量（{hd_account_count}人次）\n"),
+
+        ("{hd_activity_max} != {cb_activity_max}", "从子活动角度看，“{cb_activity_max}”累计传播广度最高（{cb_activity_count}人次），而“{hd_activity_max}”引发了最高的累计互动量（{hd_activity_count}人次）\n"),
+        ("{hd_activity_max} == {cb_activity_max}", "从子活动角度看，“{cb_activity_max}”累计传播广度最高（{cb_activity_count}人次），且引发了最高的累计互动量（{hd_activity_count}人次）\n"),
+
+        ("1", "互动大部分来源于{source}，约占整体的{source_ratio}%；评论中{account_comment}账号的占比最高，约为{account_comment_ratio}%。\n"),
+    ],
+    effect_ugc=[
+        ("{activity_count} > 1", "本次活动期间UGC总计{ugc_count}人，其中活动UGC{activity_ugc_count}人，品牌UGC{brand_ugc_count}人。\n"),
+        ("1", "活动UGC中有{activity_brand_ugc_count}人（{activity_brand_ugc_ratio}%）提及品牌名称，增加了品牌声量；以#{activity_ugc_max}# 为主题的子活动引发的UGC人数最多，达{activity_ugc_count}个。\n"),
+        ("{activity_contribution} > {activity_contribution_pre}", "活动期内总计产生品牌UGC{brand_ugc_count}人。基于过往一年历史数据的预测，活动期内品牌UGC应该可以达到{brand_ugc_pre_count}，相差{brand_ugc_diff_count}人（-{brand_ugc_diff_ratio}%），没有达到预期效果\n"),
+        ("{activity_contribution} < {activity_contribution_pre}", "活动期内总计产生品牌UGC{brand_ugc_count}人。基于过往一年历史数据的预测，活动期内品牌UGC可以达到{brand_ugc_pre_count}人，活动为品牌贡献了{brand_ugc_diff_count}个（{brand_ugc_diff_ratio}%）UGC，超出预期效果\n"),
+    ],
+    effect_brand=[
+        ("{brand_attention} > {brand_attention_year}", "活动期间内品牌关注度达{brand_attention}%，较年度关注度提升{brand_attention_ratio}%。\n"),
+        ("{brand_attention} < {brand_attention_year}", "活动期间内品牌关注度达{brand_attention}%，较年度关注度下降{brand_attention_ratio}%。\n"),
+    ],
+    effect_sales_point=[
+        ("{sales_point_cognitive} > {sales_point_cognitive_year}", "活动期内用户对于宣传卖点——“{sales_point}”的认知度为{sales_point_cognitive}%，较年度“{sales_point}”认知度提升{sales_point_cognitive_ratio}%\n"),
+        ("{sales_point_cognitive} < {sales_point_cognitive_year}", "活动期内用户对于宣传卖点——“{sales_point}”的认知度为{sales_point_cognitive}%，较年度“{sales_point}”认知度下降{sales_point_cognitive_ratio}%\n"),
+    ],
+)
 
 
 def report_config_create(param, user):

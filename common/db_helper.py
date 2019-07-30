@@ -79,14 +79,14 @@ class DB(object):
                     if results:
                         return results
 
-                cursor.execute(sql, args)
+                cursor.execute(*(sql, args) if args else (sql,))
                 columns = [_[0].lower() for _ in cursor.description]
                 results = [dict(zip(columns, _)) for _ in cursor]
                 if use_catched:
                     set_cache(sql, args, results)
                 return results
         except Exception as e:
-            pass
+            raise
         finally:
             dbs.close()
 
