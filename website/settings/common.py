@@ -106,6 +106,12 @@ SKIP_AUTHORIZATION_URLS = [
     '/user/asign-user/',
 
     #"/hello/auth-hello/",
+    "/apps/common/common-param/",
+    "/apps/common/brand-list/",
+    "/apps/common/category-list/",
+    "/apps/common/sales-point-list/",
+    "/apps/common/report-template-list/",
+    "/apps/common/throw-account-upload/",
 
 ] + SKIP_AUTHENTICATION_URLS
 
