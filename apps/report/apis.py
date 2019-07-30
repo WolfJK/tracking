@@ -47,30 +47,37 @@ def test():
 def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_word):
     # 刷选报告
     sql_format = []
-    values = ("monitor_start_date", "monitor_end_date", "create_time", "username", "status")
+    # values = ("monitor_start_date", "monitor_end_date", "create_time", "username", "status")
     db = DB()
-    print user.is_admin
     sql = "SELECT * FROM report ORDER BY create_time DESC"
     if report_status or monitor_end_time or monitor_cycle or key_word or(not(user.is_admin and user.user_type == 1)):
         sql = "SELECT * FROM report WHERE {} ORDER BY create_time DESC"
 
     if report_status:
         sql_format.append("{}={}".format("status", report_status))
-    if monitor_end_time:
-        if monitor_end_time == "1":
-            sql_format.append("datediff('{}', {})<{}".format(datetime.now(), "monitor_end_date", 30))
-        elif monitor_end_time == "2":
-            sql_format.append("datediff('{}', {})<{}".format(datetime.now(), "monitor_end_date", 90))
-        elif monitor_end_time == "3":
-            sql_format.append("datediff('{}', {})<{}".format(datetime.now(), "monitor_end_date", 120))
-        elif monitor_end_time == "4":
-            sql_format.append("datediff('{}', {})>{}".format(datetime.now(), "monitor_end_date", 120))
+    if monitor_end_time != "36500":
+        if monitor_end_time == "30":
+            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.now(), "monitor_end_date", 30))
+        elif monitor_end_time == "90":
+            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.now(), "monitor_end_date", 90))
+        elif monitor_end_time == "180":
+            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.now(), "monitor_end_date", 180))
+        elif monitor_end_time == "-180":
+            sql_format.append("datediff(\'{}\', {})>{}".format(datetime.now(), "monitor_end_date", 180))
+        else:
+            raise Exception("monitor_end_time参数错误")
 
-    if monitor_cycle:
-        if monitor_cycle == "1":
-            sql_format.append("datediff({}, {})<{}".format("monitor_end_date", "monitor_start_date", 15))
-        if monitor_cycle == "2":
+    if monitor_cycle != "36500":
+        if monitor_cycle == "14":
+            sql_format.append("datediff({}, {})<{}".format("monitor_end_date", "monitor_start_date", 14))
+        elif monitor_cycle == "30":
             sql_format.append("datediff({}, {})<{}".format("monitor_end_date", "monitor_start_date", 30))
+        elif monitor_cycle == "90":
+            sql_format.append("datediff({}, {})<{}".format("monitor_end_date", "monitor_start_date", 90))
+        elif monitor_cycle == "-90":
+            sql_format.append("datediff({}, {})>{}".format("monitor_end_date", "monitor_start_date", 90))
+        else:
+            raise Exception("monitor_cycle 参数错误")
 
     if key_word:
         name = key_word.lower()
@@ -78,10 +85,10 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
                                             ).filter(Q(name__contains=name)).values_list("id", flat=True)
         str_user_list = "".join([str(i) for i in user_list])
 
-        sql_title = "{} like '%{}%'".format("name", key_word)
+        sql_title = "{} like \'%{}%\'".format("name", key_word)
         if user_list:
             sql_name = "{} in ({})".format("user_id", str_user_list)
-            sql_format.append(sql_title + "or" + sql_name)
+            sql_format.append("(" + sql_title + " or " + sql_name + ")")
         else:
             sql_format.append(sql_title)
 
@@ -102,7 +109,10 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
         sql_format = " and ".join(sql_format)
         sql = sql.format(sql_format)
     res = db.search(sql)
-    data = formatted_report(res)
+    if res:
+        data = formatted_report(res)
+    else:
+        data = []
     return data
 
 
@@ -123,6 +133,8 @@ def formatted_report(reports):
         report.update(monitor_start_date=monitor_start_date)
         report.update(create_time=create_time)
         report.update(monitor_end_date=monitor_end_date)
+        status_values = Report.objects.get(id=report.get("id")).get_status_display()
+        report.update(status_values=status_values)
     return reports
 
 
