@@ -97,6 +97,10 @@ def report_common_info(request):
 
 def report_config_cancel(request):
     # 取消报告
-    data = []
+    user = request.user
+    report_id = request.POST.get("report_id")
+    if not report_id:
+        raise Exception("缺少report_id")
 
-    return JsonResponse(data)
+    apis.cancel_report(user, report_id)
+    return HttpResponse("")

@@ -320,3 +320,22 @@ def delete_report(user, report_id):
             raise Exception(error_message)
 
 
+def cancel_report(user, report_id):
+    error_message = "报告已经被受理,不允许取消"
+    try:
+        report = Report.objects.get(id=report_id)
+    except Exception:
+        raise Exception("报告不存在")
+
+    if user.is_admin:
+        if report.status == 1 and report.user.corporation == user.corporation:
+            report.status = 5
+            report.save()
+        else:
+            raise Exception(error_message)
+    else:
+        if report.status == 1 and report.user.id == user.id:
+            report.status = 5
+            report.save()
+        else:
+            raise Exception(error_message)
