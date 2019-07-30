@@ -42,7 +42,7 @@ def common_param(request):
         industry_list=apis.industry_list()
     )
 
-    return JsonResponse(data)
+    return JsonResponse(data, safe=False)
 
 
 def brand_list(request):
@@ -58,7 +58,7 @@ def brand_list(request):
     param = apps_apis.get_parameter(request.POST, request_list)
     data = apis.brand_list(param["industry_id"], param["brand_name"])
 
-    return JsonResponse(data)
+    return JsonResponse(data, safe=False)
 
 
 def category_list(request):
@@ -67,9 +67,10 @@ def category_list(request):
     :param request:
     :return:
     '''
-    data = []
+    param = apps_apis.get_parameter(request.POST, [("brand_id", "请选择品牌", "int")])
+    data = apis.category_list(param["brand_id"])
 
-    return JsonResponse(data)
+    return JsonResponse(data, safe=False)
 
 
 def sales_point_list(request):
@@ -80,7 +81,7 @@ def sales_point_list(request):
     '''
     data = []
 
-    return JsonResponse(data)
+    return JsonResponse(data, safe=False)
 
 
 def report_template_list(request):
@@ -91,7 +92,7 @@ def report_template_list(request):
     '''
     data = []
 
-    return JsonResponse(data)
+    return JsonResponse(data, safe=False)
 
 
 def throw_account_upload(request):
@@ -102,7 +103,7 @@ def throw_account_upload(request):
     '''
     data = []
 
-    return JsonResponse(data)
+    return JsonResponse(data, safe=False)
 
 
 

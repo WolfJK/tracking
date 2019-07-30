@@ -36,6 +36,11 @@ class Logger:
         fh.setLevel(logging.ERROR)
         self.error_logger.addHandler(fh)
 
+        if DEBUG:
+            sh = logging.StreamHandler()
+            sh.setFormatter(fmt)
+            self.error_logger.addHandler(sh)
+
     def _message_wrap(self, message):
         return "[%s] [%s] %s" % (self.systemname, self.tag, message)
 

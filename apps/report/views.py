@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from django.http.response import JsonResponse
 from . import apis
+from apps import apis as apps_apis
 
 
 # ############################# 活动有效性评估 #################################
@@ -62,9 +63,9 @@ def report_details(request):
     :param request:
     :return:
     '''
-    data = []
-
-    return JsonResponse(data)
+    param = apps_apis.get_parameter(request.POST, [("report_id", "请选择报告", "int")])
+    data = apis.report_details(param["report_id"])
+    return JsonResponse(data, safe=True)
 
 
 def report_unscramble_save(request):
