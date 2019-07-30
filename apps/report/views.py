@@ -45,7 +45,23 @@ def report_config_create(request):
     :param request:
     :return:
     '''
-    data = []
+    params = [
+        ("industry_id", "请选择行业", "int"),
+        ("brand_id", "请选择品牌", "int"),
+        ("category_id", "请选择品类", "int"),
+        ("product_line", "", "str"),
+        ("name", "请输入报告名称", "str"),
+        ("title", "请输入活动主题", "str"),
+        ("tag", "请输入活动标签", "str"),
+        ("monitor_start_date", "请选择活动检测周期", "str"),
+        ("monitor_end_date", "请选择活动检测周期", "str"),
+        ("platform", "请选择投放渠道", "str"),
+        ("accounts", "", "str"),
+        ("sales_point", "请选择投宣传卖点", "int"),
+        ("remark", "", "str"),
+    ]
+    param = apps_apis.get_parameter(request.POST, params)
+    apis.report_config_create(param, request.user)
 
     return JsonResponse(data)
 

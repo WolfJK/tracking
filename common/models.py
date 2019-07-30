@@ -135,7 +135,8 @@ class DimSalesPoint(models.Model):
     宣传卖点 - 标签表
     """
     name = models.CharField(max_length=64, help_text="宣传卖点")
-
+    category = models.ForeignKey(DimCategory, help_text="品类", on_delete=models.DO_NOTHING)
+    
     class Meta:
         db_table = "dim_sales_point"
 
@@ -163,14 +164,14 @@ class Report(models.Model):
     # industry = models.ForeignKey(DimIndustry, help_text="行业", on_delete=models.DO_NOTHING)
     brand = models.ForeignKey(DimBrand, help_text="品牌", on_delete=models.DO_NOTHING)
     category = models.ForeignKey(DimCategory, help_text="品类", on_delete=models.DO_NOTHING)
-    product_line = models.CharField(max_length=32, help_text="产品线")
+    product_line = models.CharField(max_length=32, help_text="产品线", null=True)
 
-    accounts = models.TextField(help_text="投放账号, JSon格式")
+    accounts = models.TextField(help_text="投放账号, JSon格式", null=True)
     sales_point = models.CharField(max_length=256, help_text="宣传卖点")
     remark = models.CharField(max_length=128, help_text="备注")
-    status = models.IntegerField(help_text="状态", choices=STATUS_CHOICE)
-    data = models.TextField(help_text="报表数据，JSon格式")
-    error_info = models.TextField(help_text="错误信息")
+    status = models.IntegerField(help_text="状态", choices=STATUS_CHOICE, default=1)
+    data = models.TextField(help_text="报表数据，JSon格式", null=True)
+    error_info = models.TextField(help_text="错误信息", null=True)
     create_time = models.DateTimeField(help_text="创建时间", auto_now_add=True)
     update_time = models.DateTimeField(help_text="更新时间", null=True)
 

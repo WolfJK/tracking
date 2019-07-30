@@ -301,6 +301,17 @@ def report_details(report_id):
     return data
 
 
+def report_config_create(param, user):
+    """
+    生成报告
+    :param param: 报告参数
+    :param user: 当前用户
+    :return:
+    """
+    param.update(user=user)
+    Report(param).save()
+
+
 def delete_report(user, report_id):
     # 删除报告 公司管理员可以删除公司的所有报告， 普通用户只能删除自己的报告
     report_id = int(report_id)

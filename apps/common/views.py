@@ -51,12 +51,8 @@ def brand_list(request):
     :param request:
     :return:
     '''
-    request_list = [
-        ("industry_id", "请选择 行业", "int"),
-        ("brand_name", "请输入品牌名称", "str"),
-    ]
-    param = apps_apis.get_parameter(request.POST, request_list)
-    data = apis.brand_list(param["industry_id"], param["brand_name"])
+    param = apps_apis.get_parameter(request.POST, [("industry_id", "请选择行业", "int")])
+    data = apis.brand_list(param["industry_id"])
 
     return JsonResponse(data, safe=False)
 
@@ -79,7 +75,8 @@ def sales_point_list(request):
     :param request:
     :return:
     '''
-    data = []
+    param = apps_apis.get_parameter(request.POST, [("category_id", "请选择品类", "int")])
+    data = apis.sales_point_list(param["category_id"])
 
     return JsonResponse(data, safe=False)
 
@@ -90,7 +87,7 @@ def report_template_list(request):
     :param request:
     :return:
     '''
-    data = []
+    data = apis.report_template_list(request.user)
 
     return JsonResponse(data, safe=False)
 
