@@ -482,25 +482,27 @@ def get_report_config(report_id, user):
 
 
 def delete_report(user, report_id):
-    # 删除报告 公司管理员可以删除公司的所有报告， 普通用户只能删除自己的报告
-    report_id = int(report_id)
+    # 只有生成成功之后的报告才能删除 公司管理员可以删除公司的所有报告， 普通用户只能删除自己的报告
     error_message = "报告未生成,不允许删除"
+    try:
+        report = Report.objects.get(id=report_id)
+    except Exception:
+        raise Exception("报告不存在")
+
     if user.is_admin:
-        corporation = user.corporation
-        report_list = Report.objects.filter(user__corporation=corporation, status=0).values_list("id", flat=True)
-        if report_id in report_list:
-            Report.objects.get(id=report_id).delete()
+        if report.status == 0 and report.user.corporation == user.corporation:
+            report.delete()
         else:
             raise Exception(error_message)
     else:
-        report_list = Report.objects.filter(user_id=user.id, status=0).values_list("id", flat=True)
-        if report_id in report_list:
-            Report.objects.get(id=report_id).delete()
+        if report.status == 0 and report.user.id == user.id:
+            report.delete()
         else:
             raise Exception(error_message)
 
 
 def cancel_report(user, report_id):
+    # 只有未处理的报告才能取消
     error_message = "报告已经被受理,不允许取消"
     try:
         report = Report.objects.get(id=report_id)
@@ -509,14 +511,12 @@ def cancel_report(user, report_id):
 
     if user.is_admin:
         if report.status == 1 and report.user.corporation == user.corporation:
-            report.status = 5
-            report.save()
+            report.delete()
         else:
             raise Exception(error_message)
     else:
         if report.status == 1 and report.user.id == user.id:
-            report.status = 5
-            report.save()
+            report.delete()
         else:
             raise Exception(error_message)
 
