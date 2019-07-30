@@ -13,9 +13,14 @@ def report_config_list(request):
     :param request:
     :return:
     '''
-    data = []
+    report_status = request.POST.get("report_status")
+    monitor_end_time = request.POST.get("monitor_end_time")
+    monitor_cycle = request.POST.get("monitor_cycle")
+    key_word = request.POST.get("key_word")
 
-    return JsonResponse(data)
+    data = apis.get_report_list(request.user, report_status, monitor_end_time, monitor_cycle, key_word)
+
+    return JsonResponse(data, safe=False)
 
 
 def report_config_delete(request):
@@ -73,8 +78,15 @@ def report_unscramble_save(request):
     return JsonResponse(data)
 
 
+def report_common_info(request):
+    # 有效行评估 --> 公共信息
+    result = apis.get_common_info()
+    return JsonResponse({
+        "report_affilication": result[0],
+        "report_status": result[1],
+        "report_monitor_end_time": result[2],
+        "monitor_cycle": result[3],
 
-
-
+    }, safe=False)
 
 

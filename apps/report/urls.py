@@ -12,4 +12,6 @@ urlpatterns = patterns("apps.report.views",
     url(r"^report-config-edit/$", views.report_config_edit),
     url(r"^report-details/$", views.report_details),
     url(r"^report-unscramble-save/$", views.report_unscramble_save),
+
+    url(r"^report-common-info/$", views.report_common_info),
 )
