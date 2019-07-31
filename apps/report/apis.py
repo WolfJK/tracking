@@ -39,10 +39,6 @@ monitor_cycle = {
 }
 
 
-def test():
-    pass
-
-
 def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_word):
     # 刷选报告
     sql_format = []
