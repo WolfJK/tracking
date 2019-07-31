@@ -550,18 +550,20 @@ def read_excle(file):
 
 def make_form(report_id):
     # 创建Excel内存对象，用StringIO填充
+    file_name = "{0}.xlsx".format("accounts" + str(datetime.now().date()))
     try:
         report_obj = Report.objects.get(id=report_id)
     except Exception:
         raise Exception("报告不存在")
 
-    parametes = json.loads(report_obj.accounts)
-    output = BytesIO()
-    writer = pandas.ExcelWriter(output, engine="xlsxwriter")
+    if report_obj.accounts:
+        parametes = json.loads(report_obj.accounts)
+        output = BytesIO()
+        writer = pandas.ExcelWriter(output, engine="xlsxwriter")
 
-    for paramete_list in parametes:
-        dimension_df = pandas.DataFrame.from_records(paramete_list, columns=["BGL/KOL", "所在地", "帐号"])
-        dimension_df.to_excel(writer, sheet_name=paramete_list[0].get("name"), index=0)
-    writer.save()
-    output.seek(0)
-    return output.getvalue(), "{0}.xlsx".format("accounts" + str(datetime.now().date()))
+        for paramete_list in parametes:
+            dimension_df = pandas.DataFrame.from_records(paramete_list, columns=["BGL/KOL", "所在地", "帐号"])
+            dimension_df.to_excel(writer, sheet_name=paramete_list[0].get("name"), index=0)
+        writer.save()
+        output.seek(0)
+    return output.getvalue() if report_obj.accounts else "", file_name
