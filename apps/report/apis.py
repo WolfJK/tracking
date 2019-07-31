@@ -150,14 +150,54 @@ def report_details(report_id, user):
     :return:
     """
     user = SmUser.objects.filter(id=2)
-    report = Report.objects.filter(id=report_id, user_id=user.id)
-    if len(report) < 1:
+    reports = Report.objects.filter(id=report_id, user_id=user.id)
+    if len(reports) < 1:
         raise Exception("权限不足")
 
-    report = report[0]
+    report = reports[0]
+    if report.status != 0:
+        raise Exception("报告还未生成")
+
     data = json.loads(report.data)
     if not data.get("unscramble"):
+        data = data_transform(data)
         data["unscramble"] = get_unscramble(data, report.sales_point.name)
+
+    return data
+
+
+def data_transform(data):
+    """
+    将 etl 格式的数据 转换为 web 格式
+    :param data: etl 数据
+    :return:
+    """
+    # 投放渠道分布 转换
+    platform = data["spread_overview"]["platform"]
+    platform_web = []
+    if platform["weibo"] != 0:
+        platform_web.append(dict(
+            name="微博",
+            value=platform["weibo"],
+            children=[dict(name="微博", value=platform["weibo"])]
+        ))
+
+    if len(platform["motherbaby"]) > 0:
+        platform_web.append(dict(
+            name="母垂",
+            value=sum([x["value"] for x in platform["motherbaby"]]),
+            children=platform["motherbaby"]
+        ))
+
+    data["spread_overview"]["platform_web"] = platform_web
+
+    #  子活动UGC构成
+    activity_ugc_in = data["spread_effectiveness"]["activity_ugc_in_activity_composition"]
+    refer = filter(lambda x: x["type"] == "提及品牌", activity_ugc_in)
+    unrefer = filter(lambda x: x["type"] == "未提及品牌", activity_ugc_in)
+    unrefer_map = {{x["name": x["value"]]} for x in unrefer}
+    map(lambda x: x.update(dict(unvalue=unrefer_map.get(x["name"], 0))), refer)
+    data["spread_effectiveness"]["activity_ugc_in"] = refer
 
     return data
 
@@ -170,8 +210,8 @@ def get_unscramble(data, sales_point):
     :return:
     '''
     activity_max = max(data["spread_overview"]["activity"], key=lambda x: x["value"])
-    platform_max = max(ast.flatten([x["children"] for x in data["spread_overview"]["platform1"]]), key=lambda x: x["value"])
-    platform_post_sum = sum([v["value"] for v in ast.flatten([x["children"] for x in data["spread_overview"]["platform1"]])])
+    platform_max = max(ast.flatten([x["children"] for x in data["spread_overview"]["platform_web"]]), key=lambda x: x["value"])
+    platform_post_sum = sum([v["value"] for v in ast.flatten([x["children"] for x in data["spread_overview"]["platform_web"]])])
     account_max_df = pandas.DataFrame(data["spread_overview"]["account"])
     account_max = account_max_df.drop_duplicates(subset=["account", "platform"]).groupby(["user_type"], as_index=False).agg({"account": pandas.Series.nunique}).sort_values("account", ascending=False).iloc[0]
     post_max = account_max_df.groupby(["user_type"], as_index=False).agg({"post_count": pandas.Series.sum}).sort_values("post_count", ascending=False).iloc[0]
@@ -194,7 +234,7 @@ def get_unscramble(data, sales_point):
     user_type_composition = data["spread_efficiency"]["user_type_composition"]
     account_comment_max = max(user_type_composition, key=lambda x: x["value"])
 
-    activity_ugc_max = max(data["spread_effectiveness"]["activity_ugc_in_activity_composition"], key=lambda x: x["value"])
+    activity_ugc_max = max(data["spread_effectiveness"]["activity_ugc_in"], key=lambda x: x["value"])
 
     param = dict(
         post_count=data["spread_overview"]["post_count"],
