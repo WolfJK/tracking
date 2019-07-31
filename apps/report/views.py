@@ -66,7 +66,7 @@ def report_config_create(request):
     param = apps_apis.get_parameter(request.POST, params)
     apis.report_config_create(param, request.user)
 
-    return HttpResponse()
+    return JsonResponse(dict(code=200))
 
 
 def report_config_edit(request):

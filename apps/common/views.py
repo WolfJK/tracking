@@ -92,18 +92,5 @@ def report_template_list(request):
     return JsonResponse(data, safe=False)
 
 
-def throw_account_upload(request):
-    '''
-    投放账号上传
-    :param request:
-    :return:
-    '''
-    data = []
-
-    return JsonResponse(data, safe=False)
-
-
-
-
 
 

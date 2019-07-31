@@ -147,7 +147,7 @@ def report_details(report_id, user):
     :return:
     """
     user = SmUser.objects.get(id=2)
-    report = get_report(report_id, user)
+    report = get_report(report_id, user, status=(0, ))
 
     data = json.loads(report.data)
     if not data.get("unscramble"):
@@ -312,7 +312,7 @@ def report_unscramble_save(param, user):
     :return:
     """
     user = SmUser.objects.get(id=2)
-    report = get_report(param["report_id"], user)
+    report = get_report(param["report_id"], user, status=(0, ))
     data = json.loads(report.data)
 
     if not data.get("unscramble"):
@@ -327,11 +327,12 @@ def report_unscramble_save(param, user):
     report.save()
 
 
-def get_report(report_id, user):
+def get_report(report_id, user, status=()):
     """
     校验是否有权操作报告
     :param report_id:
     :param user:
+    :param status: 报告的状态
     :return:
     """
     reports = Report.objects.filter(id=report_id, user_id=user.id)
@@ -339,8 +340,8 @@ def get_report(report_id, user):
         raise Exception("权限不足")
 
     report = reports[0]
-    if report.status != 0:
-        raise Exception("报告还未生成")
+    if status and not report.status in status:
+        raise Exception("报告还未就绪")
 
     return report
 
@@ -355,30 +356,25 @@ def report_config_create(param, user):
     user = SmUser.objects.get(id=2)
     param.update(user=user)
 
+    # 如果输入了 report_id, 则为 编辑 报告配置
     if param["report_id"]:
-        reports = Report.objects.filter(id=param["report_id"], user_id=user.id)
-        if len(reports) < 1:
-            raise Exception("权限不足")
-
-        param.update(id=param.pop("report_id"), update_time=datetime.now(), create_time=reports[0].create_time)
+        report = get_report(param["report_id"], user, status=(1, ))
+        param.update(id=param.pop("report_id"), update_time=datetime.now(), create_time=report.create_time)
 
     Report(**param).save()
 
 
 def get_report_config(report_id, user):
     """
-    生成报告
+    查看报告配置
     :param report_id: 报告id
     :param user: 当前用户
     :return:
     """
     user = SmUser.objects.get(id=2)
+    report = get_report(report_id, user)
 
-    reports = Report.objects.filter(id=report_id, user_id=user.id).values()
-    if len(reports) < 1:
-        raise Exception("权限不足")
-
-    return reports[0]
+    return report
 
 
 def delete_report(user, report_id):
