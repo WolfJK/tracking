@@ -17,4 +17,6 @@ urlpatterns = patterns("apps.report.views",
     url(r"^report-config-cancel/$", views.report_config_cancel),
     url(r"^upload/$", views.upload_account),
     url(r"^download/$", views.download_account),
+    url(r"^download-panel/$", views.download_panel),
+
 )

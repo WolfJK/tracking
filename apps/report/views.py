@@ -130,7 +130,6 @@ def upload_account(request):
     # 上传帐号
 
     file_obj = request.FILES.get("filename")  # 获取上传内容
-    print("file_obj", file_obj)
     if not file_obj:
         raise Exception("没有找到文件")
     data = apis.read_excle(file_obj)
@@ -147,6 +146,21 @@ def download_account(request):
         raise Exception("参数格式错误,list形式的字符串")
     # 下载模板
     download_file, file_name = apis.download_file(parametes)
+    response = HttpResponse(download_file)
+    # 返回中文名文件
+    response["Content-Type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    response["Content-Disposition"] = "attachment; filename={0}".format(urlquote(file_name))
+
+    return response
+
+
+def download_panel(request):
+    # 产看配置的下载名单
+    report_id = request.POST.get("report_id")
+    if not report_id:
+        raise Exception("请先传入报告id")
+    # 下载模板
+    download_file, file_name = apis.make_form(report_id)
     response = HttpResponse(download_file)
     # 返回中文名文件
     response["Content-Type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

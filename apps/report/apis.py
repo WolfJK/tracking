@@ -15,6 +15,8 @@ from io import BytesIO
 from dateutil.relativedelta import relativedelta
 import pandas
 from compiler import ast
+import json
+
 
 report_affilication = {
     "1": "本品",
@@ -526,12 +528,12 @@ def download_file(parametes):
     output = BytesIO()
     writer = pandas.ExcelWriter(output, engine="xlsxwriter")
 
-    dimension_df = pandas.DataFrame.from_records(list(), columns=["BGL", "所在地", "帐号"])
+    dimension_df = pandas.DataFrame.from_records(list(), columns=["BGL/KOL", "所在地", "帐号"])
     for paramete in parametes:
         dimension_df.to_excel(writer, sheet_name=paramete, index=0)
     writer.save()
     output.seek(0)
-    return output.getvalue(), "{0}.xlsx".format("下载模板" + str(datetime.now().date()))
+    return output.getvalue(), "{0}.xlsx".format("template" + str(datetime.now().date()))
 
 
 def read_excle(file):
@@ -539,8 +541,27 @@ def read_excle(file):
     sheets = xl.sheet_names
     data_list =list()
     for num, value in enumerate(sheets):
-        df1 = pandas.read_excel(file, encoding="utf8", sheet_name=sheets[num])
+        df1 = pandas.read_excel(file, encoding="utf-8", sheet_name=sheets[num])
         df1["name"] = value
-        dict_df = df1.to_dict("records")
-        data_list.append(dict_df)
+        dict_dfs = df1.to_dict("records")
+        data_list.append(dict_dfs)
     return data_list
+
+
+def make_form(report_id):
+    # 创建Excel内存对象，用StringIO填充
+    try:
+        report_obj = Report.objects.get(id=report_id)
+    except Exception:
+        raise Exception("报告不存在")
+
+    parametes = json.loads(report_obj.accounts)
+    output = BytesIO()
+    writer = pandas.ExcelWriter(output, engine="xlsxwriter")
+
+    for paramete_list in parametes:
+        dimension_df = pandas.DataFrame.from_records(paramete_list, columns=["BGL/KOL", "所在地", "帐号"])
+        dimension_df.to_excel(writer, sheet_name=paramete_list[0].get("name"), index=0)
+    writer.save()
+    output.seek(0)
+    return output.getvalue(), "{0}.xlsx".format("accounts" + str(datetime.now().date()))
