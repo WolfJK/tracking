@@ -149,7 +149,7 @@ def report_details(report_id, user):
     :param user: 当前用户
     :return:
     """
-    user = SmUser.objects.filter(id=2)
+    user = SmUser.objects.get(id=2)
     reports = Report.objects.filter(id=report_id, user_id=user.id)
     if len(reports) < 1:
         raise Exception("权限不足")
@@ -195,10 +195,21 @@ def data_transform(data):
     activity_ugc_in = data["spread_effectiveness"]["activity_ugc_in_activity_composition"]
     refer = filter(lambda x: x["type"] == "提及品牌", activity_ugc_in)
     unrefer = filter(lambda x: x["type"] == "未提及品牌", activity_ugc_in)
-    unrefer_map = {{x["name": x["value"]]} for x in unrefer}
+    unrefer_map = {x["name"]: x["value"] for x in unrefer}
     map(lambda x: x.update(dict(unvalue=unrefer_map.get(x["name"], 0))), refer)
     data["spread_effectiveness"]["activity_ugc_in"] = refer
 
+    # 投放账号分布
+    account_max_df = pandas.DataFrame(data["spread_overview"]["account"])
+    account_web = account_max_df.drop_duplicates(subset=["account", "platform", "user_type"]).groupby(["user_type"], as_index=False)["account"].count()
+    post_web = account_max_df.groupby(["user_type"], as_index=False).agg({"post_count": pandas.Series.sum})
+
+    data["spread_overview"]["account_web"] = dict(
+        account=account_web.to_dict(orient="records"),
+        post=post_web.to_dict(orient="records"),
+    )
+
+    #
     return data
 
 
@@ -212,9 +223,9 @@ def get_unscramble(data, sales_point):
     activity_max = max(data["spread_overview"]["activity"], key=lambda x: x["value"])
     platform_max = max(ast.flatten([x["children"] for x in data["spread_overview"]["platform_web"]]), key=lambda x: x["value"])
     platform_post_sum = sum([v["value"] for v in ast.flatten([x["children"] for x in data["spread_overview"]["platform_web"]])])
-    account_max_df = pandas.DataFrame(data["spread_overview"]["account"])
-    account_max = account_max_df.drop_duplicates(subset=["account", "platform"]).groupby(["user_type"], as_index=False).agg({"account": pandas.Series.nunique}).sort_values("account", ascending=False).iloc[0]
-    post_max = account_max_df.groupby(["user_type"], as_index=False).agg({"post_count": pandas.Series.sum}).sort_values("post_count", ascending=False).iloc[0]
+
+    account_max = max(data["spread_overview"]["account_web"]["account"], key=lambda x: x["account"])
+    account_post_max = max(data["spread_overview"]["account_web"]["post"], key=lambda x: x["post_count"])
 
     spread_efficiency = data["spread_efficiency"]["platform_cumulative"]
     cb_platform_max = max(spread_efficiency, key=lambda x: x["breadth"])
@@ -245,10 +256,10 @@ def get_unscramble(data, sales_point):
         platform_max=platform_max["name"],
         platform_post_count=platform_max["value"],
         platform_max_ratio=round(platform_max["value"] * 100.0 / platform_post_sum, 2),
-        account_max=account_max.user_type,
-        account_count=account_max.account,
-        post_max=post_max.user_type,
-        account_post_max=post_max.post_count,
+        account_max=account_max["user_type"],
+        account_count=account_max["account"],
+        account_post_max=account_post_max["user_type"],
+        account_post_count=account_post_max["post_count"],
 
         platform_count=len(spread_efficiency),
         cb_platform_max=cb_platform_max["name"],
