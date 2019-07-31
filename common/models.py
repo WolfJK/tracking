@@ -167,7 +167,7 @@ class Report(models.Model):
     product_line = models.CharField(max_length=32, help_text="产品线", null=True)
 
     accounts = models.TextField(help_text="投放账号, JSon格式", null=True)
-    sales_point = models.CharField(max_length=256, help_text="宣传卖点")
+    sales_point = models.ForeignKey(DimSalesPoint, help_text="宣传卖点", on_delete=models.DO_NOTHING)
     remark = models.CharField(max_length=128, help_text="备注")
     status = models.IntegerField(help_text="状态", choices=STATUS_CHOICE, default=1)
     data = models.TextField(help_text="报表数据，JSon格式", null=True)
@@ -278,12 +278,33 @@ RDL_JSON = dict(
             ]
         ),
 
+        # 1.4. 投放渠道分布
+        platform1=[
+            dict(
+                name="微博",
+                value=120,
+                children=[dict(name="weibo", value=120)]
+            ),
+            dict(
+                name="母垂",
+                value=24,
+                children=[
+                    dict(name="宝宝树", value=12),
+                    dict(name="辣妈帮", value=12),
+                ]
+            ),
+
+        ],
+
         # 1.5. 投放账号分布
         account=[
             # 账号、所属平台、账号投放声量总计
-            dict(account="张三", platform="微博", post_count=33),
-            dict(account="Edward", platform="宝宝树", post_count=2),
-            dict(account="李四", platform="辣妈帮", post_count=1),
+            dict(account="张三", platform="微博", post_count=33, user_type="BGC"),
+            dict(account="Edward", platform="宝宝树", post_count=2, user_type="KOL"),
+            dict(account="李四", platform="辣妈帮", post_count=1, user_type="水军"),
+            dict(account="李四", platform="辣妈帮", post_count=1, user_type="水军"),
+            dict(account="王五", platform="辣妈帮", post_count=1, user_type="水军"),
+            dict(account="张柳", platform="宝宝树", post_count=1, user_type="水军"),
         ],
 
         # 1.6. 投放声量趋势及账号趋势
@@ -383,6 +404,9 @@ RDL_JSON = dict(
         # 4.3. 品牌UGC
         ugc_mentioned_brand_count=136,
 
+        # 4.2 - 4.3 补充 活动UGC & 品牌UGC
+        ugc_intersect_count=35,
+
         # 4.4. 活动UGC构成
         ugc_in_activity_composition=[
             dict(name="提及品牌", value=120),
@@ -394,6 +418,27 @@ RDL_JSON = dict(
             # 图中一根柱子里的数据由两行数据表示
             dict(name="敏事大挑战", value=30, type="提及品牌"),
             dict(name="敏事大挑战", value=70, type="未提及品牌"),
+        ],
+
+        # 4.6 活动对品牌UGC的贡献
+        # 4.6.1 活动期预测UGC
+        predict=232,
+
+        # 4.6.2 浮动绝对值
+        delta_absolute=-97,
+
+        # 4.6.3 浮动比例
+        delta=-0.42,
+
+        # 4.6.4 年均品牌UGC
+        annual_average_trend=[
+            dict(value=20, date="2019-01-07"),
+            dict(value=30, date="2019-01-14")
+        ],
+        # 4.6.5 实际品牌UGC
+        brand_ugc_trend=[
+            dict(value=20, date="2019-01-07"),
+            dict(value=30, date="2019-01-14")
         ]
     ),
 
@@ -408,12 +453,11 @@ RDL_JSON = dict(
         # 5.3. 年度品牌关注度
         annual=0.05,
 
-        # 5.4. 年度趋势图
+        # 5.4. 趋势图
         trend=[
-            # 年度品牌关注度是常量，可以将annual填入，一周一行数据
             dict(value=20, date="2019-01-07"),
             dict(value=30, date="2019-01-14")
-        ]
+        ],
     ),
 
     # 6. 宣传卖点认知度
