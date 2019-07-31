@@ -12,6 +12,7 @@ import pandas
 from compiler import ast
 import sqls
 import json
+import datetime
 
 
 report_affilication = {
@@ -150,18 +151,11 @@ def report_details(report_id, user):
     :return:
     """
     user = SmUser.objects.get(id=2)
-    reports = Report.objects.filter(id=report_id, user_id=user.id)
-    if len(reports) < 1:
-        raise Exception("权限不足")
-
-    report = reports[0]
-    if report.status != 0:
-        raise Exception("报告还未生成")
+    report = get_report(report_id, user)
 
     data = json.loads(report.data)
     if not data.get("unscramble"):
-        data = data_transform(data)
-        data["unscramble"] = get_unscramble(data, report.sales_point.name)
+        data["unscramble"] = get_unscramble(data_transform(data), report.sales_point.name)
 
     return data
 
@@ -312,6 +306,47 @@ def get_unscramble(data, sales_point):
         sqls.unscramble_rule[k]["unscramble"] = "".join(unscramble)
 
     return sqls.unscramble_rule
+
+
+def report_unscramble_save(param, user):
+    """
+    编辑报告解读
+    :param param:
+    :param user:
+    :return:
+    """
+    user = SmUser.objects.get(id=2)
+    report = get_report(param["report_id"], user)
+    data = json.loads(report.data)
+
+    if not data.get("unscramble"):
+        data["unscramble"] = get_unscramble(data_transform(data), report.sales_point.name)
+
+    plate = data["unscramble"][param["plate"]]
+    plate["unscramble"] = param["content"]
+    plate["user"] = user.username
+    plate["date"] = datetime.datetime.now().strftime('%Y-%m-%d')
+
+    report.data = json.dumps(data)
+    report.save()
+
+
+def get_report(report_id, user):
+    """
+    校验是否有权操作报告
+    :param report_id:
+    :param user:
+    :return:
+    """
+    reports = Report.objects.filter(id=report_id, user_id=user.id)
+    if len(reports) < 1:
+        raise Exception("权限不足")
+
+    report = reports[0]
+    if report.status != 0:
+        raise Exception("报告还未生成")
+
+    return report
 
 
 def report_config_create(param, user):

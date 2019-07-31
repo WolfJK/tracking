@@ -98,9 +98,18 @@ def report_unscramble_save(request):
     :param request:
     :return:
     '''
-    data = []
+    params = [
+        ("report_id", "请选择报告", "int"),
+        ("plate", "请选择报告模块", "str"),
+        ("content", "请输入报告解读内容", "str"),
+    ]
+    param = apps_apis.get_parameter(request.POST, params)
+    if not param["plate"] in ("transmission", "efficiency", "effect_ugc", "effect_brand", "effect_sales_point"):
+        raise Exception("报告板块错误")
 
-    return JsonResponse(data)
+    apis.report_unscramble_save(param, request.user)
+
+    return JsonResponse(dict(code=200))
 
 
 def report_common_info(request):
