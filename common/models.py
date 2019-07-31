@@ -278,24 +278,6 @@ RDL_JSON = dict(
             ]
         ),
 
-        # 1.4. 投放渠道分布
-        platform1=[
-            dict(
-                name="微博",
-                value=120,
-                children=[dict(name="weibo", value=120)]
-            ),
-            dict(
-                name="母垂",
-                value=24,
-                children=[
-                    dict(name="宝宝树", value=12),
-                    dict(name="辣妈帮", value=12),
-                ]
-            ),
-
-        ],
-
         # 1.5. 投放账号分布
         account=[
             # 账号、所属平台、账号投放声量总计
