@@ -17,36 +17,38 @@ def common_param(request):
     :param request:
     :return:
     '''
-    data = dict(
-        report_state=[
-            dict(code=-1, name="失败"),
-            dict(code=0, name="成功"),
-            dict(code=1, name="创建"),
-            dict(code=2, name="爬取中"),
-            dict(code=3, name="入库中"),
-            dict(code=4, name="计算中"),
-        ],
-        monitor_end_date=[
-            dict(code=36500, name="全部"),
-            dict(code=30, name="近一月"),
-            dict(code=90, name="近三月"),
-            dict(code=180, name="近半年"),
-            dict(code=-180, name="半年以前"),
-        ],
-        monitor_period=[
-            dict(code=36500, name="全部"),
-            dict(code=14, name="两周以内"),
-            dict(code=30, name="一个月以内"),
-            dict(code=90, name="三个月以内"),
-            dict(code=-90, name="三个月以上"),
-        ],
-        industry_list=apis.industry_list()
-    )
+
+    report_state = [
+        dict(code=-1, name="失败"),
+        dict(code=0, name="成功"),
+        dict(code=1, name="创建"),
+        dict(code=2, name="爬取中"),
+        dict(code=3, name="入库中"),
+        dict(code=4, name="计算中"),
+    ],
+    monitor_end_date = [
+        dict(code=36500, name="全部"),
+        dict(code=30, name="近一月"),
+        dict(code=90, name="近三月"),
+        dict(code=180, name="近半年"),
+        dict(code=-180, name="半年以前"),
+    ],
+    monitor_period = [
+        dict(code=36500, name="全部"),
+        dict(code=14, name="两周以内"),
+        dict(code=30, name="一个月以内"),
+        dict(code=90, name="三个月以内"),
+        dict(code=-90, name="三个月以上"),
+    ],
+    industry_list = apis.industry_list()
     user = request.user
     menus = common_apis.get_user_menus(request)
     user_info = apis.get_user_info(user)
     return JsonResponse(data={
-        "data": data,
+        "report_state": report_state,
+        "monitor_end_date": monitor_end_date,
+        "monitor_period": monitor_period,
+        "industry_list": industry_list,
         "menus": menus,
         "user_info": user_info
     }, safe=False)
