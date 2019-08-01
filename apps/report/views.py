@@ -87,7 +87,7 @@ def report_details(request):
     :param request:
     :return:
     '''
-    param = apps_apis.get_parameter(request.POST, [("report_id", "请选择报告", "int")])
+    param = apps_apis.get_parameter(request.POST, [("report_id", "请选择一个报告", "int")])
     data = apis.report_details(param["report_id"], request.user)
     return JsonResponse(data, safe=True)
 

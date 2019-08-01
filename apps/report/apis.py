@@ -153,7 +153,13 @@ def report_details(report_id, user):
     if not data.get("unscramble"):
         data["unscramble"] = get_unscramble(data_transform(data), report.sales_point.name)
 
-    return data
+    report_config = dict(
+        start_date=report.monitor_start_date,
+        end_date=report.monitor_end_date,
+        period=(report.monitor_end_date - report.monitor_start_date).days
+
+    )
+    return dict(data=data, report_config=report_config)
 
 
 def data_transform(data):
