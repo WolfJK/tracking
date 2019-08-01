@@ -77,14 +77,23 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
         name = key_word.lower()
         user_list = SmUser.objects.annotate(name=Func(F("username"), function="LOWER"),
                                             ).filter(Q(name__contains=name)).values_list("id", flat=True)
-        str_user_list = "".join([str(i) for i in user_list])
+        report_name = Report.objects.annotate(report_name=Func(F("name"), function="LOWER"),
+                                            ).filter(Q(report_name__contains=name)).values_list("id", flat=True)
 
-        sql_title = "{} like \'%{}%\'".format("name", key_word)
-        if user_list:
+        str_user_list = ",".join([str(i) for i in user_list])
+        str_title_list = ",".join([str(i) for i in report_name])
+
+        if report_name and user_list:
+            sql_title = "{} in ({})".format("id", str_title_list)
             sql_name = "{} in ({})".format("user_id", str_user_list)
             sql_format.append("(" + sql_title + " or " + sql_name + ")")
         else:
-            sql_format.append(sql_title)
+            if report_name:
+                sql_title = "{} in ({})".format("id", str_title_list)
+                sql_format.append(sql_title)
+            if user_list:
+                sql_name = "{} in ({})".format("user_id", str_user_list)
+                sql_format.append(sql_name)
 
     # 判断是管理员内部用户
     if user.is_admin and user.user_type == 1:
