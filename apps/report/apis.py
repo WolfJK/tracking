@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 from common.models import *
-from datetime import datetime
 from django.db.models import F, Q, Func
 from common.db_helper import DB
 from io import BytesIO
@@ -44,21 +43,21 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
     sql_format = []
     # values = ("monitor_start_date", "monitor_end_date", "create_time", "username", "status")
     db = DB()
-    sql = "SELECT * FROM report ORDER BY create_time DESC"
+    sql = "SELECT * FROM report where `delete`=false ORDER BY create_time DESC"
     if report_status or monitor_end_time != "36500" or monitor_cycle != "36500" or key_word or(not(user.is_admin and user.user_type == 1)):
-        sql = "SELECT * FROM report WHERE {} ORDER BY create_time DESC"
+        sql = "SELECT * FROM report WHERE `delete`=false and {} ORDER BY create_time DESC"
 
     if report_status:
         sql_format.append("{}={}".format("status", report_status))
     if monitor_end_time != "36500":
         if monitor_end_time == "30":
-            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.now(), "monitor_end_date", 30))
+            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.datetime.now(), "monitor_end_date", 30))
         elif monitor_end_time == "90":
-            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.now(), "monitor_end_date", 90))
+            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.datetime.now(), "monitor_end_date", 90))
         elif monitor_end_time == "180":
-            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.now(), "monitor_end_date", 180))
+            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.datetime.now(), "monitor_end_date", 180))
         elif monitor_end_time == "-180":
-            sql_format.append("datediff(\'{}\', {})>{}".format(datetime.now(), "monitor_end_date", 180))
+            sql_format.append("datediff(\'{}\', {})>{}".format(datetime.datetime.now(), "monitor_end_date", 180))
         else:
             raise Exception("monitor_end_time参数错误")
 
@@ -118,7 +117,7 @@ def formatted_report(reports):
 
     for report in reports:
         # 一周内的报告加上NEW
-        if report.get("create_time") >= datetime.now() - relativedelta(weeks=1):
+        if report.get("create_time") >= datetime.datetime.now() - relativedelta(weeks=1):
             report.update(is_new=True)
         else:
             report.update(is_new=False)
@@ -366,7 +365,7 @@ def report_config_create(param, user):
     # 如果输入了 report_id, 则为 编辑 报告配置
     if param["report_id"]:
         report = get_report(param["report_id"], user, status=(1, ))
-        param.update(id=param.pop("report_id"), update_time=datetime.now(), create_time=report.create_time)
+        param.update(id=param.pop("report_id"), update_time=datetime.datetime.now(), create_time=report.create_time)
 
     Report(**param).save()
 
@@ -386,7 +385,7 @@ def get_report_config(report_id, user):
 
 def delete_report(user, report_id):
     # 只有生成成功之后的报告才能删除 公司管理员可以删除公司的所有报告， 普通用户只能删除自己的报告
-    error_message = "报告未生成,不允许删除"
+    error_message = "只有生成之后的报告才能执行删除操作"
     try:
         report = Report.objects.get(id=report_id)
     except Exception:
@@ -394,19 +393,21 @@ def delete_report(user, report_id):
 
     if user.is_admin:
         if report.status == 0 and report.user.corporation == user.corporation:
-            report.delete()
+            report.delete = True
+            report.save()
         else:
             raise Exception(error_message)
     else:
         if report.status == 0 and report.user.id == user.id:
-            report.delete()
+            report.delete = True
+            report.save()
         else:
             raise Exception(error_message)
 
 
 def cancel_report(user, report_id):
     # 只有未处理的报告才能取消
-    error_message = "报告已经被受理,不允许取消"
+    error_message = "只有未受理的报告才允许取消"
     try:
         report = Report.objects.get(id=report_id)
     except Exception:
@@ -414,12 +415,14 @@ def cancel_report(user, report_id):
 
     if user.is_admin:
         if report.status == 1 and report.user.corporation == user.corporation:
-            report.delete()
+            report.delete = True
+            report.save()
         else:
             raise Exception(error_message)
     else:
         if report.status == 1 and report.user.id == user.id:
-            report.delete()
+            report.delete = True
+            report.save()
         else:
             raise Exception(error_message)
 
@@ -434,7 +437,7 @@ def download_file(parametes):
         dimension_df.to_excel(writer, sheet_name=paramete, index=0)
     writer.save()
     output.seek(0)
-    return output.getvalue(), "{0}.xlsx".format("template" + str(datetime.now().date()))
+    return output.getvalue(), "{0}.xlsx".format("template" + str(datetime.datetime.now().date()))
 
 
 def read_excle(file):
@@ -451,7 +454,7 @@ def read_excle(file):
 
 def make_form(report_id):
     # 创建Excel内存对象，用StringIO填充
-    file_name = "{0}.xlsx".format("accounts" + str(datetime.now().date()))
+    file_name = "{0}.xlsx".format("accounts" + str(datetime.datetime.now().date()))
     try:
         report_obj = Report.objects.get(id=report_id)
     except Exception:
