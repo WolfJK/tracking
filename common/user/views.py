@@ -22,11 +22,11 @@ def logout(request):
     return JsonResponse({"item": "success"})
 
 def get_user_menus(request):
-    menus = apis.Authorization.get_user_menus(request)
+    menus = apis.get_user_menus(request)
     return JsonResponse({"menus": menus})
 
 def get_user_menus_apis(request):
-    menus = apis.Authorization.get_user_menus_apis(request)
+    menus = apis.get_user_menus_apis(request)
     return JsonResponse({"menu_apis": menus})
 
 def asign_user(request):
@@ -67,3 +67,5 @@ def change_password(request):
     if new_password != new_password_confirm: raise Exception('确认密码必须与新密码一致')
     apis.set_owner_password(request.user, new_password, old_password)
     return HttpResponse()
+
+

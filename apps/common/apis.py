@@ -7,6 +7,25 @@ from operator import itemgetter
 from common.db_helper import DB
 from django.db.models import Q
 from common.models import DimIndustry, DimBrand, DimBrandCategory, DimSalesPoint, Report
+from common.models import *
+
+
+def get_user_info(user):
+    user_dict = {
+        "username": user.username,
+        "corporation": user.corporation,
+        "industry": user.industry_id,
+        "industry_name": DimIndustry.objects.get(id=user.industry_id).name,
+        "category": user.category_id,
+        "category_name": DimCategory.objects.get(id=user.category_id).name,
+        "brand": user.brand_id,
+        "brand_name": DimBrand.objects.get(id=user.brand_id).name,
+        "is_admin": user.is_admin,
+        "user_type": user.user_type,
+        "user_type_name": user.get_user_type_display(),
+        "role": user.role.name
+    }
+    return user_dict
 
 
 def industry_list():

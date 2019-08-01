@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from django.http.response import JsonResponse
 from . import apis
 from apps import apis as apps_apis
+from common.user import apis as common_apis
 
 
 # ############################# 活动有效性评估 相关参数列表 #################################
@@ -41,8 +42,14 @@ def common_param(request):
         ],
         industry_list=apis.industry_list()
     )
-
-    return JsonResponse(data, safe=False)
+    user = request.user
+    menus = common_apis.get_user_menus(request)
+    user_info = apis.get_user_info(user)
+    return JsonResponse(data={
+        "data": data,
+        "menus": menus,
+        "user_info": user_info
+    }, safe=False)
 
 
 def brand_list(request):
