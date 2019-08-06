@@ -250,8 +250,13 @@ class APILog(models.Model):
 RDL_JSON = dict(
     # 1. 传播实况
     spread_overview=dict(
-        # 1.1. 投放声量总计
+        # 1.1.1 投放声量总计
         post_count=124,
+
+        # 1.1.2 投放贴详情
+        post_detail=[
+           dict(title="标题", user_name="作者", platform="发布平台", date="发布时间", detail_url="链接")
+        ],
 
         # 1.2. 投放账号数总计
         account_count=33,
@@ -363,15 +368,15 @@ RDL_JSON = dict(
         # 3.1. 文章
         article=[
             # 分别是 文本内容, 来源平台, 转发数, 评论数, 点赞数, 如果该平台没有相应的字段，值为None
-            dict(content="文章1", platform="微博", transmit_count=1, reply_count=2, like_count=3),
-            dict(content="文章2", platform="宝宝树", transmit_count=None, reply_count=2, like_count=None),
+            dict(content="文章1", platform="微博", transmit_count=1, reply_count=2, like_count=3, detail_url="https://www.baidu.com"),
+            dict(content="文章2", platform="宝宝树", transmit_count=None, reply_count=2, like_count=None, detail_url="https://www.baidu.com"),
         ],
 
         # 3.2. KOL
         kol=[
             # 分别是 KOL用户名, 来源平台, 发帖数, 贴均互动量, 贴均传播广度
-            dict(nick_name="用户1", platform="微博", post_count=1, interaction_per_post=412.3, breadth_per_post=11.1),
-            dict(nick_name="用户2", platform="宝宝树", post_count=1, interaction_per_post=412.3, breadth_per_post=11.1),
+            dict(nick_name="用户1", platform="微博", post_count=1, interaction_per_post=412.3, breadth_per_post=11.1, detail_url="https://www.baidu.com"),
+            dict(nick_name="用户2", platform="宝宝树", post_count=1, interaction_per_post=412.3, breadth_per_post=11.1, detail_url="https://www.baidu.com"),
         ]
     ),
 
