@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 import traceback
+import pdb
+pdb.set_trace()
 from utils.zrpc import rpc
 from common.logger import Logger
 from common.models import Report
