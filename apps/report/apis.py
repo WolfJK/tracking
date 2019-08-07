@@ -203,10 +203,8 @@ def data_transform(data):
     account_web = account_max_df.drop_duplicates(subset=["account", "platform", "user_type"]).groupby(["user_type"], as_index=False)["account"].count()
     post_web = account_max_df.groupby(["user_type"], as_index=False).agg({"post_count": pandas.Series.sum})
 
-    data["spread_overview"]["account_web"] = dict(
-        account=account_web.to_dict(orient="records"),
-        post=post_web.to_dict(orient="records"),
-    )
+    account_web = pandas.merge(account_web, post_web, how="left", on="user_type")
+    data["spread_overview"]["account_web"] = account_web.to_dict(orient="records")
 
     #  子活动UGC构成
     activity_ugc_in = data["spread_effectiveness"]["activity_ugc_in_activity_composition"]
@@ -266,8 +264,8 @@ def get_unscramble(data, sales_point):
     platform_max = max(ast.flatten([x["children"] for x in data["spread_overview"]["platform_web"]]), key=lambda x: x["value"])
     platform_post_sum = sum([v["value"] for v in ast.flatten([x["children"] for x in data["spread_overview"]["platform_web"]])])
 
-    account_max = max(data["spread_overview"]["account_web"]["account"], key=lambda x: x["account"])
-    account_post_max = max(data["spread_overview"]["account_web"]["post"], key=lambda x: x["post_count"])
+    account_max = max(data["spread_overview"]["account_web"], key=lambda x: x["account"])
+    account_post_max = max(data["spread_overview"]["account_web"], key=lambda x: x["post_count"])
 
     spread_efficiency = data["spread_efficiency"]["platform_cumulative"]
     cb_platform_max = max(spread_efficiency, key=lambda x: x["breadth"])
