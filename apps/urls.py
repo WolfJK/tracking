@@ -6,6 +6,6 @@ from django.conf.urls import *
 
 urlpatterns = (
     url(r"^report/", include("apps.report.urls")),
-    url(r"^common/", include("apps.common.urls")),
+    url(r"^common/", include("apps.commons.urls")),
 )
 

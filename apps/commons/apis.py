@@ -2,12 +2,7 @@
 # __author__: ''
 from __future__ import unicode_literals
 
-from itertools import chain
-from operator import itemgetter
-from common.db_helper import DB
-from django.db.models import Q
-from common.models import DimIndustry, DimBrand, DimBrandCategory, DimSalesPoint, Report
-from common.models import *
+from common.models import DimIndustry, DimBrand, DimBrandCategory, DimSalesPoint, Report, DimCategory
 
 
 def get_user_info(user):
