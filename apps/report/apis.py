@@ -12,6 +12,7 @@ from compiler import ast
 import sqls
 import json
 import datetime
+import copy
 
 
 report_affilication = {
@@ -164,6 +165,7 @@ def report_details(report_id, user):
     data["report_config"] = dict(
         start_date=report.monitor_start_date,
         end_date=report.monitor_end_date,
+        name=report.name,
         period=(report.monitor_end_date - report.monitor_start_date).days
 
     )
@@ -196,14 +198,6 @@ def data_transform(data):
 
     data["spread_overview"]["platform_web"] = platform_web
 
-    #  子活动UGC构成
-    activity_ugc_in = data["spread_effectiveness"]["activity_ugc_in_activity_composition"]
-    refer = filter(lambda x: x["type"] == "提及品牌", activity_ugc_in)
-    unrefer = filter(lambda x: x["type"] == "未提及品牌", activity_ugc_in)
-    unrefer_map = {x["name"]: x["value"] for x in unrefer}
-    map(lambda x: x.update(dict(unvalue=unrefer_map.get(x["name"], 0))), refer)
-    data["spread_effectiveness"]["activity_ugc_in"] = refer
-
     # 投放账号分布
     account_max_df = pandas.DataFrame(data["spread_overview"]["account"])
     account_web = account_max_df.drop_duplicates(subset=["account", "platform", "user_type"]).groupby(["user_type"], as_index=False)["account"].count()
@@ -214,8 +208,49 @@ def data_transform(data):
         post=post_web.to_dict(orient="records"),
     )
 
-    #
+    #  子活动UGC构成
+    activity_ugc_in = data["spread_effectiveness"]["activity_ugc_in_activity_composition"]
+    refer = filter(lambda x: x["type"] == "提及品牌", copy.deepcopy(activity_ugc_in))
+    unrefer = filter(lambda x: x["type"] == "未提及品牌", copy.deepcopy(activity_ugc_in))
+    unrefer_map = {x["name"]: x["value"] for x in unrefer}
+    map(lambda x: x.update(dict(unvalue=unrefer_map.get(x["name"], 0))), refer)
+    data["spread_effectiveness"]["activity_ugc_in"] = refer
+
+    # 活动传播效率合并
+    merge_spread_efficiency(data, "platform")
+    merge_spread_efficiency(data, "account")
+    merge_spread_efficiency(data, "activity")
+
+    # 传播效果
+    brand_ugc = copy.deepcopy(data["spread_effectiveness"]["brand_ugc_trend"])
+    annual_average = data["spread_effectiveness"]["annual_average_trend"]
+    dict_map = {x["date"]: x["value"] for x in annual_average}
+    map(lambda x: x.update(dict(value_year=dict_map.get(x["date"], 0))), brand_ugc)
+    data["spread_effectiveness"]["brand_ugc_web"] = brand_ugc
+
+    # 品牌关注度
+    map(lambda x: x.update(dict(value_year=data["brand_concern"]["annual"]), data["brand_concern"]["trend"]))
+    map(lambda x: x.update(dict(value_year=data["tags_concern"]["annual"]), data["tags_concern"]["trend"]))
+
     return data
+
+
+def merge_spread_efficiency(data, type):
+    '''
+    对传播效率进行合并
+    :return:
+    '''
+    cumulative = copy.deepcopy(data["spread_efficiency"]["{}_efficiency".format(type)])
+    average = data["spread_efficiency"]["{}_average".format(type)]
+
+    list_to_map = {x["name"]: x for x in average}
+    map(lambda x: x.update(dict(
+        avg_breadth=list_to_map.get(x["name"], {}).get("breadth", 0),
+        avg_interaction=list_to_map.get(x["name"], {}).get("interaction", 0),
+        avg_value=list_to_map.get(x["name"], {}).get("value", 0),
+    )), cumulative)
+
+    data["spread_efficiency"]["{}_web".format(type)] = cumulative
 
 
 def get_unscramble(data, sales_point):

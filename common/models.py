@@ -247,6 +247,7 @@ class APILog(models.Model):
 """
 聚合结果为0时，是不出现在数据里的，需要后端补全, 也可能出现长度为0的列表
 """
+
 RDL_JSON = dict(
     # 1. 传播实况
     spread_overview=dict(
@@ -310,7 +311,7 @@ RDL_JSON = dict(
         platform_cumulative=[
             # 分别表示 累计传播广度, 累计互动量, 平台, 投放声量, 评论数，点赞数，转发数，阅读数，粉丝数
             dict(breadth=10, interaction=50, name="微博", value=100, reply_count=32, like_count=23, transimit_count=34, view_count=45, fans_count=54),
-            dict(breadth=30, interaction=20, name="宝宝树", value=10)
+            dict(breadth=30, interaction=20, name="宝宝树", value=10, reply_count=12, like_count=9, transimit_count=7, view_count=42, fans_count=10)
         ],
 
         # 2.2. 平台效率 - 单位传播效率
@@ -338,7 +339,7 @@ RDL_JSON = dict(
         activity_cumulative=[
             # 分别表示 累计传播广度, 累计互动量, 账号, 子活动, 投放声量
             dict(breadth=50, interaction=33, name="张三", platform="微博", value=100, reply_count=32, like_count=23, transimit_count=34, view_count=45, fans_count=54),
-            dict(breadth=30, interaction=99, name="王五", platform="宝宝树", value=10)
+            dict(breadth=30, interaction=99, name="王五", platform="宝宝树", value=10, reply_count=2, like_count=32, transimit_count=12, view_count=6, fans_count=6)
         ],
 
         # 2.6. 子活动效率 - 单位传播效率
