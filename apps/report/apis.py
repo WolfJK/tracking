@@ -229,8 +229,8 @@ def data_transform(data):
     data["spread_effectiveness"]["brand_ugc_web"] = brand_ugc
 
     # 品牌关注度
-    map(lambda x: x.update(dict(value_year=data["brand_concern"]["annual"]), data["brand_concern"]["trend"]))
-    map(lambda x: x.update(dict(value_year=data["tags_concern"]["annual"]), data["tags_concern"]["trend"]))
+    map(lambda x: x.update(dict(value_year=data["brand_concern"]["annual"])), data["brand_concern"]["trend"])
+    map(lambda x: x.update(dict(value_year=data["tags_concern"]["annual"])), data["tags_concern"]["trend"])
 
     return data
 
@@ -240,7 +240,7 @@ def merge_spread_efficiency(data, type):
     对传播效率进行合并
     :return:
     '''
-    cumulative = copy.deepcopy(data["spread_efficiency"]["{}_efficiency".format(type)])
+    cumulative = copy.deepcopy(data["spread_efficiency"]["{}_cumulative".format(type)])
     average = data["spread_efficiency"]["{}_average".format(type)]
 
     list_to_map = {x["name"]: x for x in average}
@@ -346,12 +346,13 @@ def get_unscramble(data, sales_point):
 
     )
 
-    for k in sqls.unscramble_rule.keys():
-        unscramble = sqls.unscramble_rule[k]["unscramble"]
+    unscramble_rule = copy.deepcopy(sqls.unscramble_rule)
+    for k in unscramble_rule.keys():
+        unscramble = unscramble_rule[k]["unscramble"]
         unscramble = [rule[1].format(**param) for rule in unscramble if eval(rule[0].format(**param))]
-        sqls.unscramble_rule[k]["unscramble"] = "".join(unscramble)
+        unscramble_rule[k]["unscramble"] = "".join(unscramble)
 
-    return sqls.unscramble_rule
+    return unscramble_rule
 
 
 def report_unscramble_save(param, user):
