@@ -235,13 +235,15 @@ def data_transform(data):
     return data
 
 
-def merge_spread_efficiency(data, type):
+def merge_spread_efficiency(data, spread_type):
     '''
     对传播效率进行合并
+    :param data:
+    :param spread_type:
     :return:
     '''
-    cumulative = copy.deepcopy(data["spread_efficiency"]["{}_cumulative".format(type)])
-    average = data["spread_efficiency"]["{}_average".format(type)]
+    cumulative = copy.deepcopy(data["spread_efficiency"]["{}_cumulative".format(spread_type)])
+    average = data["spread_efficiency"]["{}_average".format(spread_type)]
 
     list_to_map = {x["name"]: x for x in average}
     map(lambda x: x.update(dict(
@@ -250,7 +252,7 @@ def merge_spread_efficiency(data, type):
         avg_value=list_to_map.get(x["name"], {}).get("value", 0),
     )), cumulative)
 
-    data["spread_efficiency"]["{}_web".format(type)] = cumulative
+    data["spread_efficiency"]["{}_web".format(spread_type)] = cumulative
 
 
 def get_unscramble(data, sales_point):
@@ -369,10 +371,11 @@ def report_unscramble_save(param, user):
     if not data.get("unscramble"):
         data["unscramble"] = get_unscramble(data_transform(data), report.sales_point.name)
 
-    plate = data["unscramble"][param["plate"]]
-    plate["unscramble"] = param["content"]
-    plate["user"] = user.username
-    plate["date"] = datetime.datetime.now().strftime('%Y-%m-%d')
+    data["unscramble"][param["plate"]].update(
+        unscramble=param["content"],
+        user=user.username,
+        date=datetime.datetime.now().strftime('%Y-%m-%d'),
+    )
 
     report.data = json.dumps(data)
     report.save()
