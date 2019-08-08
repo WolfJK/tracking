@@ -55,7 +55,7 @@ def report_config_create(request):
         ("product_line", "", "str"),
         ("name", "请输入报告名称", "str"),
         ("title", "请输入活动主题", "str"),
-        ("tag", "请输入活动标签", "str"),
+        ("tag", "请输入活动标签", "list"),
         ("monitor_start_date", "请选择活动检测周期", "str"),
         ("monitor_end_date", "请选择活动检测周期", "str"),
         ("platform", "请选择投放渠道", "str"),

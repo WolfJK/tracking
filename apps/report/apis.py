@@ -407,7 +407,11 @@ def report_config_create(param, user):
     :return:
     """
     user = SmUser.objects.get(id=2)
-    param.update(user=user)
+    param.update(
+        user=user,
+        tag=json.dumps(param["tag"]),
+        accounts=json.dumps(param["accounts"]),
+    )
 
     # 如果输入了 report_id, 则为 编辑 报告配置
     if param["report_id"]:
