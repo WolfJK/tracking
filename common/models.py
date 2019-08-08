@@ -180,6 +180,24 @@ class Report(models.Model):
         db_table = "report"
 
 
+class ReportStatus(models.Model):
+    STATUS_CHOICE = (
+        (-1, "失败"),
+        (0, "成功"),
+        (1, "创建"),
+        (2, "爬取中"),
+        (3, "入库中"),
+        (4, "计算中"),
+        (5, "已取消"),
+    )
+    report = models.ForeignKey(Report, help_text="报告", on_delete=models.DO_NOTHING)
+    status = models.IntegerField(help_text="状态", choices=STATUS_CHOICE, default=1)
+    create_time = models.DateTimeField(help_text="创建时间", auto_now_add=True)
+
+    class Meta:
+        db_table = "report_status"
+
+
 class APILog(models.Model):
     uri = models.CharField(max_length=64, help_text="访问 url")
     method = models.CharField(max_length=16, help_text="方法类型")

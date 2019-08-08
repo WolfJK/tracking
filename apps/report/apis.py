@@ -414,11 +414,16 @@ def report_config_create(param, user):
     )
 
     # 如果输入了 report_id, 则为 编辑 报告配置
-    if param["report_id"]:
-        report = get_report(param["report_id"], user, status=(1, ))
-        param.update(id=param.pop("report_id"), update_time=datetime.datetime.now(), create_time=report.create_time)
+    report_id = param.pop("report_id")
+    if report_id:
+        report = get_report(report_id, user, status=(1, ))
+        param.update(id=report_id, update_time=datetime.datetime.now(), create_time=report.create_time)
 
-    Report(**param).save()
+    param["sales_point"] = DimSalesPoint.objects.get(id=param["sales_point"])
+    report = Report(**param)
+    report.save()
+
+    ReportStatus(report=report, status=1).save()
 
 
 def get_report_config(report_id, user):
