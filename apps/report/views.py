@@ -59,7 +59,7 @@ def report_config_create(request):
         ("monitor_start_date", "请选择活动检测周期", "str"),
         ("monitor_end_date", "请选择活动检测周期", "str"),
         ("platform", "请选择投放渠道", "str"),
-        ("accounts", "", "str"),
+        ("accounts", "", "list"),
         ("sales_point", "请选择投宣传卖点", "int"),
         ("remark", "", "str"),
     ]

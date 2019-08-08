@@ -31,7 +31,7 @@ def get_report(status=0):
     try:
         reports = list(Report.objects.filter(status=status, delete=False).values(
             "id", "name", "tag", "monitor_start_date", "monitor_end_date",
-            "platform", "accounts", "sales_point",
+            "platform", "accounts", "sales_point__name",
         ))
 
     except:
