@@ -166,6 +166,7 @@ def report_details(report_id, user):
         start_date=report.monitor_start_date,
         end_date=report.monitor_end_date,
         name=report.name,
+        sales_point=report.sales_point.name,
         period=(report.monitor_end_date - report.monitor_start_date).days
 
     )
