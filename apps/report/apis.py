@@ -430,6 +430,8 @@ def get_report_config(report_id, user):
     """
     user = SmUser.objects.get(id=2)
     report = get_report(report_id, user)
+    report.accounts = json.loads(report.accounts)
+    report.tag = json.loads(report.tag)
 
     return report
 

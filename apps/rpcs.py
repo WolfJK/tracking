@@ -33,6 +33,7 @@ def get_report(status=0):
             "id", "name", "tag", "monitor_start_date", "monitor_end_date",
             "platform", "accounts", "sales_point__name",
         ))
+        map(lambda r: r.update(tag=json.loads(r["tag"]), accounts=json.loads(r["accounts"])), reports)
 
     except:
         logger.error(traceback.format_exc())
