@@ -56,7 +56,7 @@ def code(request):
 
 # change_password
 def change_password(request):
-    print "request", request.user
+
     old_password = request.POST.get('old_password')
     new_password_confirm = request.POST.get('confirm_password')
     new_password = request.POST.get('new_password')

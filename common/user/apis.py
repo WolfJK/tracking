@@ -78,7 +78,7 @@ def login(request):
         # user_attempts = user_attempts + 1
         # sessions.update_user_attempts(username, user_attempts)
         msg = '用户名或密码错误'
-        print msg
+
         # if user_attempts >= FAIL_AUTH_ATTEMPTS_CODE:
         #     raise NeedCodeException(msg)
 
@@ -88,7 +88,7 @@ def login(request):
     #     raise LockedException('用户已被禁用，请联系管理员')
 
     auth.login(request, user)
-    print "login"
+
     return request.session.session_key
 
 

@@ -16,7 +16,7 @@ logger = Logger.getLoggerInstance()
 @rpc.register()
 def update_report(report_id, status):
     try:
-        print(report_id)
+
         report = Report.objects.get(id=report_id)
         report.status = status
         report.save()
