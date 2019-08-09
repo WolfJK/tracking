@@ -491,7 +491,7 @@ def download_file(parametes):
     output = BytesIO()
     writer = pandas.ExcelWriter(output, engine="xlsxwriter")
 
-    dimension_df = pandas.DataFrame.from_records(list(), columns=["BGL/KOL", "所在地", "帐号"])
+    dimension_df = pandas.DataFrame.from_records(list(), columns=["BGC/KOL", "所在地", "帐号"])
     for paramete in parametes:
         dimension_df.to_excel(writer, sheet_name=paramete, index=0)
     writer.save()
@@ -504,8 +504,13 @@ def read_excle(file):
     sheets = xl.sheet_names
     data_list =list()
     for num, value in enumerate(sheets):
+        try:
+            platform = DimPlatform.objects.get(name=value)
+        except Exception:
+            raise Exception("表名称不存在")
         df1 = pandas.read_excel(file, encoding="utf-8", sheet_name=sheets[num])
-        df1["name"] = value
+        df1["platform_name"] = value
+        df1["platform_id"] = platform.id
         dict_dfs = df1.to_dict("records")
         data_list.append(dict_dfs)
     return data_list
@@ -525,8 +530,8 @@ def make_form(report_id):
         writer = pandas.ExcelWriter(output, engine="xlsxwriter")
 
         for paramete_list in parametes:
-            dimension_df = pandas.DataFrame.from_records(paramete_list, columns=["BGL/KOL", "所在地", "帐号"])
-            dimension_df.to_excel(writer, sheet_name=paramete_list[0].get("name"), index=0)
+            dimension_df = pandas.DataFrame.from_records(paramete_list, columns=["BGC/KOL", "所在地", "帐号"])
+            dimension_df.to_excel(writer, sheet_name=paramete_list[0].get("platform_name"), index=0)
         writer.save()
         output.seek(0)
     return output.getvalue() if report_obj.accounts else "", file_name
