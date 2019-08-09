@@ -371,14 +371,10 @@ def report_unscramble_save(param, user):
     report = get_report(param["report_id"], user, status=(0, ))
     data = json.loads(report.data)
 
-    if not data.get("unscramble"):
-        data["unscramble"] = get_unscramble(data_transform(data), report.sales_point.name)
-
-    data["unscramble"][param["plate"]].update(
-        unscramble=param["content"],
-        user=user.username,
-        date=datetime.datetime.now().strftime('%Y-%m-%d'),
-    )
+    data["unscramble"] = json.loads(param["content"])
+    for k, v in data["unscramble"].iteritems():
+        if v.pop("is_change", 0):
+            v.update(user=user.username, date=datetime.datetime.now().strftime('%Y-%m-%d'))
 
     report.data = json.dumps(data)
     report.save()
@@ -557,7 +553,7 @@ def update_report(report_id, status, ip):
     return dict(code=200)
 
 
-def get_report(status=0):
+def get_reports(status=0):
     '''
     获取特定状态 的报告列表
     :param status:

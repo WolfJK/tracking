@@ -102,13 +102,9 @@ def report_unscramble_save(request):
     '''
     params = [
         ("report_id", "请选择报告", "int"),
-        ("plate", "请选择报告模块", "str"),
         ("content", "请输入报告解读内容", "str"),
     ]
     param = apps_apis.get_parameter(request.POST, params)
-    if not param["plate"] in ("transmission", "efficiency", "effect_ugc", "effect_brand", "effect_sales_point"):
-        raise Exception("报告板块错误")
-
     apis.report_unscramble_save(param, request.user)
 
     return JsonResponse(dict(code=200))
@@ -140,7 +136,7 @@ def get_report(request):
         return JsonResponse(dict(code=403))
 
     param = apps_apis.get_parameter(request.POST, [("status", "请输入报告状态", "int")])
-    data = apis.get_report(param["status"])
+    data = apis.get_reports(param["status"])
 
     return JsonResponse(data, safe=True)
 
