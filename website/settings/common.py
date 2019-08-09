@@ -113,6 +113,9 @@ SKIP_AUTHORIZATION_URLS = [
     "/apps/common/report-template-list/",
     "/apps/common/throw-account-upload/",
 
+    "/apps/report/get-report/",
+    "/apps/report/update-report/",
+
 ] + SKIP_AUTHENTICATION_URLS
 
 # session
