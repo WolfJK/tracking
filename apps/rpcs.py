@@ -25,7 +25,7 @@ def update_report(report_id, status):
     except:
         logger.error(traceback.format_exc() + "\r\n"
                      + "[update_report request data]  report_id={0}, status={1}".format(report_id, status))
-        return "报告不存在"
+        return 0
 
     return 1
 

@@ -19,4 +19,7 @@ urlpatterns = patterns("apps.report.views",
     url(r"^download/$", views.download_account),
     url(r"^download-panel/$", views.download_panel),
 
+    url(r"^update-report/$", views.update_report),
+    url(r"^get-report/$", views.get_report),
+
 )

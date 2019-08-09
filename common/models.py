@@ -193,6 +193,7 @@ class ReportStatus(models.Model):
     report = models.ForeignKey(Report, help_text="报告", on_delete=models.DO_NOTHING)
     status = models.IntegerField(help_text="状态", choices=STATUS_CHOICE, default=1)
     create_time = models.DateTimeField(help_text="创建时间", auto_now_add=True)
+    ip = models.CharField(max_length=32, help_text="修改者 ip", null=True, default=None)
 
     class Meta:
         db_table = "report_status"

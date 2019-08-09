@@ -13,7 +13,11 @@ import sqls
 import json
 import datetime
 import copy
+import traceback
+from common.logger import Logger
 
+
+logger = Logger.getLoggerInstance()
 
 report_affilication = {
     "1": "本品",
@@ -399,11 +403,12 @@ def get_report(report_id, user, status=()):
     return report
 
 
-def report_config_create(param, user):
+def report_config_create(param, user, ip):
     """
     生成报告
     :param param: 报告参数
     :param user: 当前用户
+    :param ip: 用户 ip
     :return:
     """
     user = SmUser.objects.get(id=2)
@@ -423,7 +428,7 @@ def report_config_create(param, user):
     report = Report(**param)
     report.save()
 
-    ReportStatus(report=report, status=1).save()
+    ReportStatus(report=report, status=1, ip=ip).save()
 
 
 def get_report_config(report_id, user):
@@ -529,3 +534,45 @@ def make_form(report_id):
         writer.save()
         output.seek(0)
     return output.getvalue() if report_obj.accounts else "", file_name
+
+
+def update_report(report_id, status, ip):
+    '''
+    更新 报告状态
+    :param report_id:
+    :param status:
+    :param ip:
+    :return:
+    '''
+    try:
+        report = Report.objects.get(id=report_id)
+        report.status = status
+        report.save()
+
+        ReportStatus(report=report, status=status, ip=ip).save()
+    except:
+        logger.error("[update_report request data]  report_id={0}, status={1}".format(report_id, status))
+        return dict(code=500)
+
+    return dict(code=200)
+
+
+def get_report(status=0):
+    '''
+    获取特定状态 的报告列表
+    :param status:
+    :return:
+    '''
+    try:
+        reports = list(Report.objects.filter(status=status, delete=False).values(
+            "id", "name", "tag", "monitor_start_date", "monitor_end_date",
+            "platform", "accounts", "sales_point__name",
+        ))
+        map(lambda r: r.update(tag=json.loads(r["tag"]), accounts=json.loads(r["accounts"])), reports)
+
+    except:
+        logger.error("[[get_report request data]]  status={}".format(status))
+        return dict(code=500)
+
+    return dict(code=200, data=reports)
+

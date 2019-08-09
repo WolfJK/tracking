@@ -40,3 +40,5 @@ LOGGER_PATH = join(LOG_DIR, "tracking_v1.log")
 ERROR_LOGGER_PATH = join(LOG_DIR, "tracking_v1_error.log")
 LOGGER_SYSTEM_NAME = "TRACKING_V1"
 LOGGER_TAG = "TRACKING_APP"
+
+whitelist = []

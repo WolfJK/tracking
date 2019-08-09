@@ -2,6 +2,8 @@
 # __author__: ""
 from __future__ import unicode_literals
 import json
+import functools
+from website.settings import whitelist
 
 
 def get_parameter(request_data, parameters):
@@ -31,3 +33,12 @@ def get_parameter(request_data, parameters):
         param.update({parameter[0]: parameter_value})
 
     return param
+
+
+def get_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip

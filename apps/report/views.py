@@ -7,6 +7,7 @@ from . import apis
 from apps import apis as apps_apis
 from django.utils.http import urlquote
 import json
+from website.settings import whitelist
 
 
 # ############################# 活动有效性评估 #################################
@@ -63,8 +64,9 @@ def report_config_create(request):
         ("sales_point", "请选择投宣传卖点", "int"),
         ("remark", "", "str"),
     ]
+    ip = apps_apis.get_ip(request)
     param = apps_apis.get_parameter(request.POST, params)
-    apis.report_config_create(param, request.user)
+    apis.report_config_create(param, request.user, ip)
 
     return JsonResponse(dict(code=200))
 
@@ -110,6 +112,37 @@ def report_unscramble_save(request):
     apis.report_unscramble_save(param, request.user)
 
     return JsonResponse(dict(code=200))
+
+
+def update_report(request):
+    '''
+    跟新报告状态
+    :param request:
+    :return:
+    '''
+    ip = apps_apis.get_ip(request)
+    if not (ip.startswith("172.16.1.") or ip in whitelist):
+        return JsonResponse(dict(code=403))
+
+    param = apps_apis.get_parameter(request.POST, [("report_id", "请选择报告", "int"), ("status", "请输入报告状态", "int")])
+    data = apis.update_report(param["report_id"], param["status"], ip)
+    return JsonResponse(data, safe=True)
+
+
+def get_report(request):
+    '''
+    获取特定状态的报告列表
+    :param request:
+    :return:
+    '''
+    ip = apps_apis.get_ip(request)
+    if not (ip.startswith("172.16.1.") or ip in whitelist):
+        return JsonResponse(dict(code=403))
+
+    param = apps_apis.get_parameter(request.POST, [("status", "请输入报告状态", "int")])
+    data = apis.get_report(param["status"])
+
+    return JsonResponse(data, safe=True)
 
 
 def report_common_info(request):
@@ -176,3 +209,4 @@ def download_panel(request):
     response["Content-Disposition"] = "attachment; filename={0}".format(urlquote(file_name))
 
     return response
+
