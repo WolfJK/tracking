@@ -45,9 +45,9 @@ def common_param(request):
     menus = common_apis.get_user_menus(request)
     user_info = apis.get_user_info(user)
     return JsonResponse(data={
-        "report_state": report_state,
-        "monitor_end_date": monitor_end_date,
-        "monitor_period": monitor_period,
+        "report_state": report_state[0],
+        "monitor_end_date": monitor_end_date[0],
+        "monitor_period": monitor_period[0],
         "industry_list": industry_list,
         "menus": menus,
         "user_info": user_info
