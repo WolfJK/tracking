@@ -19,6 +19,7 @@ def common_param(request):
     '''
 
     report_state = [
+        dict(code=100, name="全部"),
         dict(code=-1, name="失败"),
         dict(code=0, name="成功"),
         dict(code=1, name="创建"),

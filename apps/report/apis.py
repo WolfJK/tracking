@@ -49,10 +49,10 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
     # values = ("monitor_start_date", "monitor_end_date", "create_time", "username", "status")
     db = DB()
     sql = "SELECT * FROM report where `delete`=false ORDER BY create_time DESC"
-    if report_status or monitor_end_time != "36500" or monitor_cycle != "36500" or key_word or(not(user.is_admin and user.user_type == 1)):
+    if report_status != "100" or monitor_end_time != "36500" or monitor_cycle != "36500" or key_word or(not(user.is_admin and user.user_type == 1)):
         sql = "SELECT * FROM report WHERE `delete`=false and {} ORDER BY create_time DESC"
 
-    if report_status:
+    if report_status != "100":
         sql_format.append("{}={}".format("status", report_status))
     if monitor_end_time != "36500":
         if monitor_end_time == "30":
