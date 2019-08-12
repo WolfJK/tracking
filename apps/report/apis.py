@@ -143,6 +143,8 @@ def formatted_report(reports):
         report.update(monitor_end_date=monitor_end_date)
         status_values = Report.objects.get(id=report.get("id")).get_status_display()
         report.update(status_values=status_values)
+        user = SmUser.objects.get(id=report.get("user_id"))
+        report.update(username=user.username)
     return reports
 
 
