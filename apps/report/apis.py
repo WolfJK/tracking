@@ -570,7 +570,7 @@ def get_reports(status=0):
     '''
     try:
         reports = list(Report.objects.filter(status=status, delete=False).values(
-            "id", "name", "industry", "tag", "monitor_start_date", "monitor_end_date",
+            "id", "name", "industry__name", "tag", "monitor_start_date", "monitor_end_date",
             "platform", "accounts", "sales_point__name",
         ))
         map(lambda r: r.update(tag=json.loads(r["tag"]), accounts=json.loads(r["accounts"])), reports)
