@@ -79,7 +79,8 @@ def report_config_edit(request):
     '''
     param = apps_apis.get_parameter(request.POST, [("report_id", "请选择一个报告", "int")])
     data = apis.get_report_config(param["report_id"], request.user)
-
+    data.__dict__.pop("_state")
+    data = apis.formatted_report([data.__dict__])[0]
     return JsonResponse(data, safe=False)
 
 

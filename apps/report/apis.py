@@ -138,8 +138,10 @@ def formatted_report(reports):
         monitor_start_date = report.get("monitor_start_date").strftime(data_format1)
         monitor_end_date = report.get("monitor_end_date").strftime(data_format1)
         create_time = report.get("create_time").strftime(data_format2)
+        update_time = report.get("update_time").strftime(data_format2) if report.get("update_time") else None
         report.update(monitor_start_date=monitor_start_date)
         report.update(create_time=create_time)
+        report.update(update_time=update_time)
         report.update(monitor_end_date=monitor_end_date)
         status_values = Report.objects.get(id=report.get("id")).get_status_display()
         report.update(status_values=status_values)
