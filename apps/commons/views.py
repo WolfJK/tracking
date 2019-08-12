@@ -45,13 +45,15 @@ def common_param(request):
     user = request.user
     menus = common_apis.get_user_menus(request)
     user_info = apis.get_user_info(user)
+    platforms = apis.get_platform_info()
     return JsonResponse(data={
         "report_state": report_state[0],
         "monitor_end_date": monitor_end_date[0],
         "monitor_period": monitor_period[0],
         "industry_list": industry_list,
         "menus": menus,
-        "user_info": user_info
+        "user_info": user_info,
+        "platforms": platforms
     }, safe=False)
 
 

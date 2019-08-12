@@ -2,7 +2,7 @@
 # __author__: ''
 from __future__ import unicode_literals
 
-from common.models import DimIndustry, DimBrand, DimBrandCategory, DimSalesPoint, Report, DimCategory
+from common.models import DimIndustry, DimBrand, DimBrandCategory, DimSalesPoint, Report, DimCategory, DimPlatform
 
 
 def get_user_info(user):
@@ -69,3 +69,7 @@ def report_template_list(user):
         "category", "product_line", "accounts", "sales_point", "remark", "remark"
     ))
 
+
+def get_platform_info():
+
+    return list(DimPlatform.objects.all().values())
