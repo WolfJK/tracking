@@ -72,7 +72,7 @@ def login(request):
     #         raise NeedCodeException('请输入验证码')
     #     if not Captcha(request).check(code):
     #         raise NeedCodeException('验证码错误')
-
+    logout(request)
     user = auth.authenticate(username=username, password=password)
     if not user:
         # user_attempts = user_attempts + 1
@@ -84,11 +84,9 @@ def login(request):
 
         raise Exception(msg)
 
-    # if not request.user.is_active():
-    #     raise LockedException('用户已被禁用，请联系管理员')
-
+    if not user.is_active:
+        raise LockedException('用户已被禁用，请联系管理员')
     auth.login(request, user)
-
     return request.session.session_key
 
 
