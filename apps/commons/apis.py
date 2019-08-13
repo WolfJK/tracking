@@ -31,13 +31,13 @@ def industry_list():
     return list(DimIndustry.objects.values("id", "name"))
 
 
-def brand_list(industry_id):
+def brand_list(industry_id, user):
     '''
     获取 品牌列表
     :param industry_id: 行业 id
     :return:
     '''
-    return list(DimBrand.objects.filter(industry_id=industry_id).values("id", "name"))
+    return list(DimBrand.objects.filter(industry_id=industry_id).exclude(id=user.brand_id).values("id", "name"))
 
 
 def category_list(brand_id):

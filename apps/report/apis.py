@@ -118,13 +118,13 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
         sql = sql.format(sql_format)
     res = db.search(sql)
     if res:
-        data = formatted_report(res)
+        data = formatted_report(res, user)
     else:
         data = []
     return data
 
 
-def formatted_report(reports):
+def formatted_report(reports, user):
     # 格式化表格
     data_format1 = "%Y-%m-%d"
     data_format2 = "%Y-%m-%d %H:%M:%S"
@@ -151,10 +151,15 @@ def formatted_report(reports):
         report.update(platform=platform_ids)
         platform_names = list(DimPlatform.objects.filter(id__in=platform_ids).values_list("name", flat=True))
         report.update(platform_names=platform_names)
-        report.update(brand_name=DimBrand.objects.get(id=report.get("brand_id")).name)
+        brand_name = DimBrand.objects.get(id=report.get("brand_id")).name
+        report.update(brand_name=brand_name)
         report.update(industry_name=DimIndustry.objects.get(id=report.get("industry_id")).name)
         report.update(category_name=DimCategory.objects.get(id=report.get("category_id")).name)
         report.update(sales_point_name=DimSalesPoint.objects.get(id=report.get("sales_point_id")).name)
+        if user.brand.name == brand_name:
+            report.update(is_owner="本品")
+        else:
+            report.update(is_owner="竞品")
     return reports
 
 

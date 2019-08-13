@@ -64,7 +64,7 @@ def brand_list(request):
     :return:
     '''
     param = apps_apis.get_parameter(request.POST, [("industry_id", "请选择行业", "int")])
-    data = apis.brand_list(param["industry_id"])
+    data = apis.brand_list(param["industry_id"], request.user)
 
     return JsonResponse(data, safe=False)
 
