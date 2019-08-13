@@ -98,6 +98,10 @@ SKIP_AUTHENTICATION_URLS = [
     '/hello/exception/',
     '/hello/needcode-exception/',
     '/user/asign-user/',
+
+    # 外部 api, 由白名单确保安全
+    "/apps/report/get-report/",
+    "/apps/report/update-report/",
 ]
 
 SKIP_AUTHORIZATION_URLS = [
@@ -112,9 +116,6 @@ SKIP_AUTHORIZATION_URLS = [
     "/apps/common/sales-point-list/",
     "/apps/common/report-template-list/",
     "/apps/common/throw-account-upload/",
-
-    "/apps/report/get-report/",
-    "/apps/report/update-report/",
 
 ] + SKIP_AUTHENTICATION_URLS
 
