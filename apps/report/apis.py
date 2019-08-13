@@ -508,7 +508,7 @@ def download_file(parametes):
     # 创建Excel内存对象，用StringIO填充
     output = BytesIO()
     writer = pandas.ExcelWriter(output, engine="xlsxwriter")
-
+    parametes = DimPlatform.objects.filter(id__in=parametes).values_list('name', flat=True)
     dimension_df = pandas.DataFrame.from_records(list(), columns=["BGC/KOL", "所在地", "帐号"])
     for paramete in parametes:
         dimension_df.to_excel(writer, sheet_name=paramete, index=0)
