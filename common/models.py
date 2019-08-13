@@ -143,13 +143,15 @@ class DimSalesPoint(models.Model):
 
 class Report(models.Model):
     STATUS_CHOICE = (
+        (-2, "已取消"),
         (-1, "失败"),
         (0, "成功"),
-        (1, "创建"),
+        (1, "已创建"),
         (2, "爬取中"),
-        (3, "入库中"),
-        (4, "计算中"),
-        (5, "已取消"),
+        (3, "爬去完成"),
+        (4, "入库中"),
+        (5, "入库完成"),
+        (6, "计算中"),
     )
     name = models.CharField(max_length=32, help_text="报告名称")
     user = models.ForeignKey(SmUser, help_text="所属用户", on_delete=models.DO_NOTHING)
