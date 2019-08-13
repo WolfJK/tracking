@@ -147,7 +147,14 @@ def formatted_report(reports):
         report.update(status_values=status_values)
         user = SmUser.objects.get(id=report.get("user_id"))
         report.update(username=user.username)
-        report.update(platform=json.loads(report.get("platform")))
+        platform_ids = json.loads(report.get("platform"))
+        report.update(platform=platform_ids)
+        platform_names = list(DimPlatform.objects.filter(id__in=platform_ids).values_list("name", flat=True))
+        report.update(platform_names=platform_names)
+        report.update(brand_name=DimBrand.objects.get(id=report.get("brand_id")).name)
+        report.update(industry_name=DimIndustry.objects.get(id=report.get("industry_id")).name)
+        report.update(category_name=DimCategory.objects.get(id=report.get("category_id")).name)
+        report.update(sales_point_name=DimSalesPoint.objects.get(id=report.get("sales_point_id")).name)
     return reports
 
 
