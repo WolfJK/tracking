@@ -147,6 +147,7 @@ def formatted_report(reports):
         report.update(status_values=status_values)
         user = SmUser.objects.get(id=report.get("user_id"))
         report.update(username=user.username)
+        report.update(platform=json.loads(report.get("platform")))
     return reports
 
 
@@ -175,8 +176,9 @@ def report_details(report_id, user):
         end_date=report.monitor_end_date,
         name=report.name,
         sales_point=report.sales_point.name,
-        period=(report.monitor_end_date - report.monitor_start_date).days
-
+        period=(report.monitor_end_date - report.monitor_start_date).days,
+        status_value=report.get_status_display(),
+        status=report.status
     )
 
     return data
