@@ -121,8 +121,12 @@ def update_report(request):
     if not (ip.startswith("172.16.1.") or ip in whitelist):
         return JsonResponse(dict(code=403))
 
-    param = apps_apis.get_parameter(request.POST, [("report_id", "请选择报告", "int"), ("status", "请输入报告状态", "int")])
-    data = apis.update_report(param["report_id"], param["status"], ip)
+    param = apps_apis.get_parameter(request.POST, [
+        ("report_id", "请选择报告", "int"),
+        ("status", "请输入报告状态", "int"),
+        ("data", "", "dict")
+    ])
+    data = apis.update_report(param["report_id"], param["status"], param["data"], ip)
     return JsonResponse(data, safe=True)
 
 

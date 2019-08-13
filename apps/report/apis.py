@@ -555,17 +555,20 @@ def make_form(report_id):
     return output.getvalue() if report_obj.accounts else "", file_name
 
 
-def update_report(report_id, status, ip):
+def update_report(report_id, status, data, ip):
     '''
     更新 报告状态
     :param report_id:
     :param status:
+    :param data:
     :param ip:
     :return:
     '''
     try:
         report = Report.objects.get(id=report_id)
         report.status = status
+        if data:
+            report.data = json.dumps(data)
         report.save()
 
         ReportStatus(report=report, status=status, ip=ip).save()
@@ -585,7 +588,7 @@ def get_reports(status=0):
     try:
         reports = list(Report.objects.filter(status=status, delete=False).values(
             "id", "name", "industry__name", "tag", "monitor_start_date", "monitor_end_date",
-            "platform", "accounts", "sales_point__name",
+            "platform", "accounts", "sales_point__name", "brand__name",
         ))
         map(lambda r: r.update(tag=json.loads(r["tag"]), accounts=json.loads(r["accounts"])), reports)
 
