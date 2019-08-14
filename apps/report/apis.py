@@ -588,7 +588,11 @@ def get_reports(status=0):
             "id", "name", "industry__name", "tag", "monitor_start_date", "monitor_end_date",
             "platform", "accounts", "sales_point__name", "brand__name",
         ))
-        map(lambda r: r.update(tag=json.loads(r["tag"]), accounts=json.loads(r["accounts"])), reports)
+        map(lambda r: r.update(
+            tag=json.loads(r["tag"]),
+            accounts=json.loads(r["accounts"]),
+            platform=json.loads(r["platform"]),
+        ), reports)
 
     except:
         logger.error("[[get_report request data]]  status={}".format(status))
