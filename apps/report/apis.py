@@ -176,7 +176,6 @@ def report_details(report_id, user):
     :param user: 当前用户
     :return:
     """
-    user = SmUser.objects.get(id=2)
     report = get_report(report_id, user, status=(0, ))
 
     data = json.loads(report.data)
@@ -385,7 +384,6 @@ def report_unscramble_save(param, user):
     :param user:
     :return:
     """
-    user = SmUser.objects.get(id=2)
     report = get_report(param["report_id"], user, status=(0, ))
     data = json.loads(report.data)
 
@@ -425,11 +423,11 @@ def report_config_create(param, user, ip):
     :param ip: 用户 ip
     :return:
     """
-    user = SmUser.objects.get(id=2)
     param.update(
         user=user,
         tag=json.dumps(param["tag"]),
         accounts=json.dumps(param["accounts"]),
+        platform=json.dumps(param["platform"]),
     )
 
     # 如果输入了 report_id, 则为 编辑 报告配置
@@ -452,10 +450,10 @@ def get_report_config(report_id, user):
     :param user: 当前用户
     :return:
     """
-    user = SmUser.objects.get(id=2)
     report = get_report(report_id, user)
     report.accounts = json.loads(report.accounts)
     report.tag = json.loads(report.tag)
+    report.platform = json.loads(report.platform)
 
     return report
 
