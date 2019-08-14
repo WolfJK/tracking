@@ -2,8 +2,6 @@
 # __author__: ""
 from __future__ import unicode_literals
 import json
-import functools
-from website.settings import whitelist
 
 
 def get_parameter(request_data, parameters):
@@ -42,3 +40,17 @@ def get_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+def del_key_in_ld(data, keys):
+    """
+    删除 字典中的 keys
+    :param data: [dict(aa=1,bb=2,cc=3)]
+    :param keys: ["aa"]
+    :return:
+    """
+    for _ in data:
+        map(lambda x: _.pop(x), keys)
+
+    return data
+

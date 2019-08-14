@@ -3,7 +3,9 @@
 from __future__ import unicode_literals
 
 from common.models import DimIndustry, DimBrand, DimBrandCategory, DimSalesPoint, Report, DimCategory, DimPlatform
-
+from itertools import groupby
+from operator import itemgetter
+import apps.apis as apps_apis
 
 def get_user_info(user):
     user_dict = {
@@ -71,5 +73,11 @@ def report_template_list(user):
 
 
 def get_platform_info():
+    platforms_list = list(DimPlatform.objects.all().order_by("parent").values())
 
-    return list(DimPlatform.objects.all().values())
+    platforms = []
+    for k, v in groupby(platforms_list, itemgetter("parent")):
+        platforms.append(dict(id=k, name=k, children=apps_apis.del_key_in_ld(list(v), ("parent",))))
+
+    return platforms
+
