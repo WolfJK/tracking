@@ -161,7 +161,7 @@ class Report(models.Model):
 
     monitor_start_date = models.DateField(help_text="检测周期开始时间")
     monitor_end_date = models.DateField(help_text="检测周期结束时间")
-    platform = models.CharField(max_length=64, help_text="渠道，逗号分隔")
+    platform = models.TextField(help_text="渠道, json 格式")
 
     # industry = models.ForeignKey(DimIndustry, help_text="行业", on_delete=models.DO_NOTHING)
     brand = models.ForeignKey(DimBrand, help_text="品牌", on_delete=models.DO_NOTHING)
