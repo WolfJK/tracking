@@ -48,35 +48,26 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
     sql_format = []
     # values = ("monitor_start_date", "monitor_end_date", "create_time", "username", "status")
     db = DB()
-    sql = "SELECT * FROM report where `delete`=false ORDER BY create_time DESC"
+    sql = "SELECT * FROM report where `delete`=false and status>=0 ORDER BY create_time DESC"
     if report_status != "100" or monitor_end_time != "36500" or monitor_cycle != "36500" or key_word or(not(user.is_admin and user.user_type == 1)):
-        sql = "SELECT * FROM report WHERE `delete`=false and {} ORDER BY create_time DESC"
+        sql = "SELECT * FROM report WHERE `delete`=false and status>=0 and {} ORDER BY create_time DESC"
 
     if report_status != "100":
-        sql_format.append("{}={}".format("status", report_status))
+        if int(report_status) >= 2:
+            sql_format.append("{}>={}".format("status", report_status))
+        else:
+            sql_format.append("{}={}".format("status", report_status))
     if monitor_end_time != "36500":
-        if monitor_end_time == "30":
-            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.datetime.now(), "monitor_end_date", 30))
-        elif monitor_end_time == "90":
-            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.datetime.now(), "monitor_end_date", 90))
-        elif monitor_end_time == "180":
-            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.datetime.now(), "monitor_end_date", 180))
-        elif monitor_end_time == "-180":
+        if monitor_end_time == "-180":
             sql_format.append("datediff(\'{}\', {})>{}".format(datetime.datetime.now(), "monitor_end_date", 180))
         else:
-            raise Exception("monitor_end_time参数错误")
+            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.datetime.now(), "monitor_end_date", monitor_end_time))
 
     if monitor_cycle != "36500":
-        if monitor_cycle == "14":
-            sql_format.append("datediff({}, {})<{}".format("monitor_end_date", "monitor_start_date", 14))
-        elif monitor_cycle == "30":
-            sql_format.append("datediff({}, {})<{}".format("monitor_end_date", "monitor_start_date", 30))
-        elif monitor_cycle == "90":
-            sql_format.append("datediff({}, {})<{}".format("monitor_end_date", "monitor_start_date", 90))
-        elif monitor_cycle == "-90":
-            sql_format.append("datediff({}, {})>{}".format("monitor_end_date", "monitor_start_date", 90))
+        if monitor_cycle == "-90":
+             sql_format.append("datediff({}, {})>{}".format("monitor_end_date", "monitor_start_date", 90))
         else:
-            raise Exception("monitor_cycle 参数错误")
+            sql_format.append("datediff({}, {})<{}".format("monitor_end_date", "monitor_start_date", monitor_cycle))
 
     if key_word:
         name = key_word.lower()
@@ -117,14 +108,11 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
         sql_format = " and ".join(sql_format)
         sql = sql.format(sql_format)
     res = db.search(sql)
-    if res:
-        data = formatted_report(res, user)
-    else:
-        data = []
-    return data
+
+    return formatted_report(res) if res else []
 
 
-def formatted_report(reports, user):
+def formatted_report(reports):
     # 格式化表格
     data_format1 = "%Y-%m-%d"
     data_format2 = "%Y-%m-%d %H:%M:%S"
@@ -147,10 +135,9 @@ def formatted_report(reports, user):
         report.update(status_values=status_values)
         user = SmUser.objects.get(id=report.get("user_id"))
         report.update(username=user.username)
-        platform_ids = json.loads(report.get("platform"))
-        report.update(platform=platform_ids)
-        platform_names = list(DimPlatform.objects.filter(id__in=platform_ids).values_list("name", flat=True))
-        report.update(platform_names=platform_names)
+        report.update(platform=json.loads(report.get("platform")))
+        # platform_names = list(DimPlatform.objects.filter(id__in=platform_ids).values_list("name", flat=True))
+        # report.update(platform_names=platform_names)
         brand_name = DimBrand.objects.get(id=report.get("brand_id")).name
         report.update(brand_name=brand_name)
         report.update(industry_name=DimIndustry.objects.get(id=report.get("industry_id")).name)
@@ -453,7 +440,7 @@ def get_report_config(report_id, user):
     report = get_report(report_id, user)
     report.accounts = json.loads(report.accounts)
     report.tag = json.loads(report.tag)
-    report.platform = json.loads(report.platform)
+    report.platform = report.platform
 
     return report
 

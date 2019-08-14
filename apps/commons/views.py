@@ -20,12 +20,14 @@ def common_param(request):
 
     report_state = [
         dict(code=100, name="全部"),
-        dict(code=-1, name="失败"),
-        dict(code=0, name="成功"),
-        dict(code=1, name="创建"),
-        dict(code=2, name="爬取中"),
-        dict(code=3, name="入库中"),
-        dict(code=4, name="计算中"),
+        # dict(code=-1, name="失败"),
+        dict(code=0, name="生成完成"),
+        dict(code=1, name="提交中"),
+        dict(code=2, name="生成中"),
+        # dict(code=1, name="创建"),
+        # dict(code=2, name="爬取中"),
+        # dict(code=3, name="入库中"),
+        # dict(code=4, name="计算中"),
     ],
     monitor_end_date = [
         dict(code=36500, name="全部"),
