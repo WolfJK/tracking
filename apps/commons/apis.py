@@ -7,6 +7,7 @@ from itertools import groupby
 from operator import itemgetter
 import apps.apis as apps_apis
 
+
 def get_user_info(user):
     user_dict = {
         "username": user.username,
