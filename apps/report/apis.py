@@ -428,7 +428,7 @@ def report_config_create(param, user, ip):
     report.save()
 
     ReportStatus(report=report, status=1, ip=ip).save()
-
+    return report
 
 def get_report_config(report_id, user):
     """
