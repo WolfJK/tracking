@@ -13,16 +13,16 @@ USE_CATCHED=False
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "kcc",
-        "USER": "kcc",
-        "PASSWORD": "20190318@MaRcPoInT1202",
-        "HOST": "172.19.70.126",
+        "NAME": "tracking",
+        "USER": "tracking",
+        "PASSWORD": "Mp@2019_tracking",
+        "HOST": "172.16.1.112",
         "PORT": "3306",
     }
 }
 
 ## REDIS Settings
-REDIS_IP = "172.19.70.126"
+REDIS_IP = "127.0.0.1"
 REDIS_PORT = 6379
 # SESSION Settings
 SESSION_REDIS = {
@@ -40,5 +40,9 @@ LOGGER_PATH = join(LOG_DIR, "tracking_v1.log")
 ERROR_LOGGER_PATH = join(LOG_DIR, "tracking_v1_error.log")
 LOGGER_SYSTEM_NAME = "TRACKING_V1"
 LOGGER_TAG = "TRACKING_APP"
+
+USE_CATCHED=False
+FAIL_AUTH_MAX_ATTEMPTS = 10
+FAIL_AUTH_NEEDCODE_ATTEMPTS = 3
 
 whitelist = []

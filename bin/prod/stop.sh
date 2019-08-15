@@ -1,1 +1,1 @@
-uwsgi --stop /opt/project/kcc_v1/bin/kcc_v1.pid
+uwsgi --stop /opt/project/tracking_v1/bin/tracking_v1.pid

@@ -1,1 +1,1 @@
-mkdir -p /mnt/log/tracking_v1
+mkdir -p /var/log/tracking_v1
