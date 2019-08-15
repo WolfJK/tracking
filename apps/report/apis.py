@@ -165,9 +165,9 @@ def report_details(report_id, user):
     """
     report = get_report(report_id, user, status=(0, ))
 
-    data = json.loads(report.data)
+    data = data_transform(json.loads(report.data))
     if not data.get("unscramble"):
-        data["unscramble"] = get_unscramble(data_transform(data), report.sales_point.name)
+        data["unscramble"] = get_unscramble(data, report.sales_point.name)
 
     data["report_config"] = dict(
         start_date=report.monitor_start_date,
@@ -383,7 +383,7 @@ def report_unscramble_save(param, user):
     report.save()
 
 
-def get_report(report_id, user, status=()):
+def get_report(report_id, user, status):
     """
     校验是否有权操作报告
     :param report_id:
