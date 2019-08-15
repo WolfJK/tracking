@@ -66,9 +66,9 @@ def report_config_create(request):
     ]
     ip = apps_apis.get_ip(request)
     param = apps_apis.get_parameter(request.POST, params)
-    apis.report_config_create(param, request.user, ip)
+    report = apis.report_config_create(param, request.user, ip)
 
-    return JsonResponse(dict(code=200))
+    return JsonResponse(dict(code=200, report_id=report.id))
 
 
 def report_config_edit(request):
