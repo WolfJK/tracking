@@ -208,7 +208,7 @@ def data_transform(data):
     data["spread_overview"]["platform_web"] = platform_web
 
     # 投放账号分布
-    account_max_df = pandas.DataFrame(data["spread_overview"]["account"])
+    account_max_df = pandas.DataFrame(data["spread_overview"]["account"], columns=["account", "platform", "post_count", "user_type"])
     account_web = account_max_df.drop_duplicates(subset=["account", "platform", "user_type"]).groupby(["user_type"], as_index=False)["account"].count()
     post_web = account_max_df.groupby(["user_type"], as_index=False).agg({"post_count": pandas.Series.sum})
 
@@ -269,80 +269,96 @@ def get_unscramble(data, sales_point):
     :param sales_point:
     :return:
     '''
-    activity_max = max(data["spread_overview"]["activity"], key=lambda x: x["value"])
-    platform_max = max(ast.flatten([x["children"] for x in data["spread_overview"]["platform_web"]]), key=lambda x: x["value"])
-    platform_post_sum = sum([v["value"] for v in ast.flatten([x["children"] for x in data["spread_overview"]["platform_web"]])])
 
-    account_max = max(data["spread_overview"]["account_web"], key=lambda x: x["account"])
-    account_post_max = max(data["spread_overview"]["account_web"], key=lambda x: x["post_count"])
+    activity_max, platform_max, account_max, account_post_max, cb_platform_max, \
+    hd_platform_max, cb_account_max, hd_account_max, cb_activity_max, hd_activity_max, \
+    source_max, activity_ugc_max = [{}] * 12
+
+    if data["spread_overview"]["activity"]:
+        activity_max = max(data["spread_overview"]["activity"], key=lambda x: x["value"])
+
+    if data["spread_overview"]["platform_web"]:
+        platform_max = max(ast.flatten([x["children"] for x in data["spread_overview"]["platform_web"]]), key=lambda x: x["value"])
+
+    platform_post_sum = sum([v["value"] for v in ast.flatten([x["children"] for x in data["spread_overview"]["platform_web"]])], 0.00001)
+
+    if data["spread_overview"]["account_web"]:
+        account_max = max(data["spread_overview"]["account_web"], key=lambda x: x["account"])
+        account_post_max = max(data["spread_overview"]["account_web"], key=lambda x: x["post_count"])
 
     spread_efficiency = data["spread_efficiency"]["platform_cumulative"]
-    cb_platform_max = max(spread_efficiency, key=lambda x: x["breadth"])
-    hd_platform_max = max(spread_efficiency, key=lambda x: x["interaction"])
+
+    if spread_efficiency:
+        cb_platform_max = max(spread_efficiency, key=lambda x: x["breadth"])
+        hd_platform_max = max(spread_efficiency, key=lambda x: x["interaction"])
 
     account_cumulative = data["spread_efficiency"]["account_cumulative"]
-    cb_account_max = max(account_cumulative, key=lambda x: x["breadth"])
-    hd_account_max = max(account_cumulative, key=lambda x: x["interaction"])
+    if account_cumulative:
+        cb_account_max = max(account_cumulative, key=lambda x: x["breadth"])
+        hd_account_max = max(account_cumulative, key=lambda x: x["interaction"])
 
     activity_cumulative = data["spread_efficiency"]["activity_cumulative"]
-    cb_activity_max = max(activity_cumulative, key=lambda x: x["breadth"])
-    hd_activity_max = max(activity_cumulative, key=lambda x: x["interaction"])
+    if activity_cumulative:
+        cb_activity_max = max(activity_cumulative, key=lambda x: x["breadth"])
+        hd_activity_max = max(activity_cumulative, key=lambda x: x["interaction"])
 
     platform_cumulative = data["spread_efficiency"]["platform_cumulative"]
-    source_max = max(platform_cumulative, key=lambda x: x["value"])
+    if platform_cumulative:
+        source_max = max(platform_cumulative, key=lambda x: x["value"])
 
     user_type_composition = data["spread_efficiency"]["user_type_composition"]
     account_comment_max = max(user_type_composition, key=lambda x: x["value"])
 
-    activity_ugc_max = max(data["spread_effectiveness"]["activity_ugc_in"], key=lambda x: x["value"])
+    if data["spread_effectiveness"]["activity_ugc_in"]:
+        activity_ugc_max = max(data["spread_effectiveness"]["activity_ugc_in"], key=lambda x: x["value"])
 
     param = dict(
         post_count=data["spread_overview"]["post_count"],
         account_all=data["spread_overview"]["account_count"],
         activity_count=len(data["spread_overview"]["activity"]),
-        activity_max=activity_max["name"],
-        activity_post_count=activity_max["value"],
-        platform_max=platform_max["name"],
-        platform_post_count=platform_max["value"],
-        platform_max_ratio=round(platform_max["value"] * 100.0 / platform_post_sum, 2),
-        account_max=account_max["user_type"],
-        account_count=account_max["account"],
-        account_post_max=account_post_max["user_type"],
-        account_post_count=account_post_max["post_count"],
+        activity_max=activity_max.get("name"),
+        activity_post_count=activity_max.get("value"),
+        platform_max=platform_max.get("name"),
+        platform_post_count=platform_max.get("value"),
+        platform_max_ratio=round(platform_max.get("value", 0) * 100.0 / platform_post_sum, 2),
+        account_max=account_max.get("user_type"),
+        account_count=account_max.get("account"),
+        account_post_max=account_post_max.get("user_type"),
+        account_post_count=account_post_max.get("post_count"),
 
         platform_count=len(spread_efficiency),
-        cb_platform_max=cb_platform_max["name"],
-        cb_platform_count=cb_platform_max["breadth"],
-        hd_platform_max=hd_platform_max["name"],
-        hd_platform_count=hd_platform_max["interaction"],
+        cb_platform_max=cb_platform_max.get("name"),
+        cb_platform_count=cb_platform_max.get("breadth"),
+        hd_platform_max=hd_platform_max.get("name"),
+        hd_platform_count=hd_platform_max.get("interaction"),
 
-        cb_account_max=cb_account_max["name"],
-        cb_account_count=cb_account_max["breadth"],
-        hd_account_max=hd_account_max["name"],
-        hd_account_count=hd_account_max["interaction"],
+        cb_account_max=cb_account_max.get("name"),
+        cb_account_count=cb_account_max.get("breadth"),
+        hd_account_max=hd_account_max.get("name"),
+        hd_account_count=hd_account_max.get("interaction"),
 
-        cb_activity_max=cb_activity_max["name"],
-        cb_activity_count=cb_activity_max["breadth"],
-        hd_activity_max=hd_activity_max["name"],
-        hd_activity_count=hd_activity_max["interaction"],
+        cb_activity_max=cb_activity_max.get("name"),
+        cb_activity_count=cb_activity_max.get("breadth"),
+        hd_activity_max=hd_activity_max.get("name"),
+        hd_activity_count=hd_activity_max.get("interaction"),
 
-        source_max=source_max["name"],
-        source_ratio=round(source_max["value"] * 100.0 / sum([x["value"] for x in platform_cumulative]), 2),
+        source_max=source_max.get("name"),
+        source_ratio=round(source_max.get("value", 0) * 100.0 / sum([x["value"] for x in platform_cumulative], 0.00001), 2),
 
-        account_comment_max=source_max["name"],
-        account_comment_ratio=round(account_comment_max["value"] * 100.0 / sum([x["value"] for x in user_type_composition]), 2),
+        account_comment_max=source_max.get("name"),
+        account_comment_ratio=round(account_comment_max.get("value", 0) * 100.0 / sum([x["value"] for x in user_type_composition], 0.00001), 2),
 
         ugc_count=data["spread_effectiveness"]["ugc_count"],
         activitys_ugc_count=data["spread_effectiveness"]["ugc_in_activity_count"],
         brands_ugc_count=data["spread_effectiveness"]["ugc_mentioned_brand_count"],
         activitys_brand_ugc_count=data["spread_effectiveness"]["ugc_intersect_count"],
-        activitys_brand_ugc_ratio=round(data["spread_effectiveness"]["ugc_intersect_count"] * 100.0 / data["spread_effectiveness"]["ugc_in_activity_count"], 2),
-        activity_ugc_max=activity_ugc_max["name"],
-        activity_ugc_count=activity_ugc_max["value"],
+        activitys_brand_ugc_ratio=round(data["spread_effectiveness"]["ugc_intersect_count"] * 100.0 / (data["spread_effectiveness"]["ugc_in_activity_count"] + 0.00001), 2),
+        activity_ugc_max=activity_ugc_max.get("name"),
+        activity_ugc_count=activity_ugc_max.get("value"),
 
         brand_ugc_pre_count=data["spread_effectiveness"]["predict"],
         brand_ugc_diff_count=abs(data["spread_effectiveness"]["predict"] - data["spread_effectiveness"]["ugc_in_activity_count"]),
-        brand_ugc_diff_ratio=abs(round(data["spread_effectiveness"]["ugc_in_activity_count"] * 100.0 / data["spread_effectiveness"]["predict"], 2) - 1),
+        brand_ugc_diff_ratio=abs(round(data["spread_effectiveness"]["ugc_in_activity_count"] * 100.0 / (data["spread_effectiveness"]["predict"] + 0.00001), 2) - 1),
 
         brand_attention=data["brand_concern"]["activity"],
         brand_attention_year=data["brand_concern"]["annual"],
