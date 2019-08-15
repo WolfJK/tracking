@@ -15,6 +15,7 @@ import datetime
 import copy
 import traceback
 from common.logger import Logger
+from apps.commons.apis import get_platform_info
 
 
 logger = Logger.getLoggerInstance()
@@ -136,8 +137,6 @@ def formatted_report(reports):
         user = SmUser.objects.get(id=report.get("user_id"))
         report.update(username=user.username)
         report.update(platform=json.loads(report.get("platform")))
-        # platform_names = list(DimPlatform.objects.filter(id__in=platform_ids).values_list("name", flat=True))
-        # report.update(platform_names=platform_names)
         brand_name = DimBrand.objects.get(id=report.get("brand_id")).name
         report.update(brand_name=brand_name)
         report.update(industry_name=DimIndustry.objects.get(id=report.get("industry_id")).name)
@@ -426,11 +425,20 @@ def report_config_create(param, user, ip):
     :param ip: 用户 ip
     :return:
     """
+    # 拼接帐号格式
+    platforms = get_platform_info()
+    platform = param["platform"]
+    for k in platforms:
+        k.update(children=[])
+        for _ in platform:
+            plat = DimPlatform.objects.get(id=_)
+            if plat.parent == k.get("name"):
+                k.get("children").append(dict(id=_, name=plat.name))
     param.update(
         user=user,
         tag=json.dumps(param["tag"]),
         accounts=json.dumps(param["accounts"]),
-        platform=json.dumps(param["platform"]),
+        platform=json.dumps(platforms),
     )
 
     # 如果输入了 report_id, 则为 编辑 报告配置
