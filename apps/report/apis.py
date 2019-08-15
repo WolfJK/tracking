@@ -95,7 +95,7 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
     # 判断是管理员内部用户
     if user.is_admin and user.user_type == 1:
         if "{" in sql or "}" in sql:
-            sql = sql.format(True)
+            sql = sql.format("status>=0")
     elif user.is_admin:
         corporation = user.corporation
         sql_user = "{}={}".format("corporation", corporation)
