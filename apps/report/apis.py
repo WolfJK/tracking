@@ -62,13 +62,13 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
         if monitor_end_time == "-180":
             sql_format.append("datediff(\'{}\', {})>{}".format(datetime.datetime.now(), "monitor_end_date", 180))
         else:
-            sql_format.append("datediff(\'{}\', {})<{}".format(datetime.datetime.now(), "monitor_end_date", monitor_end_time))
+            sql_format.append("datediff(\'{}\', {})<={}".format(datetime.datetime.now(), "monitor_end_date", monitor_end_time))
 
     if monitor_cycle != "36500":
         if monitor_cycle == "-90":
              sql_format.append("datediff({}, {})>{}".format("monitor_end_date", "monitor_start_date", 90))
         else:
-            sql_format.append("datediff({}, {})<{}".format("monitor_end_date", "monitor_start_date", monitor_cycle))
+            sql_format.append("datediff({}, {})<={}".format("monitor_end_date", "monitor_start_date", monitor_cycle))
 
     if key_word:
         name = key_word.lower()
