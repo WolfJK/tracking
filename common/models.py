@@ -184,13 +184,15 @@ class Report(models.Model):
 
 class ReportStatus(models.Model):
     STATUS_CHOICE = (
+        (-2, "已取消"),
         (-1, "失败"),
         (0, "成功"),
-        (1, "创建"),
+        (1, "已创建"),
         (2, "爬取中"),
-        (3, "入库中"),
-        (4, "计算中"),
-        (5, "已取消"),
+        (3, "爬去完成"),
+        (4, "入库中"),
+        (5, "入库完成"),
+        (6, "计算中"),
     )
     report = models.ForeignKey(Report, help_text="报告", on_delete=models.DO_NOTHING)
     status = models.IntegerField(help_text="状态", choices=STATUS_CHOICE, default=1)
