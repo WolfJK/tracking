@@ -2,3 +2,4 @@
 *.iml
 *.pyc
 website/settings/prod.py
+website/settings/__init__.py
