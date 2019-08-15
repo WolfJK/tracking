@@ -45,4 +45,4 @@ USE_CATCHED=False
 FAIL_AUTH_MAX_ATTEMPTS = 10
 FAIL_AUTH_NEEDCODE_ATTEMPTS = 3
 
-whitelist = []
+whitelist = ["ddns.marcpoint.com"]

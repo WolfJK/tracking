@@ -2,6 +2,8 @@
 # __author__: ""
 from __future__ import unicode_literals
 import json
+import re
+import socket
 
 
 def get_parameter(request_data, parameters):
@@ -53,4 +55,24 @@ def del_key_in_ld(data, keys):
         map(lambda x: _.pop(x), keys)
 
     return data
+
+
+def domains_2_ips(domains):
+    """
+    将域名转换为 ip
+    :param domains: 域名列表 []
+    :return:
+    """
+    def domain_2_ip(domain):
+        if re.search("^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$", domain):
+            return domain
+
+        try:
+            ip = socket.getaddrinfo(domain, None)[0][4][0]
+            return ip
+
+        except:
+            return None
+
+    return filter(lambda _: _, map(lambda x: domain_2_ip(x), domains))
 

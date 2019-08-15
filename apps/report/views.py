@@ -118,7 +118,7 @@ def update_report(request):
     :return:
     '''
     ip = apps_apis.get_ip(request)
-    if not (ip.startswith("172.16.1.") or ip in whitelist):
+    if not (ip.startswith("172.16.1.") or ip in apps_apis.domains_2_ips(whitelist)):
         return JsonResponse(dict(code=403))
 
     param = apps_apis.get_parameter(request.POST, [
@@ -136,8 +136,9 @@ def get_report(request):
     :param request:
     :return:
     '''
+
     ip = apps_apis.get_ip(request)
-    if not (ip.startswith("172.16.1.") or ip in whitelist):
+    if not (ip.startswith("172.16.1.") or ip in apps_apis.domains_2_ips(whitelist)):
         return JsonResponse(dict(code=403))
 
     param = apps_apis.get_parameter(request.POST, [("status", "请输入报告状态", "int")])
