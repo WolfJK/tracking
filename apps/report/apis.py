@@ -49,9 +49,9 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
     sql_format = []
     # values = ("monitor_start_date", "monitor_end_date", "create_time", "username", "status")
     db = DB()
-    sql = "SELECT * FROM report where `delete`=false and status>=0 ORDER BY create_time DESC"
+    sql = "SELECT * FROM report where `delete`=false and status>=0 ORDER BY status DESC, create_time DESC"
     if report_status != "100" or monitor_end_time != "36500" or monitor_cycle != "36500" or key_word or(not(user.is_admin and user.user_type == 1)):
-        sql = "SELECT * FROM report WHERE `delete`=false and status>=0 and {} ORDER BY create_time DESC"
+        sql = "SELECT * FROM report WHERE `delete`=false and status>=0 and {} ORDER BY status DESC, create_time DESC"
 
     if report_status != "100":
         if int(report_status) >= 2:
@@ -536,6 +536,8 @@ def read_excle(file):
         except Exception:
             raise Exception("表名称不存在")
         df1 = pandas.read_excel(file, encoding="utf-8", sheet_name=sheets[num])
+        if df1.empty:
+            continue
         df1["platform_name"] = value
         df1["platform_id"] = platform.id
         dict_dfs = df1.to_dict("records")
