@@ -437,7 +437,7 @@ def get_report_config(report_id, user):
     :param user: 当前用户
     :return:
     """
-    report = get_report(report_id, user)
+    report = get_report(report_id, user, status=None)
     report.accounts = json.loads(report.accounts)
     report.tag = json.loads(report.tag)
     report.platform = report.platform
