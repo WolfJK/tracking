@@ -121,6 +121,8 @@ def set_owner_password(user, new_password, old_password):
     # 设置密码
     if user.password != hash_to_password(old_password):
         raise Exception("旧密码验证错误!")
+    if len(new_password.strip()) <= 6 or len(new_password.strip()) >= 20:
+        raise Exception("密码长度在6到20位之间")
 
     re_str = "([0-9]+[a-zA-Z]+|[a-zA-Z]+[0-9]+)[0-9a-zA-Z]*"  # 密码包含数字和字母
 
@@ -129,7 +131,7 @@ def set_owner_password(user, new_password, old_password):
     if len(new_password) < 6:
         raise Exception("密码长度在6个字符以上")
     if not pattern.match(new_password):
-        raise Exception("密码必须包含中英文和数字")
+        raise Exception("密码必须包含英文大小写和数字")
 
     user.password = hash_to_password(new_password)
     user.save()

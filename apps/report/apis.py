@@ -46,13 +46,12 @@ monitor_cycle = {
 
 def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_word):
     # 刷选报告
-    sql_format = []
+    sql_format = ["status>=0", ]
     db = DB()
-    sql_join = "SELECT report.* FROM report join sm_user on report.user_id=sm_user.id WHERE `delete`=false and status>=0 and {} ORDER BY status DESC, create_time DESC"
-    sql = "SELECT report.* FROM report where `delete`=false and status>=0 ORDER BY status DESC, create_time DESC"
-    if report_status != "100" or monitor_end_time != "36500" or monitor_cycle != "36500" or key_word or(not(user.is_admin and user.user_type == 1)):
-        sql = "SELECT report.* FROM report WHERE `delete`=false and  {} ORDER BY status DESC, create_time DESC"
-
+    sql = "SELECT report.* FROM report join sm_user on report.user_id=sm_user.id WHERE `delete`=false and {} ORDER BY status DESC, create_time DESC"
+    # sql = "SELECT report.* FROM report where `delete`=false and status>=0 ORDER BY status DESC, create_time DESC"
+    # if report_status != "100" or monitor_end_time != "36500" or monitor_cycle != "36500" or key_word or(not(user.is_admin and user.user_type == 1)):
+    #     sql = "SELECT report.* FROM report WHERE `delete`=false and  {} ORDER BY status DESC, create_time DESC"
     if report_status != "100":
         if int(report_status) >= 2:
             sql_format.append("{}>={}".format("status", report_status))
@@ -71,20 +70,20 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
             sql_format.append("datediff({}, {})<={}".format("monitor_end_date", "monitor_start_date", monitor_cycle))
 
     if key_word:
-        sql = sql_join
+        # sql = sql_join
         sql_title = "LOWER(report.name) like '%{}%'".format(key_word.lower())
         sql_name = "LOWER(sm_user.username) like '%{}%'".format(key_word.lower())
         sql_format.append(sql_title + " OR " + sql_name)
-    # 判断是管理员内部用户
-    if user.is_admin and user.user_type == 1:
-        pass
-    elif user.is_admin:
-        sql = sql_join
-        corporation = user.corporation
-        sql_user = "{}='{}'".format("sm_user.corporation", corporation)
-        sql_format.append(sql_user)
 
-    else:
+    # 判断是管理员内部用户
+    # if user.is_admin and user.user_type == 1:
+    #     pass
+    # elif user.is_admin:
+    #     # sql = sql_join
+    #     corporation = user.corporation
+    #     sql_user = "{}='{}'".format("sm_user.corporation", corporation)
+    #     sql_format.append(sql_user)
+    if not user.is_admin:
         user_id = user.id
         sql_user = "{}={}".format("user_id", user_id)
         sql_format.append(sql_user)
@@ -454,47 +453,46 @@ def get_report_config(report_id, user):
 
 
 def delete_report(user, report_id):
-    # 只有生成成功之后的报告才能删除 公司管理员可以删除公司的所有报告， 普通用户只能删除自己的报告
-    error_message = "只有生成之后的报告才能执行删除操作"
+    # 只有生成成功之后的报告才能删除
+    error_message = "只有生成之后的报告才能执行删除操作或你没有权限"
     try:
         report = Report.objects.get(id=report_id)
     except Exception:
         raise Exception("报告不存在")
-
-    if user.is_admin:
-        if report.status == 0 and report.user.corporation == user.corporation:
-            report.delete = True
-            report.save()
-        else:
-            raise Exception(error_message)
+    # if user.is_admin:
+    #     if report.status == 0 and report.user.corporation == user.corporation:
+    #         report.delete = True
+    #         report.save()
+    #     else:
+    #         raise Exception(error_message)
+    # else:
+    if report.status == 0 and report.user.id == user.id:
+        report.delete = True
+        report.save()
     else:
-        if report.status == 0 and report.user.id == user.id:
-            report.delete = True
-            report.save()
-        else:
-            raise Exception(error_message)
+        raise Exception(error_message)
 
 
 def cancel_report(user, report_id):
     # 只有未处理的报告才能取消
-    error_message = "只有未受理的报告才允许取消"
+    error_message = "只有未受理的报告才允许取消或你没有权限"
     try:
         report = Report.objects.get(id=report_id)
     except Exception:
         raise Exception("报告不存在")
-
-    if user.is_admin:
-        if report.status == 1 and report.user.corporation == user.corporation:
-            report.delete = True
-            report.save()
-        else:
-            raise Exception(error_message)
+    #
+    # if user.is_admin:
+    #     if report.status == 1 and report.user.corporation == user.corporation:
+    #         report.delete = True
+    #         report.save()
+    #     else:
+    #         raise Exception(error_message)
+    # else:
+    if report.status == 1 and report.user.id == user.id:
+        report.delete = True
+        report.save()
     else:
-        if report.status == 1 and report.user.id == user.id:
-            report.delete = True
-            report.save()
-        else:
-            raise Exception(error_message)
+        raise Exception(error_message)
 
 
 def download_file(parametes):
