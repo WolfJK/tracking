@@ -66,7 +66,7 @@ def report_template_list(user):
     报告模板列表
     :return:
     '''
-    return list(Report.objects.filter(user__corporation=user.corporation).values(
+    return list(Report.objects.filter(user__corporation=user.corporation, delete=False, status__gte=0).values(
         "id", "name", "title", "tag",
         "monitor_start_date", "monitor_end_date", "platform", "industry", "brand",
         "category", "product_line", "accounts", "sales_point", "remark", "remark"
