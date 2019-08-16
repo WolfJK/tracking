@@ -47,11 +47,11 @@ monitor_cycle = {
 def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_word):
     # 刷选报告
     sql_format = []
-    # values = ("monitor_start_date", "monitor_end_date", "create_time", "username", "status")
     db = DB()
-    sql = "SELECT * FROM report where `delete`=false and status>=0 ORDER BY status DESC, create_time DESC"
+    sql_join = "SELECT report.* FROM report join sm_user on report.user_id=sm_user.id WHERE `delete`=false and status>=0 and {} ORDER BY status DESC, create_time DESC"
+    sql = "SELECT report.* FROM report where `delete`=false and status>=0 ORDER BY status DESC, create_time DESC"
     if report_status != "100" or monitor_end_time != "36500" or monitor_cycle != "36500" or key_word or(not(user.is_admin and user.user_type == 1)):
-        sql = "SELECT * FROM report WHERE `delete`=false and status>=0 and {} ORDER BY status DESC, create_time DESC"
+        sql = "SELECT report.* FROM report WHERE `delete`=false and  {} ORDER BY status DESC, create_time DESC"
 
     if report_status != "100":
         if int(report_status) >= 2:
@@ -71,34 +71,17 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
             sql_format.append("datediff({}, {})<={}".format("monitor_end_date", "monitor_start_date", monitor_cycle))
 
     if key_word:
-        name = key_word.lower()
-        user_list = SmUser.objects.annotate(name=Func(F("username"), function="LOWER"),
-                                            ).filter(Q(name__contains=name)).values_list("id", flat=True)
-        report_name = Report.objects.annotate(report_name=Func(F("name"), function="LOWER"),
-                                            ).filter(Q(report_name__contains=name)).values_list("id", flat=True)
-
-        str_user_list = ",".join([str(i) for i in user_list])
-        str_title_list = ",".join([str(i) for i in report_name])
-
-        if report_name and user_list:
-            sql_title = "{} in ({})".format("id", str_title_list)
-            sql_name = "{} in ({})".format("user_id", str_user_list)
-            sql_format.append("(" + sql_title + " or " + sql_name + ")")
-        else:
-            if report_name:
-                sql_title = "{} in ({})".format("id", str_title_list)
-                sql_format.append(sql_title)
-            if user_list:
-                sql_name = "{} in ({})".format("user_id", str_user_list)
-                sql_format.append(sql_name)
-
+        sql = sql_join
+        sql_title = "LOWER(report.name) like '%{}%'".format(key_word.lower())
+        sql_name = "LOWER(sm_user.username) like '%{}%'".format(key_word.lower())
+        sql_format.append(sql_title + " OR " + sql_name)
     # 判断是管理员内部用户
     if user.is_admin and user.user_type == 1:
-        if "{" in sql or "}" in sql:
-            sql = sql.format("status>=0")
+        pass
     elif user.is_admin:
+        sql = sql_join
         corporation = user.corporation
-        sql_user = "{}={}".format("corporation", corporation)
+        sql_user = "{}='{}'".format("sm_user.corporation", corporation)
         sql_format.append(sql_user)
 
     else:
@@ -531,12 +514,19 @@ def read_excle(file):
     xl = pandas.ExcelFile(file)
     sheets = xl.sheet_names
     data_list =list()
+    # 验证帐号
+
+    def verify_account(value):
+        if value.lower() not in ("bgc", "kol"):
+            raise Exception("填写的帐号名必须是BGC或者KOL")
+
     for num, value in enumerate(sheets):
         try:
             platform = DimPlatform.objects.get(name=value)
         except Exception:
-            raise Exception("表名称不存在")
+            raise Exception("表名称不存在,请按照下载模板填写")
         df1 = pandas.read_excel(file, encoding="utf-8", sheet_name=sheets[num])
+        df1["BGC/KOL"].apply(verify_account)
         if df1.empty:
             continue
         df1["platform_name"] = value
