@@ -75,7 +75,7 @@ class AuthMiddleware(MpMiddleware):
         if self._check_skip_all(request):
             return
 
-        if request.path in SKIP_AUTHENTICATION_URLS:
+        if request.path in SKIP_AUTHORIZATION_URLS:
             return
 
         if not request.user.is_authenticated():
