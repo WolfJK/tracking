@@ -411,17 +411,21 @@ def report_config_create(param, user, ip):
     # 拼接帐号格式
     platforms = get_platform_info()
     platform = param["platform"]
+    return_list = list()
     for k in platforms:
         k.update(children=[])
         for _ in platform:
             plat = DimPlatform.objects.get(id=_)
             if plat.parent == k.get("name"):
                 k.get("children").append(dict(id=_, name=plat.name))
+        if k.get("children"):
+            return_list.append(k)
+
     param.update(
         user=user,
         tag=json.dumps(param["tag"]),
         accounts=json.dumps(param["accounts"]),
-        platform=json.dumps(platforms),
+        platform=json.dumps(return_list),
     )
 
     # 如果输入了 report_id, 则为 编辑 报告配置
