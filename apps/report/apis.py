@@ -389,7 +389,7 @@ def get_report(report_id, user, status):
     :param status: 报告的状态
     :return:
     """
-    reports = Report.objects.filter(id=report_id, user_id=user.id)
+    reports = Report.objects.filter(id=report_id, user_id=user.id, delete=False)
     if len(reports) < 1:
         raise Exception("权限不足")
 
