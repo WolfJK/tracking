@@ -153,7 +153,7 @@ class Report(models.Model):
         (5, "入库完成"),
         (6, "计算中"),
     )
-    name = models.CharField(max_length=128, help_text="报告名称")
+    name = models.CharField(max_length=50, help_text="报告名称")
     user = models.ForeignKey(SmUser, help_text="所属用户", on_delete=models.DO_NOTHING)
     industry = models.ForeignKey(DimIndustry, help_text="行业", on_delete=models.DO_NOTHING)
     title = models.CharField(max_length=64, help_text="报告主题")
