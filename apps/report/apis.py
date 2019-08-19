@@ -428,8 +428,13 @@ def report_config_create(param, user, ip):
         platform=json.dumps(return_list),
     )
 
-    # 如果输入了 report_id, 则为 编辑 报告配置
     report_id = param.pop("report_id")
+    reports = Report.objects.filter(name=param["name"], delete=False)
+
+    if len(reports) > 0 and (not report_id or report_id != reports[0].id):
+        raise Exception("报告已经存在")
+
+    # 如果输入了 report_id, 则为 编辑 报告配置
     if report_id:
         report = get_report(report_id, user, status=(1, ))
         param.update(id=report_id, update_time=datetime.datetime.now(), create_time=report.create_time)
@@ -440,6 +445,7 @@ def report_config_create(param, user, ip):
 
     ReportStatus(report=report, status=1, ip=ip).save()
     return report
+
 
 def get_report_config(report_id, user):
     """
