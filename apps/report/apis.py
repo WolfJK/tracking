@@ -380,6 +380,8 @@ def report_unscramble_save(param, user):
     report.data = json.dumps(data)
     report.save()
 
+    return data
+
 
 def get_report(report_id, user, status):
     """

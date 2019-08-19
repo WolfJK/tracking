@@ -106,9 +106,9 @@ def report_unscramble_save(request):
         ("content", "请输入报告解读内容", "str"),
     ]
     param = apps_apis.get_parameter(request.POST, params)
-    apis.report_unscramble_save(param, request.user)
+    data = apis.report_unscramble_save(param, request.user)
 
-    return JsonResponse(dict(code=200))
+    return JsonResponse(dict(code=200, data=data))
 
 
 def update_report(request):
