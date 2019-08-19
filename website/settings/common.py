@@ -110,7 +110,7 @@ SKIP_AUTHORIZATION_URLS = [
     '/user/asign-user/',
 
     #"/hello/auth-hello/",
-    "/apps/common/common-param/",
+    # "/apps/common/common-param/",
     "/apps/common/brand-list/",
     "/apps/common/category-list/",
     "/apps/common/sales-point-list/",
