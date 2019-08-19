@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 from common import *
 
 ## load uat settings
-from prod import *
+from .dev import *
 #from .uat import *
 #from .prod import *
 
