@@ -106,6 +106,7 @@ SKIP_AUTHENTICATION_URLS = [
 
 SKIP_AUTHORIZATION_URLS = [
     '/user/logout/',
+    '/user/change-password/',
     '/user/get-user-menus-apis/',
     '/user/asign-user/',
 
