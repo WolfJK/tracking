@@ -64,6 +64,10 @@ def report_config_create(request):
         ("sales_point", "请选择投宣传卖点", "int"),
         ("remark", "", "str"),
     ]
+
+    if request.user.is_admin:
+        raise Exception("管理员不具有创建报告的权限")
+
     ip = apps_apis.get_ip(request)
     param = apps_apis.get_parameter(request.POST, params)
     report = apis.report_config_create(param, request.user, ip)
@@ -106,6 +110,10 @@ def report_unscramble_save(request):
         ("content", "请输入报告解读内容", "str"),
     ]
     param = apps_apis.get_parameter(request.POST, params)
+
+    if request.user.is_admin:
+        raise Exception("管理员不具有编辑解读权限")
+
     data = apis.report_unscramble_save(param, request.user)
 
     return JsonResponse(dict(code=200, data=data))
