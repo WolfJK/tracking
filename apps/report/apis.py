@@ -84,8 +84,10 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
     #     sql_user = "{}='{}'".format("sm_user.corporation", corporation)
     #     sql_format.append(sql_user)
     if not user.is_admin:
-        user_id = user.id
-        sql_user = "{}={}".format("user_id", user_id)
+        # user_id = user.id
+        # sql_user = "{}={}".format("user_id", user_id)
+        corporation = user.corporation
+        sql_user = "{}='{}'".format("sm_user.corporation", corporation)
         sql_format.append(sql_user)
 
     if sql_format:
