@@ -431,7 +431,7 @@ def report_config_create(param, user, ip):
     param.update(
         user=user,
         tag=json.dumps(param["tag"]),
-        accounts=json.dumps(param["accounts"]),
+        accounts=json.dumps(json.dumps(param["accounts"])),
         platform=json.dumps(return_list),
     )
 

@@ -11,6 +11,7 @@ import apps.apis as apps_apis
 def get_user_info(user):
     user_dict = {
         "username": user.username,
+        "user_id": user.id,
         "corporation": user.corporation,
         "industry": user.industry_id,
         "industry_name": DimIndustry.objects.get(id=user.industry_id).name,
