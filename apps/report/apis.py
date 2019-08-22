@@ -431,7 +431,7 @@ def report_config_create(param, user, ip):
     param.update(
         user=user,
         tag=json.dumps(param["tag"]),
-        accounts=json.dumps(json.loads(param["accounts"])),
+        accounts=json.dumps(param["accounts"]),
         platform=json.dumps(return_list),
     )
 
@@ -560,7 +560,7 @@ def make_form(report_id):
         raise Exception("报告不存在")
 
     if report_obj.accounts:
-        parametes = json.loads(report_obj.accounts)
+        parametes = json.loads(json.loads(report_obj.accounts))
         output = BytesIO()
         writer = pandas.ExcelWriter(output, engine="xlsxwriter")
 
