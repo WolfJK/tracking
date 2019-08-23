@@ -18,6 +18,9 @@ def get_parameter(request_data, parameters):
         default = dict(dict={}, list=[], str=None, int=0)
         parameter_value = request_data.get(parameter[0], default[parameter[2]])
 
+        if parameter_value and parameter[2] in ('list', 'dict') and not isinstance(parameter_value, (list, dict)):
+            parameter_value = json.loads(parameter_value)
+
         if not parameter_value and parameter[1]:
             raise Exception(parameter[1])
 
@@ -25,9 +28,7 @@ def get_parameter(request_data, parameters):
             parameter_value = default[parameter[2]]
 
         # 如果是 list 类型
-        if parameter[2] in ('list', 'dict') and not isinstance(parameter_value, (list, dict)):
-            parameter_value = json.loads(parameter_value)
-        elif parameter[2] == 'int':
+        if parameter[2] == 'int':
             parameter_value = int(parameter_value)
 
         param.update({parameter[0]: parameter_value})
