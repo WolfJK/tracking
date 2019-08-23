@@ -377,7 +377,7 @@ def report_unscramble_save(param, user):
     data["unscramble"] = json.loads(param["content"])
     for k, v in data["unscramble"].iteritems():
         if v.pop("state", 0):
-            v.update(user=user.username, date=datetime.datetime.now().strftime('%Y-%m-%d'))
+            v.update(user=user.username, date=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
     report.data = json.dumps(data)
     report.save()
