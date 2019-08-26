@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import json
 import re
 import socket
+from datetime import datetime
 
 
 def get_parameter(request_data, parameters):
@@ -76,4 +77,24 @@ def domains_2_ips(domains):
             return None
 
     return filter(lambda _: _, map(lambda x: domain_2_ip(x), domains))
+
+
+def str2date(dts, ft="%Y-%m-%d"):
+    '''
+    str 转为 date
+    :param dts:
+    :param ft:
+    :return:
+    '''
+    return datetime.strptime(dts, ft)
+
+
+def date2str(dt, ft="%Y-%m-%d"):
+    '''
+    str 转为 date
+    :param dt:
+    :param ft:
+    :return:
+    '''
+    return dt.strftime(ft)
 
