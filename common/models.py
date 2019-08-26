@@ -344,21 +344,21 @@ RDL_JSON = dict(
             dict(breadth=30, interaction=20, name="宝宝树", value=10)
         ],
 
-        # 2.3. 账号效率 - 单位传播效率
+        # 2.3. 账号效率 - 累计传播效率
         account_cumulative=[
             # 分别表示 累计传播广度, 累计互动量, 账号, 平台, 投放声量
-            dict(breadth=5, interaction=18, name="张三", platform="微博", value=100, reply_count=32, like_count=23, transimit_count=34, view_count=45, fans_count=54),
-            dict(breadth=30, interaction=20, name="王五", platform="宝宝树", value=10)
+            dict(breadth=5, interaction=18, name="张三", platform="微博", value=100, reply_count=32, like_count=23, transimit_count=34, view_count=45, fans_count=54, user_type="KOL"),
+            dict(breadth=30, interaction=20, name="王五", platform="宝宝树", value=10, user_type="KOL")
         ],
 
         # 2.4. 账号效率 - 单位传播效率
         account_average=[
             # 分别表示 单位传播广度, 单位互动量, 账号, 平台, 投放声量
-            dict(breadth=5, interaction=18, name="张三", platform="微博", value=100),
-            dict(breadth=30, interaction=20, name="王五", platform="宝宝树", value=10)
+            dict(breadth=5, interaction=18, name="张三", platform="微博", value=100, user_type="KOL"),
+            dict(breadth=30, interaction=20, name="王五", platform="宝宝树", value=10, user_type="KOL")
         ],
 
-        # 2.5. 子活动效率 - 单位传播效率
+        # 2.5. 子活动效率 - 累计传播效率
         activity_cumulative=[
             # 分别表示 累计传播广度, 累计互动量, 账号, 子活动, 投放声量
             dict(breadth=50, interaction=33, name="张三", platform="微博", value=100, reply_count=32, like_count=23, transimit_count=34, view_count=45, fans_count=54),
