@@ -40,8 +40,8 @@ def common_param(request):
         dict(code=36500, name="全部"),
         dict(code=14, name="两周以内"),
         dict(code=30, name="一个月以内"),
-        dict(code=90, name="三个月以内"),
-        dict(code=-90, name="三个月以上"),
+        # dict(code=90, name="三个月以内"),
+        # dict(code=-90, name="三个月以上"),
     ],
     industry_list = apis.industry_list()
     user = request.user

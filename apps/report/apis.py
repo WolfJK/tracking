@@ -96,7 +96,20 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
         sql = sql.format(sql_format)
     res = db.search(sql)
 
-    return formatted_report(res) if res else []
+    report_list = list()
+    report_create_list = list()
+    fail_list = list()
+    for report in res:
+        if report.get("status") >= 2:
+            report_create_list.append(report)
+        elif report.get('status') == -1:
+            fail_list.append(report)
+        else:
+            report_list.append(report)
+    report_create_list.extend(fail_list)
+    report_create_list.extend(report_list)
+
+    return formatted_report(report_create_list) if res else []
 
 
 def formatted_report(reports):
