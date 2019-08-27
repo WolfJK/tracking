@@ -46,7 +46,7 @@ monitor_cycle = {
 
 def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_word):
     # 刷选报告
-    sql_format = ["status>=0", ]
+    sql_format = ["status>=-1", ]
     db = DB()
     sql = "SELECT report.* FROM report join sm_user on report.user_id=sm_user.id WHERE `delete`=false and {} ORDER BY status DESC, create_time DESC"
     # sql = "SELECT report.* FROM report where `delete`=false and status>=0 ORDER BY status DESC, create_time DESC"
@@ -54,7 +54,8 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
     #     sql = "SELECT report.* FROM report WHERE `delete`=false and  {} ORDER BY status DESC, create_time DESC"
     if report_status != "100":
         if int(report_status) >= 2:
-            sql_format.append("{}>={}".format("status", report_status))
+            # sql_format.append("{}>={}".format("status", report_status))
+            sql_format.append("status in (-1, 2, 3, 4, 5, 6)")
         else:
             sql_format.append("{}={}".format("status", report_status))
     if monitor_end_time != "36500":
