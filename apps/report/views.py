@@ -71,7 +71,7 @@ def report_config_create(request):
     ip = apps_apis.get_ip(request)
     param = apps_apis.get_parameter(request.POST, params)
 
-    diff_date = apps_apis.str2date(param["monitor_end_date"]) - apps_apis.str2date(param["monitor_start_date"]) + 1
+    diff_date = (apps_apis.str2date(param["monitor_end_date"]) - apps_apis.str2date(param["monitor_start_date"])).days + 1
     if diff_date < 1 or diff_date > 90:
         raise Exception("请选择正确的检测周期")
 
