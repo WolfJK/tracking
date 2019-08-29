@@ -568,6 +568,7 @@ def read_excle(file):
             raise Exception("表名称不存在,请按照下载模板填写")
         df1 = pandas.read_excel(file, encoding="utf-8", sheet_name=sheets[num])
         df1["BGC/KOL"].apply(verify_account)
+        df1.fillna("", inplace=True)
         if df1.empty:
             continue
         df1["platform_name"] = value
@@ -586,7 +587,7 @@ def make_form(report_id):
         raise Exception("报告不存在")
 
     if report_obj.accounts:
-        parametes = json.loads(json.loads(report_obj.accounts))
+        parametes = json.loads(report_obj.accounts)
         output = BytesIO()
         writer = pandas.ExcelWriter(output, engine="xlsxwriter")
 
