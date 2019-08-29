@@ -109,11 +109,10 @@ def set_precision(data, keys, precision=2, pct=1.0):
     :return:
     '''
     if isinstance(data, dict):
-        map(lambda k: data.update({k: round(data[k] * pct, precision)}), keys)
+        data = [data]
 
-    if isinstance(data, list):
-        [map(lambda k: d.update({k: round(d[k] * pct, precision)}), keys) for d in data]
-        return data
+    for d in data:
+        map(lambda k: d.update({k: round(d[k] * pct, precision)}), keys)
 
 
 
