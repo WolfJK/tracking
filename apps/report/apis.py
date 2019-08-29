@@ -16,6 +16,7 @@ import copy
 import traceback
 from common.logger import Logger
 from apps.commons.apis import get_platform_info
+import apps.apis as apps_apis
 
 
 logger = Logger.getLoggerInstance()
@@ -236,6 +237,20 @@ def data_transform(data):
     # 品牌关注度
     map(lambda x: x.update(dict(value_year=data["brand_concern"]["annual"])), data["brand_concern"]["trend"])
     map(lambda x: x.update(dict(value_year=data["tags_concern"]["annual"])), data["tags_concern"]["trend"])
+
+
+    # 精度修正
+    data["brand_concern"]["trend"] = apps_apis.set_precision(data["brand_concern"]["trend"], keys=("value", "value_year"), precision=2)
+
+    apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=2)
+
+    apps_apis.set_precision(data["spread_effectiveness"], keys=("predict", "delta_absolute"), precision=0)
+
+    data["tags_concern"]["trend"] = apps_apis.set_precision(data["tags_concern"]["trend"], keys=("value", "value_year"), precision=2)
+    apps_apis.set_precision(data["tags_concern"], keys=("annual", "activity", "delta"), precision=2)
+
+    data["spread_effectiveness"]["brand_ugc_web"] = apps_apis.set_precision(data["spread_effectiveness"]["brand_ugc_web"], keys=("value", "value_year"), precision=2)
+    data["spread_effectiveness"]["annual_average_trend"] = apps_apis.set_precision(data["spread_effectiveness"]["annual_average_trend"], keys=("value", ), precision=2)
 
     return data
 

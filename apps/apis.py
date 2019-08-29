@@ -98,3 +98,23 @@ def date2str(dt, ft="%Y-%m-%d"):
     '''
     return dt.strftime(ft)
 
+
+def set_precision(data, keys, precision=2, pct=1.0):
+    '''
+    设置 list<map> or map
+    :param data: lsit<map>
+    :param keys: 处理的 keys
+    :param precision: 精度
+    :param pct: 是否是百分比, 1 不是, 100 是
+    :return:
+    '''
+    if isinstance(data, dict):
+        map(lambda k: data.update({k: round(data[k] * pct, precision)}), keys)
+
+    if isinstance(data, list):
+        [map(lambda k: d.update({k: round(d[k] * pct, precision)}), keys) for d in data]
+        return data
+
+
+
+
