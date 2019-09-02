@@ -115,7 +115,7 @@ SKIP_AUTHORIZATION_URLS = [
     "/apps/common/brand-list/",
     "/apps/common/category-list/",
     "/apps/common/sales-point-list/",
-    "/apps/common/report-template-list/",
+    # "/apps/common/report-template-list/",
     "/apps/common/throw-account-upload/",
 
 ] + SKIP_AUTHENTICATION_URLS
