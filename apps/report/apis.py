@@ -462,7 +462,7 @@ def report_config_create(param, user, ip):
     )
 
     report_id = param.pop("report_id")
-    reports = Report.objects.filter(name=param["name"], delete=False)
+    reports = Report.objects.filter(name=param["name"], user__corporation=user.corporation, delete=False)
 
     if len(reports) > 0 and (not report_id or report_id != reports[0].id):
         raise Exception("报告已经存在")
