@@ -173,7 +173,7 @@ def report_details(report_id, user):
         end_date=report.monitor_end_date,
         name=report.name,
         sales_point=report.sales_point.name,
-        period=(report.monitor_end_date - report.monitor_start_date).days,
+        period=(report.monitor_end_date - report.monitor_start_date).days + 1,
         status_value=report.get_status_display(),
         status=report.status
     )
@@ -244,10 +244,10 @@ def data_transform(data):
     apps_apis.set_precision(data["spread_effectiveness"], keys=("predict", "delta_absolute"), precision=0)
 
     apps_apis.set_precision(data["brand_concern"]["trend"], keys=("value", "value_year"), precision=2, pct=100.0)
-    apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=2, pct=100.0)
+    # apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=2, pct=100.0)
 
     apps_apis.set_precision(data["tags_concern"]["trend"], keys=("value", "value_year"), precision=2, pct=100.0)
-    apps_apis.set_precision(data["tags_concern"], keys=("annual", "activity", "delta"), precision=2, pct=100.0)
+    # apps_apis.set_precision(data["tags_concern"], keys=("annual", "activity", "delta"), precision=2, pct=100.0)
 
     return data
 

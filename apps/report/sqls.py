@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 unscramble_rule = dict(
     transmission=dict(
         unscramble=[
-            ("1", "本次活动共投放{post_count}篇帖子，启用{account_all}个账号。\n 2, "),
+            ("1", "本次活动共投放{post_count}篇帖子，启用{account_all}个账号。\n "),
             ("{activity_count} > 1", "{activity_max}主题活动投放声量最高（{activity_post_count}篇）；"),
             ("1", "活动主要在{platform_max}平台投放，共投放{platform_post_count}篇帖子，约占总投放声量的{platform_max_ratio}%。\n"),
             ("'{account_max}' == '{account_post_max}'", "从账号分布来看，{account_max}账号数量最多（{account_count}个），发布的帖子数也最多（{account_post_count}篇）\n"),

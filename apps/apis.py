@@ -5,6 +5,7 @@ import json
 import re
 import socket
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 
 def get_parameter(request_data, parameters):
@@ -115,5 +116,33 @@ def set_precision(data, keys, precision=2, pct=1.0):
         map(lambda k: d.update({k: round(d[k] * pct, precision)}), keys)
 
 
+def trend_type(begin, end):
+    '''
+    过去数据趋势的时间类型: week  or day
+    :return:
+    '''
+    if (str2date(end) - str2date(begin)) + 1 > 30:
+        return "week"
+    else:
+        return "day"
+
+
+def begin_date(begin, d_type):
+    '''
+    将 begin 时间 向前推一年
+    :param begin:
+    :param d_type:
+    :return:
+    '''
+    begin = str2date(begin)
+
+    if d_type == "week":
+        begin = begin - relativedelta(days=begin.weekday(), weeks=52)
+    elif d_type == "month":
+        begin = begin - relativedelta(days=begin.day - 1, months=12)
+    else:
+        begin = begin - relativedelta(years=1)
+
+    return date2str(begin)
 
 
