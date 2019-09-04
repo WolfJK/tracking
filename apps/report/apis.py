@@ -249,6 +249,13 @@ def data_transform(data):
     apps_apis.set_precision(data["tags_concern"]["trend"], keys=("value", "value_year"), precision=2, pct=100.0)
     # apps_apis.set_precision(data["tags_concern"], keys=("annual", "activity", "delta"), precision=2, pct=100.0)
 
+    data["spread_overview"]["trend"].sort(key=lambda x: x["date"])
+    data["brand_concern"]["trend"].sort(key=lambda x: x["date"])
+    data["spread_effectiveness"]["brand_ugc_trend"].sort(key=lambda x: x["date"])
+    data["spread_effectiveness"]["brand_ugc_web"].sort(key=lambda x: x["date"])
+    data["spread_effectiveness"]["annual_average_trend"].sort(key=lambda x: x["date"])
+    data["tags_concern"]["trend"].sort(key=lambda x: x["date"])
+
     return data
 
 
