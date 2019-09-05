@@ -242,7 +242,7 @@ def data_transform(data):
     # 精度修正
     apps_apis.set_precision(data["spread_effectiveness"]["brand_ugc_web"], keys=("value", "value_year"), precision=2)
     apps_apis.set_precision(data["spread_effectiveness"]["annual_average_trend"], keys=("value",), precision=2)
-    apps_apis.set_precision(data["spread_effectiveness"], keys=("predict", "delta_absolute"), precision=0)
+    apps_apis.set_precision(data["spread_effectiveness"], keys=("predict", "delta_absolute", "delta"), precision=0)
 
     apps_apis.set_precision(data["brand_concern"]["trend"], keys=("value", "value_year"), precision=2, pct=100.0)
     apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=2)
