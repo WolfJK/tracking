@@ -146,3 +146,32 @@ def begin_date(begin, d_type):
     return date2str(begin)
 
 
+def division_ratio(a, b, precision=2):
+    '''
+    两个数的除法
+    :param a:
+    :param b:
+    :param precision: 精度
+    :return:
+    '''
+    if not b:
+        return 0.00
+
+    return round(float(a) * 100.0 / float(b), precision)
+
+
+def ratio(data, column, precision=2):
+    '''
+    求 一个字断的 占比
+    :param data:
+    :param column:
+    :param precision:
+    :return:
+    '''
+    sum_data = sum([_[column] for _ in data])
+
+    for _ in data:
+        _[column + "_ratio"] = division_ratio(_[column], sum_data, precision)
+
+    return data
+
