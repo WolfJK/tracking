@@ -49,7 +49,7 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
     # 刷选报告
     sql_format = ["status>=-1", ]
     db = DB()
-    sql = "SELECT report.* FROM report join sm_user on report.user_id=sm_user.id WHERE `delete`=false and {} ORDER BY status DESC, create_time DESC"
+    sql = "SELECT report.* FROM report join sm_user on report.user_id=sm_user.id WHERE `delete`=false and {} ORDER BY create_time DESC"
     # sql = "SELECT report.* FROM report where `delete`=false and status>=0 ORDER BY status DESC, create_time DESC"
     # if report_status != "100" or monitor_end_time != "36500" or monitor_cycle != "36500" or key_word or(not(user.is_admin and user.user_type == 1)):
     #     sql = "SELECT report.* FROM report WHERE `delete`=false and  {} ORDER BY status DESC, create_time DESC"
@@ -97,19 +97,20 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
         sql = sql.format(sql_format)
     res = db.search(sql)
 
-    report_list = list()
-    report_create_list = list()
-    fail_list = list()
+    report_create_list = list()  # 状态 >2 或者 等于 -1
+    success_list = list()  # 状态0
+    commit_list = list()   # 状态1
     for report in res:
         if report.get("status") >= 2:
             report_create_list.append(report)
         elif report.get('status') == -1:
-            fail_list.append(report)
+            report_create_list.append(report)
+        elif report.get("status") == 1:
+            commit_list.append(report)
         else:
-            report_list.append(report)
-    report_create_list.extend(fail_list)
-    report_create_list.extend(report_list)
-
+            success_list.append(report)
+    report_create_list.extend(commit_list)
+    report_create_list.extend(success_list)
     return formatted_report(report_create_list) if res else []
 
 
