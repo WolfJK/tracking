@@ -245,10 +245,10 @@ def data_transform(data):
     apps_apis.set_precision(data["spread_effectiveness"], keys=("predict", "delta_absolute"), precision=0)
 
     apps_apis.set_precision(data["brand_concern"]["trend"], keys=("value", "value_year"), precision=2, pct=100.0)
-    # apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=2, pct=100.0)
+    apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=2)
 
     apps_apis.set_precision(data["tags_concern"]["trend"], keys=("value", "value_year"), precision=2, pct=100.0)
-    # apps_apis.set_precision(data["tags_concern"], keys=("annual", "activity", "delta"), precision=2, pct=100.0)
+    apps_apis.set_precision(data["tags_concern"], keys=("annual", "activity", "delta"), precision=2)
 
     apps_apis.ratio(data["spread_efficiency"]["activity_composition"], "value")
     apps_apis.ratio(data["spread_efficiency"]["user_type_composition"], "value")
