@@ -246,10 +246,10 @@ def data_transform(data):
     apps_apis.set_precision(data["spread_effectiveness"], keys=("delta", ), precision=2, pct=100.0)
 
     apps_apis.set_precision(data["brand_concern"]["trend"], keys=("value", "value_year"), precision=2, pct=100.0)
-    apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=2)
+    apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=2, pct=100.0)
 
     apps_apis.set_precision(data["tags_concern"]["trend"], keys=("value", "value_year"), precision=2, pct=100.0)
-    apps_apis.set_precision(data["tags_concern"], keys=("annual", "activity", "delta"), precision=2)
+    apps_apis.set_precision(data["tags_concern"], keys=("annual", "activity", "delta"), precision=2, pct=100.0)
 
     apps_apis.ratio(data["spread_efficiency"]["activity_composition"], "value")
     apps_apis.ratio(data["spread_efficiency"]["user_type_composition"], "value")
@@ -384,12 +384,12 @@ def get_unscramble(data, sales_point):
 
         brand_attention=data["brand_concern"]["activity"],
         brand_attention_year=data["brand_concern"]["annual"],
-        brand_attention_ratio=abs(round(data["brand_concern"]["activity"] - data["brand_concern"]["annual"] * 100, 2)),
+        brand_attention_ratio=abs(data["brand_concern"]["delta"]),
 
         sales_point_cognitive=data["tags_concern"]["activity"],
         sales_point_cognitive_year=data["tags_concern"]["annual"],
+        sales_point_cognitive_ratio=data["tags_concern"]["delta"],
         sales_point=sales_point,
-        sales_point_cognitive_ratio=abs(round(data["tags_concern"]["activity"] - data["tags_concern"]["annual"] * 100, 2)),
 
     )
 
