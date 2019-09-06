@@ -240,19 +240,19 @@ def data_transform(data):
     map(lambda x: x.update(dict(value_year=data["tags_concern"]["annual"])), data["tags_concern"]["trend"])
 
     # 精度修正
-    apps_apis.set_precision(data["spread_effectiveness"]["brand_ugc_web"], keys=("value", "value_year"), precision=2)
-    apps_apis.set_precision(data["spread_effectiveness"]["annual_average_trend"], keys=("value",), precision=2)
+    apps_apis.set_precision(data["spread_effectiveness"]["brand_ugc_web"], keys=("value", "value_year"), precision=1)
+    apps_apis.set_precision(data["spread_effectiveness"]["annual_average_trend"], keys=("value",), precision=1)
     apps_apis.set_precision(data["spread_effectiveness"], keys=("predict", "delta_absolute"), precision=0)
-    apps_apis.set_precision(data["spread_effectiveness"], keys=("delta", ), precision=2, pct=100.0)
+    apps_apis.set_precision(data["spread_effectiveness"], keys=("delta", ), precision=1, pct=100.0)
 
-    apps_apis.set_precision(data["brand_concern"]["trend"], keys=("value", "value_year"), precision=2, pct=100.0)
-    apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=2, pct=100.0)
+    apps_apis.set_precision(data["brand_concern"]["trend"], keys=("value", "value_year"), precision=1, pct=100.0)
+    apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=1, pct=100.0)
 
-    apps_apis.set_precision(data["tags_concern"]["trend"], keys=("value", "value_year"), precision=2, pct=100.0)
-    apps_apis.set_precision(data["tags_concern"], keys=("annual", "activity", "delta"), precision=2, pct=100.0)
+    apps_apis.set_precision(data["tags_concern"]["trend"], keys=("value", "value_year"), precision=1, pct=100.0)
+    apps_apis.set_precision(data["tags_concern"], keys=("annual", "activity", "delta"), precision=1, pct=100.0)
 
-    apps_apis.ratio(data["spread_efficiency"]["activity_composition"], "value")
-    apps_apis.ratio(data["spread_efficiency"]["user_type_composition"], "value")
+    apps_apis.ratio(data["spread_efficiency"]["activity_composition"], "value", precision=1)
+    apps_apis.ratio(data["spread_efficiency"]["user_type_composition"], "value", precision=1)
 
     data["spread_overview"]["trend"].sort(key=lambda x: x["date"])
     data["brand_concern"]["trend"].sort(key=lambda x: x["date"])
