@@ -378,8 +378,8 @@ def get_unscramble(data, sales_point):
         activity_ugc_max=activity_ugc_max.get("name"),
         activity_ugc_count=activity_ugc_max.get("value"),
 
-        brand_ugc_pre_count=data["spread_effectiveness"]["predict"],
-        brand_ugc_diff_count=abs(data["spread_effectiveness"]["predict"] - data["spread_effectiveness"]["ugc_in_activity_count"]),
+        brand_ugc_pre_count=round(data["spread_effectiveness"]["predict"], 0),
+        brand_ugc_diff_count=round(abs(data["spread_effectiveness"]["predict"] - data["spread_effectiveness"]["ugc_in_activity_count"]), 0),
         brand_ugc_diff_ratio=abs(round(data["spread_effectiveness"]["ugc_in_activity_count"] * 100.0 / (data["spread_effectiveness"]["predict"] + 0.00001), 1) - 1),
 
         brand_attention=data["brand_concern"]["activity"],
