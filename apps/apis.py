@@ -17,7 +17,7 @@ def get_parameter(request_data, parameters):
     '''
     param = dict()
     for parameter in parameters:
-        default = dict(dict={}, list=[], str=None, int=0)
+        default = dict(dict={}, list=[], str='', int=0)
         parameter_value = request_data.get(parameter[0], default[parameter[2]])
 
         if parameter_value and parameter[2] in ('list', 'dict') and not isinstance(parameter_value, (list, dict)):
