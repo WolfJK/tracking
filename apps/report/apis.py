@@ -406,7 +406,7 @@ def get_unscramble(data, sales_point):
 
         sales_point_cognitive=data["tags_concern"]["activity"],
         sales_point_cognitive_year=data["tags_concern"]["annual"],
-        sales_point_cognitive_ratio=data["tags_concern"]["delta"],
+        sales_point_cognitive_ratio=abs(data["tags_concern"]["delta"]),
         sales_point=sales_point,
 
     )
