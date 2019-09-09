@@ -175,3 +175,28 @@ def ratio(data, column, precision=2):
 
     return data
 
+
+def next_period(date):
+    '''
+    获取 日期的下一个周期
+    :param date:
+    :return:
+    '''
+    if len(date) == 10:
+        date = str2date(date) + relativedelta(days=1)
+        return date2str(date)
+
+    elif len(date) > 10:
+        date = date.split("~")
+        begin = str2date(date[0]) + relativedelta(weeks=1)
+        end = str2date(date[1]) + relativedelta(weeks=1)
+        return "~".join((date2str(begin), date2str(end)))
+
+    elif len(date) == 7:
+        date = str2date(date + "-01") + relativedelta(months=1)
+        return date2str(date, "%Y-%m")
+
+    else:
+        raise Exception("数据计算结果有误")
+
+

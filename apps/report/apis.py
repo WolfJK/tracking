@@ -233,11 +233,31 @@ def data_transform(data):
     annual_average = data["spread_effectiveness"]["annual_average_trend"]
     dict_map = {x["date"]: x["value"] for x in annual_average}
     map(lambda x: x.update(dict(value_year=dict_map.get(x["date"], 0))), brand_ugc)
+    brand_ugc.sort(key=lambda x: x["date"])
+    brand_ugc.append(dict(
+        date=apps_apis.next_period(brand_ugc[-1]["date"]),
+        value=data["spread_effectiveness"]["ugc_mentioned_brand_count"],
+        value_year=data["spread_effectiveness"]["predict"]
+    ))
     data["spread_effectiveness"]["brand_ugc_web"] = brand_ugc
 
     # 品牌关注度
     map(lambda x: x.update(dict(value_year=data["brand_concern"]["annual"])), data["brand_concern"]["trend"])
+    data["brand_concern"]["trend"].sort(key=lambda x: x["date"])
+    data["brand_concern"]["trend"].append(dict(
+        date=apps_apis.next_period(data["brand_concern"]["trend"][-1]["date"]),
+        value=data["brand_concern"]["activity"],
+        value_year=data["brand_concern"]["annual"]
+    ))
+
     map(lambda x: x.update(dict(value_year=data["tags_concern"]["annual"])), data["tags_concern"]["trend"])
+    data["tags_concern"]["trend"].sort(key=lambda x: x["date"])
+    data["tags_concern"]["trend"].append(dict(
+        date=apps_apis.next_period(data["tags_concern"]["trend"][-1]["date"]),
+        value=data["tags_concern"]["activity"],
+        value_year=data["tags_concern"]["annual"]
+    ))
+
 
     # 精度修正
     apps_apis.set_precision(data["spread_effectiveness"]["brand_ugc_web"], keys=("value", "value_year"), precision=1)
@@ -255,11 +275,9 @@ def data_transform(data):
     apps_apis.ratio(data["spread_efficiency"]["user_type_composition"], "value", precision=1)
 
     data["spread_overview"]["trend"].sort(key=lambda x: x["date"])
-    data["brand_concern"]["trend"].sort(key=lambda x: x["date"])
-    data["spread_effectiveness"]["brand_ugc_trend"].sort(key=lambda x: x["date"])
     data["spread_effectiveness"]["brand_ugc_web"].sort(key=lambda x: x["date"])
     data["spread_effectiveness"]["annual_average_trend"].sort(key=lambda x: x["date"])
-    data["tags_concern"]["trend"].sort(key=lambda x: x["date"])
+
 
     return data
 
