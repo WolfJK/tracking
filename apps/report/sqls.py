@@ -35,8 +35,8 @@ unscramble_rule = dict(
             unscramble=[
                 ("{activity_count} > 1", "本次活动期间UGC总计{ugc_count}人，其中活动UGC{activitys_ugc_count}人，品牌UGC{brands_ugc_count}人。\n"),
                 ("1", "活动UGC中有{activitys_brand_ugc_count}人（{activitys_brand_ugc_ratio}%）提及品牌名称，增加了品牌声量；以#{activity_ugc_max}# 为主题的子活动引发的UGC人数最多，达{activity_ugc_count}个。\n"),
-                ("{activitys_ugc_count} >= {brand_ugc_pre_count}", "活动期内总计产生品牌UGC{activitys_ugc_count}人。基于过往一年历史数据的预测，活动期内品牌UGC应该可以达到{brand_ugc_pre_count}，相差{brand_ugc_diff_count}人（-{brand_ugc_diff_ratio}%），没有达到预期效果\n"),
-                ("{activitys_ugc_count} < {brand_ugc_pre_count}", "活动期内总计产生品牌UGC{activitys_ugc_count}人。基于过往一年历史数据的预测，活动期内品牌UGC可以达到{brand_ugc_pre_count}人，活动为品牌贡献了{brand_ugc_diff_count}个（{brand_ugc_diff_ratio}%）UGC，超出预期效果\n"),
+                ("{activitys_ugc_count} < {brand_ugc_pre_count}", "活动期内总计产生品牌UGC{activitys_ugc_count}人。基于过往一年历史数据的预测，活动期内品牌UGC应该可以达到{brand_ugc_pre_count}，相差{brand_ugc_diff_count}人（-{brand_ugc_diff_ratio}%），没有达到预期效果\n"),
+                ("{activitys_ugc_count} >= {brand_ugc_pre_count}", "活动期内总计产生品牌UGC{activitys_ugc_count}人。基于过往一年历史数据的预测，活动期内品牌UGC可以达到{brand_ugc_pre_count}人，活动为品牌贡献了{brand_ugc_diff_count}个（{brand_ugc_diff_ratio}%）UGC，超出预期效果\n"),
             ],
             user=None,
             date=None,

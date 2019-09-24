@@ -274,10 +274,13 @@ def data_transform(data):
     apps_apis.ratio(data["spread_efficiency"]["activity_composition"], "value", precision=1)
     apps_apis.ratio(data["spread_efficiency"]["user_type_composition"], "value", precision=1)
 
+    apps_apis.set_precision(data["spread_efficiency"]["platform_web"], keys=("avg_breadth", ), precision=1)
+    apps_apis.set_precision(data["spread_efficiency"]["account_web"], keys=("avg_breadth", ), precision=1)
+    apps_apis.set_precision(data["spread_efficiency"]["activity_web"], keys=("avg_breadth", ), precision=1)
+
     data["spread_overview"]["trend"].sort(key=lambda x: x["date"])
     data["spread_effectiveness"]["brand_ugc_web"].sort(key=lambda x: x["date"])
     data["spread_effectiveness"]["annual_average_trend"].sort(key=lambda x: x["date"])
-
 
     return data
 
@@ -350,7 +353,7 @@ def get_unscramble(data, sales_point):
     account_comment_max = max(user_type_composition, key=lambda x: x["value"])
 
     if data["spread_effectiveness"]["activity_ugc_in"]:
-        activity_ugc_max = max(data["spread_effectiveness"]["activity_ugc_in"], key=lambda x: x["value"])
+        activity_ugc_max = max(data["spread_effectiveness"]["activity_ugc_in"], key=lambda x: x.get("value", 0) + x.get("unvalue", 0))
 
     param = dict(
         post_count=data["spread_overview"]["post_count"],
@@ -385,16 +388,16 @@ def get_unscramble(data, sales_point):
         source_max=source_max.get("name"),
         source_ratio=round(source_max.get("value", 0) * 100.0 / sum([x["value"] for x in activity_composition], 0.00001), 1),
 
-        account_comment_max=source_max.get("name"),
+        account_comment_max=account_comment_max.get("name"),
         account_comment_ratio=round(account_comment_max.get("value", 0) * 100.0 / sum([x["value"] for x in user_type_composition], 0.00001), 1),
 
         ugc_count=int(round(data["spread_effectiveness"]["ugc_count"])),
-        activitys_ugc_count=int(round(data["spread_effectiveness"]["ugc_in_activity_count"])),
+        activitys_ugc_count=int(round(data["spread_effectiveness"]["ugc_mentioned_brand_count"])),
         brands_ugc_count=int(round(data["spread_effectiveness"]["ugc_mentioned_brand_count"])),
         activitys_brand_ugc_count=int(round(data["spread_effectiveness"]["ugc_intersect_count"])),
         activitys_brand_ugc_ratio=round(data["spread_effectiveness"]["ugc_intersect_count"] * 100.0 / (data["spread_effectiveness"]["ugc_in_activity_count"] + 0.00001), 1),
         activity_ugc_max=activity_ugc_max.get("name"),
-        activity_ugc_count=int(round(activity_ugc_max.get("value"))),
+        activity_ugc_count=int(round(activity_ugc_max.get("value", 0) + activity_ugc_max.get("unvalue", 0))),
 
         brand_ugc_pre_count=int(round(data["spread_effectiveness"]["predict"])),
         brand_ugc_diff_count=int(round(abs(data["spread_effectiveness"]["predict"] - data["spread_effectiveness"]["ugc_mentioned_brand_count"]))),
