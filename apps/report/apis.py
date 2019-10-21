@@ -101,6 +101,7 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
     success_list = list()  # 状态0
     commit_list = list()   # 状态1
     for report in res:
+        report.pop("data")  # 数据太大 去除data
         if report.get("status") >= 2:
             report_create_list.append(report)
         elif report.get('status') == -1:
