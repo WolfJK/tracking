@@ -101,7 +101,7 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
     success_list = list()  # 状态0
     commit_list = list()   # 状态1
     for report in res:
-        report.pop("data")  # 数据太大 去除data
+
         if report.get("status") >= 2:
             report_create_list.append(report)
         elif report.get('status') == -1:
@@ -121,6 +121,7 @@ def formatted_report(reports):
     data_format2 = "%Y-%m-%d %H:%M:%S"
 
     for report in reports:
+        report.pop("data")  # 数据太大 去除data
         # 一周内的报告加上NEW
         if report.get("create_time") >= datetime.datetime.now() - relativedelta(weeks=1):
             report.update(is_new=True)
