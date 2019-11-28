@@ -168,6 +168,7 @@ class Report(models.Model):
     brand = models.ForeignKey(DimBrand, help_text="品牌", on_delete=models.DO_NOTHING)
     category = models.ForeignKey(DimCategory, help_text="品类", on_delete=models.DO_NOTHING)
     product_line = models.CharField(max_length=32, help_text="产品线", null=True)
+    competitors = models.CharField(max_length=1024, help_text="主要竞品【json list 字符串】", null=True)
 
     accounts = models.TextField(help_text="投放账号, JSon格式", null=True)
     sales_point = models.ForeignKey(DimSalesPoint, help_text="宣传卖点", on_delete=models.DO_NOTHING)
