@@ -185,24 +185,42 @@ def report_config_cancel(request):
 
 def upload_account(request):
     # 上传帐号
-
+    """
+    数据格式变更 {
+                "bgc": [{"1001": []}, {"1002": []}],
+                "kol": [{"1001": []}, {"1002": []}]
+                "url": [{}, {}]
+                }
+    :param request:
+    :return:
+    """
     file_obj = request.FILES.get("filename")  # 获取上传内容
+
     if not file_obj:
         raise Exception("没有找到文件")
-    data = apis.read_excle(file_obj)
+    # data = apis.read_excle(file_obj)
+    data = apis.read_new_excle(file_obj)
     return JsonResponse(data, safe=False)
 
 
 def download_account(request):
+    """
+    版本新增连接下载 1：表示关键词 bgc下载 2： 表示关键词kol下载  3： 表示url连接下载
+    :param request:
+    :return:
+    """
     parametes = request.POST.get("channel")
-    if not parametes:
-        raise Exception("请先传入渠道参数列表")
-    try:
-        parametes = json.loads(parametes)
-    except Exception:
-        raise Exception("参数格式错误,list形式的字符串")
+    flag = request.POST.get("type")
+    if flag in [1, 2]:
+        if not parametes:
+            raise Exception("请先传入渠道参数列表")
+        try:
+            parametes = json.loads(parametes)
+        except Exception:
+            raise Exception("参数格式错误,list形式的字符串")
+
     # 下载模板
-    download_file, file_name = apis.download_file(parametes)
+    download_file, file_name = apis.download_file(parametes, flag)
     response = HttpResponse(download_file)
     # 返回中文名文件
     response["Content-Type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
