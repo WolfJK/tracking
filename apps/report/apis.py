@@ -724,8 +724,9 @@ def read_bgc_kol_excle(file_kol, file_bgc):
     data_dict = dict()
 
     def get_data_from_df(sheets, file, flag):
-        data_list = list()
+        list_data = list()
         for num, value in enumerate(sheets):
+            dict_platform = dict()
             try:
                 platform = DimPlatform.objects.get(name=value)
             except Exception:
@@ -745,11 +746,12 @@ def read_bgc_kol_excle(file_kol, file_bgc):
             else:
                 df1["type"] = "koc"
             dict_dfs = df1.to_dict("records")
-            data_list.extend(dict_dfs)
+            dict_platform.update({platform.id: dict_dfs})
+            list_data.append(dict_platform)
         if flag == 1:
-            data_dict.update(bgc=data_list)
+            data_dict.update(bgc=list_data)
         else:
-            data_dict.update(kol=data_list)
+            data_dict.update(kol=list_data)
 
     if file_kol:
         xl_kol = pandas.ExcelFile(file_kol)
