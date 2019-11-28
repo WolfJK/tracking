@@ -687,6 +687,77 @@ def get_reports(status=0):
     return dict(code=200, data=reports)
 
 
+def read_url_excle(file_url):
+    """
+    处理url链接的的帐号数据
+    :param file_url:
+    :return:
+    """
+    xl = pandas.ExcelFile(file_url)
+    sheets = xl.sheet_names
+    num = sheets.index("链接列表")
+    # 验证帐号
+    data_dict = dict()
 
-def read_new_excle():
-    pass
+    def verify_account(value):
+        if value.lower() not in ("bgc", "kol"):
+            raise Exception("填写的帐号名必须是BGC或者KOL")
+
+    def verify_is_null(value):
+        if not value.lower():
+            raise Exception("填写的帖子链接不能为空")
+
+    df1 = pandas.read_excel(file_url, encoding="utf-8", sheet_name=sheets[num])
+    if ("帐号类型(必填)" and "帖子链接(必填)" and "子活动名称(选填)") not in df1.keys():
+        raise Exception("请按照模板抬头填写注意抬头是否和模板对应,帐号类型(必填), 帖子链接(必填), 子活动名称(选填)")
+    df1 = df1[["帐号类型(必填)", "帖子链接(必填)", "子活动名称(选填)"]]
+    df1.fillna("", inplace=True)
+    df1["帐号类型(必填)"].apply(verify_account)
+    df1["帖子链接(必填)"].apply(verify_is_null)
+
+    dict_dfs = df1.to_dict("records")
+    data_dict.update(url=dict_dfs)
+    return data_dict
+
+
+def read_bgc_kol_excle(file_kol, file_bgc):
+    data_dict = dict()
+
+    def get_data_from_df(sheets, file, flag):
+        data_list = list()
+        for num, value in enumerate(sheets):
+            try:
+                platform = DimPlatform.objects.get(name=value)
+            except Exception:
+                raise Exception("表名称不存在,请按照下载模板填写")
+            df1 = pandas.read_excel(file, encoding="utf-8", sheet_name=sheets[num])
+            # df1["BGC/KOL"].apply(verify_account)
+            if("所在地" and "帐号") not in df1.keys():
+                raise Exception("表名称必须含有列所在地, 帐号")
+            df1 = df1[["所在地", "帐号"]]
+            df1.fillna("", inplace=True)
+            if df1.empty:
+                continue
+            df1["platform_name"] = value
+            df1["platform_id"] = platform.id
+            if flag == 1:
+                df1["type"] = "bgc"
+            else:
+                df1["type"] = "koc"
+            dict_dfs = df1.to_dict("records")
+            data_list.extend(dict_dfs)
+        if flag == 1:
+            data_dict.update(bgc=data_list)
+        else:
+            data_dict.update(kol=data_list)
+
+    if file_kol:
+        xl_kol = pandas.ExcelFile(file_kol)
+        sheets_kol = xl_kol.sheet_names
+        get_data_from_df(sheets_kol, file_kol, flag=2)
+    if file_bgc:
+        xl_bgc = pandas.ExcelFile(file_bgc)
+        sheets_bgc = xl_bgc.sheet_names
+        get_data_from_df(sheets_bgc, file_bgc, flag=1)
+
+    return data_dict

@@ -186,20 +186,29 @@ def report_config_cancel(request):
 def upload_account(request):
     # 上传帐号
     """
+    1： bgc 2：kol  3： url
     数据格式变更 {
-                "bgc": [{"1001": []}, {"1002": []}],
-                "kol": [{"1001": []}, {"1002": []}]
-                "url": [{}, {}]
+                "bgc": [{}, {}],
+                "kol": [{}, {}],
+                "url": [{}, {}]   都是独立的
                 }
     :param request:
     :return:
     """
-    file_obj = request.FILES.get("filename")  # 获取上传内容
+    file_bgc = request.FILES.get("bgc")  # 获取上传内容
+    file_kol = request.FILES.get("kol")
+    file_url = request.FILES.get("url")
 
-    if not file_obj:
+    if not file_bgc and not file_kol and not file_url:
         raise Exception("没有找到文件")
+    if file_url and (file_kol or file_bgc):
+        raise Exception("url链接和kol,bgl不能同时上传")
     # data = apis.read_excle(file_obj)
-    data = apis.read_new_excle(file_obj)
+    if file_url:
+        data = apis.read_url_excle(file_url)
+    else:
+        data = apis.read_bgc_kol_excle(file_kol, file_bgc)
+
     return JsonResponse(data, safe=False)
 
 
