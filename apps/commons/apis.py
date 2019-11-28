@@ -39,7 +39,7 @@ def industry_list():
 
 def brand_list(category_id):
     '''
-    获取 品牌列表
+    获取 品牌列表【仅顶级品牌】
     :param category_id: 品类 id
     :return:
     '''

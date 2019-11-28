@@ -216,6 +216,20 @@ class APILog(models.Model):
         db_table = "api_log"
 
 
+class SmCompetitor(models.Model):
+    category = models.ForeignKey(DimCategory, help_text="品类", on_delete=models.DO_NOTHING)
+    brand = models.ForeignKey(DimBrand, help_text="品牌", on_delete=models.DO_NOTHING)
+    competitor_brand = models.CharField(max_length=1024, help_text="竞品品牌[json list字符串]")
+    user = models.CharField(max_length=32, blank=True, help_text="访问的用户")
+
+    create_date = models.DateTimeField(help_text="访问时间")
+    update_time = models.DateTimeField(help_text="修改时间", null=True)
+
+    class Meta:
+        db_table = "sm_competitor"
+
+
+
 # TODO 检测结束时间和检测周期什么关系
 # 以检测周期的结束时间和当天的关系
 
