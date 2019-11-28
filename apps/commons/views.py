@@ -2,7 +2,7 @@
 # __author__: ''
 from __future__ import unicode_literals
 
-from django.http.response import JsonResponse
+from django.http.response import JsonResponse, HttpResponse
 from . import apis
 from apps import apis as apps_apis
 from common.user import apis as common_apis
@@ -106,5 +106,53 @@ def report_template_list(request):
     return JsonResponse(data, safe=False)
 
 
+def competitor_list(request):
+    '''
+    设置, 竞品列表
+    :param request:
+    :return:
+    '''
+    param = apps_apis.get_parameter(request.POST, [("queue_filter", "", "str")])
+    competitors = apis.competitor_list(param, request.user)
+
+    return JsonResponse(competitors, safe=False)
 
 
+def competitor_save(request):
+    '''
+    设置, 添加 主要竞品
+    :param request:
+    :return:
+    '''
+    param = apps_apis.get_parameter(request.POST, [
+        ("category_id", "请选择品类", "int"),
+        ("brand_id", "请选择品牌", "int"),
+        ("competitors", "请选择竞品", "list"),
+    ])
+    apis.competitor_save(param, request.user)
+
+    return HttpResponse("ok")
+
+
+def competitor_get(request):
+    '''
+    设置, 获取单个 主要竞品的详细信息
+    :param request:
+    :return:
+    '''
+    param = apps_apis.get_parameter(request.POST, [("id", "请输入主要竞品的 id", "int")])
+    competitor = apis.competitor_get(param, request.user)
+
+    return JsonResponse(competitor, safe=False)
+
+
+def competitor_del(request):
+    '''
+    设置 删除 指定的 主要竞品
+    :param request:
+    :return:
+    '''
+    param = apps_apis.get_parameter(request.POST, [("id", "请输入主要竞品的 id", "int")])
+    apis.competitor_del(param, request.user)
+
+    return HttpResponse("ok")

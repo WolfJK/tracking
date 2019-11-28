@@ -2,11 +2,12 @@
 # __author__: ''
 from __future__ import unicode_literals
 
-from common.models import DimIndustry, DimBrand, DimBrandCategory, DimSalesPoint, Report, DimCategory, DimPlatform
-from django.db.models import F
+from common.models import DimIndustry, DimBrand, DimBrandCategory, DimSalesPoint, Report, DimCategory, \
+    DimPlatform, SmCompetitor
+from django.db.models import F, Q
 from itertools import groupby
 from operator import itemgetter
-import copy
+import json
 import apps.apis as apps_apis
 
 
@@ -128,4 +129,71 @@ def get_platform_info():
         platforms.append(dict(id=k, name=k, children=apps_apis.del_key_in_ld(list(v), ("parent",))))
 
     return platforms
+
+
+def competitor_list(param, user):
+    '''
+    设置, 竞品列表
+    :param param:
+    :param user:
+    :return:
+    '''
+    competitors = SmCompetitor.objects
+    if param.get("queue_filter"):
+        filter = param["queue_filter"]
+        competitors = competitors.filter(Q(category__name__regex=filter) | Q(brand__name__regex=filter)
+                                       | Q(category__industry__name__regex=filter)).filter(user=user)
+    competitors = list(competitors.values("id", "category__industry__name", "category__name", "brand__name", "competitors").annotate(
+        industry_name=F("category__industry__name"),
+        category_name=F("category__name"),
+        brand_name=F("brand__name"),
+    ).values("id", "industry_name", "category_name", "brand_name", "competitors"))
+
+    for competitor in competitors:
+        competitor["competitors"] = json.loads(competitor["competitors"])
+
+    return competitors
+
+
+def competitor_save(param, user):
+    '''
+    设置, 添加 主要竞品
+    :param param:
+    :param user:
+    :return:
+    '''
+    param.update(user=user)
+    SmCompetitor(**param).save()
+
+
+def competitor_get(param, user):
+    '''
+    设置, 获取单个 主要竞品的详细信息
+    :param param:
+    :param user:
+    :return:
+    '''
+    competitor = SmCompetitor.objects.filter(id=param["id"], user=user)
+    if len(competitor) == 0:
+        raise Exception("记录不存在")
+
+    competitor = list(competitor.annotate(industry_id=F("category__industry_id"))
+                      .values("id", "industry_id", "category_id", "brand_id", "competitors"))[0]
+
+    competitor["competitors"] = json.loads(competitor["competitors"])
+    return competitor
+
+
+def competitor_del(param, user):
+    '''
+    设置 删除 指定的 主要竞品
+    :param param:
+    :param user:
+    :return:
+    '''
+    competitor = SmCompetitor.objects.filter(id=param["id"], user=user)
+    if len(competitor) == 0:
+        raise Exception("记录不存在 或 无权限删除")
+
+    competitor[0].delete()
 

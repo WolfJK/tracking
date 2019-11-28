@@ -219,7 +219,7 @@ class APILog(models.Model):
 class SmCompetitor(models.Model):
     category = models.ForeignKey(DimCategory, help_text="品类", on_delete=models.DO_NOTHING)
     brand = models.ForeignKey(DimBrand, help_text="品牌", on_delete=models.DO_NOTHING)
-    competitor_brand = models.CharField(max_length=1024, help_text="竞品品牌[json list字符串]")
+    competitors = models.CharField(max_length=1024, help_text="竞品品牌[json list字符串]")
     user = models.CharField(max_length=32, blank=True, help_text="访问的用户")
 
     create_date = models.DateTimeField(help_text="访问时间")
