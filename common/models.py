@@ -54,7 +54,7 @@ class DimBrand(models.Model):
     # TODO 和品类是 那种关系 M - M
     name = models.CharField(max_length=32, help_text="品牌名称")
     keyword = models.CharField(max_length=512, help_text="抓取关键词")
-    industry = models.ForeignKey(DimIndustry, help_text="所属行业", on_delete=models.DO_NOTHING)
+    parent = models.ForeignKey("DimBrand", help_text="父品牌", on_delete=models.DO_NOTHING, null=True)
 
     class Meta:
         db_table = "dim_brand"
@@ -65,6 +65,7 @@ class DimCategory(models.Model):
     品类表
     """
     name = models.CharField(max_length=32, help_text="品类名称")
+    industry = models.ForeignKey(DimIndustry, help_text="所属行业", on_delete=models.DO_NOTHING)
 
     class Meta:
         db_table = "dim_category"

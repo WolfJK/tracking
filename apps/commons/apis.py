@@ -3,8 +3,10 @@
 from __future__ import unicode_literals
 
 from common.models import DimIndustry, DimBrand, DimBrandCategory, DimSalesPoint, Report, DimCategory, DimPlatform
+from django.db.models import F
 from itertools import groupby
 from operator import itemgetter
+import copy
 import apps.apis as apps_apis
 
 
@@ -35,22 +37,66 @@ def industry_list():
     return list(DimIndustry.objects.values("id", "name"))
 
 
-def brand_list(industry_id):
+def brand_list(category_id):
     '''
     获取 品牌列表
+    :param category_id: 品类 id
+    :return:
+    '''
+
+    brands = DimBrandCategory.objects.filter(category_id=category_id, brand__parent__isnull=True)\
+        .values("brand", "brand__name", "brand__parent")\
+        .annotate(
+        id=F("brand"),
+        name=F("brand__name"),
+        parent=F("brand__parent")
+    ).values("id", "name", "parent")
+    all_brand = [list(brands)]
+
+    get_child_brand_list(brands.values_list("id", flat=True), all_brand)
+
+    return group_brand(all_brand)
+
+
+def get_child_brand_list(brand_ids, all_brand):
+    '''
+    获取子品牌
+    :param brand_ids:
+    :param all_brand:
+    :return:
+    '''
+    childs = DimBrand.objects.filter(parent__in=brand_ids).values("id", "name", "parent")
+    if len(childs) > 0:
+        all_brand.append(list(childs))
+        get_child_brand_list(childs.values_list("id", flat=True), all_brand)
+
+
+def group_brand(all_brand):
+    '''
+    将 品牌 列表, 组合成级联形式
+    :param all_brand:
+    :return:
+    '''
+    for i in range(len(all_brand) - 1, 0, -1):
+        brands = all_brand[i]
+        brands.sort(key=itemgetter("parent"))
+
+        child_map = {k: list(v) for k, v in groupby(brands, itemgetter("parent"))}
+
+        for brand in all_brand[i-1]:
+            if child_map.has_key(brand["id"]):
+                brand.update(child=child_map.pop(brand["id"]))
+
+    return all_brand[0]
+
+
+def category_list(industry_id):
+    '''
+    获取 品类列表
     :param industry_id: 行业 id
     :return:
     '''
-    return list(DimBrand.objects.filter(industry_id=industry_id).values("id", "name"))
-
-
-def category_list(brand_id):
-    '''
-    获取 品类列表
-    :param brand_id: 品牌 id
-    :return:
-    '''
-    return list(DimBrandCategory.objects.filter(brand_id=brand_id).values("category", "category__name"))
+    return list(DimCategory.objects.filter(industry_id=industry_id).values("id", "name"))
 
 
 def sales_point_list(category_id):
