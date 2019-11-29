@@ -84,6 +84,25 @@ class DimBrandCategory(models.Model):
         db_table = "dim_brand_category"
 
 
+class DimDate(models.Model):
+    '''
+    日期纬度表
+    '''
+    date = models.DateField(help_text="年-月-日")
+    day = models.DateField(help_text="日期主键")
+    month = models.CharField(max_length=10, help_text="年-月")
+    month_start_date = models.DateField(help_text="月初")
+    month_end_date = models.DateField(help_text="月末")
+    year = models.IntegerField(help_text="所在年")
+    week = models.CharField(max_length=25, help_text="年-月-日~年-月-日")
+    week_start_date = models.DateField(help_text="周初")
+    week_end_date = models.DateField(help_text="周末")
+    quarter = models.CharField(max_length=10, help_text="年-Q1, 季度")
+
+    class Meta:
+        db_table = "dim_date"
+
+
 class SmUser(AbstractBaseUser):
     """
         TODO 用户是否会是以组织/机构/公司的形式出现?

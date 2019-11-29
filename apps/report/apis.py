@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 from common.models import *
-from django.db.models import F, Q, Func
 from common.db_helper import DB
 from io import BytesIO
 from dateutil.relativedelta import relativedelta
@@ -13,7 +12,6 @@ import sqls
 import json
 import datetime
 import copy
-import traceback
 from common.logger import Logger
 from apps.commons.apis import get_platform_info
 import apps.apis as apps_apis
@@ -187,7 +185,8 @@ def report_details(report_id, user):
         sales_points=sales_points,
         period=(report.monitor_end_date - report.monitor_start_date).days + 1,
         status_value=report.get_status_display(),
-        status=report.status
+        status=report.status,
+        reprot_period=get_reprot_period(report.monitor_start_date, report.monitor_end_date)
     )
 
     return data
@@ -466,6 +465,21 @@ def unscramble(unscramble_type, param):
     template["unscramble"] = "".join(unscramble)
 
     return template
+
+
+def get_reprot_period(begin, end):
+    '''
+    获取 报告 所跨的周 和 月
+    :param begin:
+    :param end:
+    :return:
+    '''
+    period = DimDate.objects.filter(date__range=[begin, end])
+
+    return dict(
+        week_period=list(period.values("week").distinct().order_by("week")),
+        month_period=list(period.values("month").distinct().order_by("month"))
+    )
 
 
 def report_unscramble_save(param, user):
