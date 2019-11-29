@@ -767,3 +767,53 @@ def read_bgc_kol_excle(file_kol, file_bgc):
         get_data_from_df(sheets_bgc, file_bgc, flag=1)
 
     return data_dict
+
+
+def make_new_form(report_id):
+    # 创建Excel内存对象，用StringIO填充
+    file_name = "{0}.xlsx".format("accounts" + str(datetime.datetime.now().date()))
+    try:
+        report_obj = Report.objects.get(id=report_id)
+    except Exception:
+        raise Exception("报告不存在")
+
+    if report_obj.accounts:
+        """
+            分为 url帐号
+                bgc帐号  下面两个帐号合并下载
+                kol帐号
+        """
+        parametes = json.loads(report_obj.accounts)
+        output = BytesIO()
+        writer = pandas.ExcelWriter(output, engine="xlsxwriter")
+
+        dict_all = dict()
+        for key, value in parametes.items():
+            # 把相同平台的帐号合并到一起然后开始生成 excle
+            if key in ["bgc", "kol"]:
+                for list_account in value:
+                    for pla_id, val_list in list_account.items():
+                        if dict_all.get(pla_id):
+                            dict_all.get(pla_id).extend(val_list)
+                        else:
+                            dict_all.update({pla_id: val_list})
+            # 下载 url 帖子链接
+            if key in ["url", ]:
+                df = pandas.DataFrame.from_records(value)
+                df_download = df[["帖子链接(必填)", "帐号类型(必填)", "子活动名称(选填)"]]
+                df_download.to_excel(writer, sheet_name="链接列表", index=0)
+
+        # 下载bgc或者kol
+        if dict_all:
+            for platform_id, dict_account in dict_all.items():
+                df = pandas.DataFrame.from_dict(dict_account)
+                df_download = df[["type", "所在地", "帐号"]]
+                df_download["BGC/KOL"] = df_download['type']
+                for value_list in dict_account:
+                    df_download.to_excel(writer, sheet_name=value_list.get("platform_name"), index=0,
+                                         columns=["BGC/KOL", "所在地", "帐号"])
+        writer.save()
+        output.seek(0)
+
+    return output.getvalue() if report_obj.accounts else "", file_name
+

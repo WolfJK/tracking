@@ -245,7 +245,8 @@ def download_panel(request):
     if not report_id:
         raise Exception("请先传入报告id")
     # 下载模板
-    download_file, file_name = apis.make_form(report_id)
+    # download_file, file_name = apis.make_form(report_id)
+    download_file, file_name = apis.make_new_form(report_id)
     response = HttpResponse(download_file)
     # 返回中文名文件
     response["Content-Type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
