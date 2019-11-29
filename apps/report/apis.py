@@ -169,13 +169,14 @@ def report_details(report_id, user):
 
     data = data_transform(json.loads(report.data))
     if not data.get("unscramble"):
-        data["unscramble"] = get_unscramble(data, report.sales_point.name)
+        data["unscramble"] = get_unscramble(data, report.sales_points)
 
+    sales_points = json.loads(report.sales_points) if report.sales_points else None
     data["report_config"] = dict(
         start_date=report.monitor_start_date,
         end_date=report.monitor_end_date,
         name=report.name,
-        sales_point=report.sales_point.name,
+        sales_points=sales_points,
         period=(report.monitor_end_date - report.monitor_start_date).days + 1,
         status_value=report.get_status_display(),
         status=report.status
@@ -494,6 +495,7 @@ def report_config_create(param, user, ip):
         tag=json.dumps(param["tag"]),
         accounts=json.dumps(param["accounts"]),
         platform=json.dumps(return_list),
+        competitors=json.dumps(param["competitors"]) if param.get("competitors") else None
     )
 
     report_id = param.pop("report_id")
@@ -507,7 +509,7 @@ def report_config_create(param, user, ip):
         report = get_report(report_id, user, status=(1, ))
         param.update(id=report_id, update_time=datetime.datetime.now(), create_time=report.create_time)
 
-    param["sales_point"] = DimSalesPoint.objects.get(id=param["sales_point"])
+    param["sales_points"] = json.loads(param["sales_point", "[]"])
     report = Report(**param)
     report.save()
 
@@ -525,7 +527,9 @@ def get_report_config(report_id, user):
     report = get_report(report_id, user, status=(0, 1, 2, 3, 4, 5, 6))
     report.accounts = json.loads(report.accounts)
     report.tag = json.loads(report.tag)
-    report.platform = report.platform
+    report.platform = json.loads(report.platform)
+    report.sales_points = json.loads(report.sales_points)
+    report.competitors = json.loads(report.competitors)
 
     return report
 

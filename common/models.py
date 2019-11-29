@@ -171,7 +171,7 @@ class Report(models.Model):
     competitors = models.CharField(max_length=1024, help_text="主要竞品【json list 字符串】", null=True)
 
     accounts = models.TextField(help_text="投放账号, JSon格式", null=True)
-    sales_point = models.ForeignKey(DimSalesPoint, help_text="宣传卖点", on_delete=models.DO_NOTHING)
+    sales_points = models.CharField(max_length=1024, help_text="宣传卖点[json list 字符串]", null=True)
     remark = models.TextField(help_text="备注", default="")
     status = models.IntegerField(help_text="状态", choices=STATUS_CHOICE, default=1)
     data = models.TextField(help_text="报表数据，JSon格式", null=True)

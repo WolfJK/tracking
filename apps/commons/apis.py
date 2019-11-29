@@ -117,7 +117,7 @@ def report_template_list(user):
     return list(Report.objects.filter(user__corporation=user.corporation, delete=False, status=0).values(
         "id", "name", "title", "tag",
         "monitor_start_date", "monitor_end_date", "platform", "industry", "brand",
-        "category", "product_line", "accounts", "sales_point", "remark", "remark"
+        "category", "product_line", "accounts", "sales_points", "remark", "remark"
     ))
 
 

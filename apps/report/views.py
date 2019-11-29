@@ -53,6 +53,7 @@ def report_config_create(request):
         ("industry_id", "请选择行业", "int"),
         ("brand_id", "请选择品牌", "int"),
         ("category_id", "请选择品类", "int"),
+        ("competitors", "", "list"),
         ("product_line", "", "str"),
         ("name", "请输入报告名称", "str"),
         ("title", "请输入活动主题", "str"),
@@ -61,7 +62,7 @@ def report_config_create(request):
         ("monitor_end_date", "请选择活动检测周期", "str"),
         ("platform", "请选择投放渠道", "list"),
         ("accounts", "", "list"),
-        ("sales_point", "请选择投宣传卖点", "int"),
+        ("sales_points", "", "list"),
         ("remark", "", "str"),
     ]
 
