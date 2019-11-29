@@ -140,11 +140,18 @@ def formatted_report(reports):
         user = SmUser.objects.get(id=report.get("user_id"))
         report.update(username=user.username)
         report.update(platform=json.loads(report.get("platform")))
-        brand_name = DimBrand.objects.get(id=report.get("brand_id")).name
+        report.update(tag=json.loads(report.get("tag")))
+        report.update(accounts=json.loads(report.get("accounts")))
+        report.update(competitors=json.loads(report.get("competitors")))
+        report.update(brand_id=json.loads(report.get("brand_id")))
+
+        brand_name = report["brand_id"][-1]["name"]
         report.update(brand_name=brand_name)
         report.update(industry_name=DimIndustry.objects.get(id=report.get("industry_id")).name)
         report.update(category_name=DimCategory.objects.get(id=report.get("category_id")).name)
-        report.update(sales_point_name=DimSalesPoint.objects.get(id=report.get("sales_point_id")).name)
+
+        report.update(sales_point_name=json.loads(report["sales_points"]))
+        report.update(sales_points=json.loads(report["sales_points"]))
         if user.brand.name == brand_name:
             report.update(is_owner="本品")
         else:
@@ -167,11 +174,12 @@ def report_details(report_id, user):
     """
     report = get_report(report_id, user, status=(0, ))
 
-    data = data_transform(json.loads(report.data))
-    if not data.get("unscramble"):
-        data["unscramble"] = get_unscramble(data, report.sales_points)
+    sales_points = json.loads(report.sales_points)
+    data = data_transform(json.loads(report.data), sales_points)
 
-    sales_points = json.loads(report.sales_points) if report.sales_points else None
+    if not data.get("unscramble"):
+        data["unscramble"] = get_unscramble(data, sales_points)
+
     data["report_config"] = dict(
         start_date=report.monitor_start_date,
         end_date=report.monitor_end_date,
@@ -185,10 +193,11 @@ def report_details(report_id, user):
     return data
 
 
-def data_transform(data):
+def data_transform(data, sales_points):
     """
     将 etl 格式的数据 转换为 web 格式
     :param data: etl 数据
+    :param sales_points: 诉求点
     :return:
     """
     # 投放渠道分布 转换
@@ -253,14 +262,8 @@ def data_transform(data):
         value_year=data["brand_concern"]["annual"]
     ))
 
-    map(lambda x: x.update(dict(value_year=data["tags_concern"]["annual"])), data["tags_concern"]["trend"])
-    data["tags_concern"]["trend"].sort(key=lambda x: x["date"])
-    data["tags_concern"]["trend"].append(dict(
-        date=apps_apis.next_period(data["tags_concern"]["trend"][-1]["date"]),
-        value=data["tags_concern"]["activity"],
-        value_year=data["tags_concern"]["annual"]
-    ))
-
+    # 单独处理 tags_concern
+    tags_concern(data, sales_points)
 
     # 精度修正
     apps_apis.set_precision(data["spread_effectiveness"]["brand_ugc_web"], keys=("value", "value_year"), precision=1)
@@ -270,9 +273,6 @@ def data_transform(data):
 
     apps_apis.set_precision(data["brand_concern"]["trend"], keys=("value", "value_year"), precision=1, pct=100.0)
     apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=1, pct=100.0)
-
-    apps_apis.set_precision(data["tags_concern"]["trend"], keys=("value", "value_year"), precision=1, pct=100.0)
-    apps_apis.set_precision(data["tags_concern"], keys=("annual", "activity", "delta"), precision=1, pct=100.0)
 
     apps_apis.ratio(data["spread_efficiency"]["activity_composition"], "value", precision=1)
     apps_apis.ratio(data["spread_efficiency"]["user_type_composition"], "value", precision=1)
@@ -286,6 +286,29 @@ def data_transform(data):
     data["spread_effectiveness"]["annual_average_trend"].sort(key=lambda x: x["date"])
 
     return data
+
+
+def tags_concern(data, sales_points):
+    '''
+    处理 tags_concern 的数据
+    :param data:
+    :param sales_points:
+    :return:
+    '''
+    for i in range(len(data["tags_concern"])):
+        tags_concern = data["tags_concern"][i]
+        map(lambda x: x.update(dict(value_year=tags_concern["annual"])), tags_concern["trend"])
+        tags_concern["trend"].sort(key=lambda x: x["date"])
+        tags_concern["trend"].append(dict(
+            date=apps_apis.next_period(tags_concern["trend"][-1]["date"]),
+            value=tags_concern["activity"],
+            value_year=tags_concern["annual"]
+        ))
+
+        apps_apis.set_precision(tags_concern["trend"], keys=("value", "value_year"), precision=1, pct=100.0)
+        apps_apis.set_precision(tags_concern, keys=("annual", "activity", "delta"), precision=1, pct=100.0)
+
+        tags_concern.update(sales_point=sales_points[i]["name"], index=i)
 
 
 def merge_spread_efficiency(data, spread_type):
@@ -308,14 +331,13 @@ def merge_spread_efficiency(data, spread_type):
     data["spread_efficiency"]["{}_web".format(spread_type)] = cumulative
 
 
-def get_unscramble(data, sales_point):
+def get_unscramble(data, sales_points):
     '''
     根据数据 获取解读结果
     :param data:
-    :param sales_point:
+    :param sales_points:
     :return:
     '''
-
     activity_max, platform_max, account_max, account_post_max, cb_platform_max, \
     hd_platform_max, cb_account_max, hd_account_max, cb_activity_max, hd_activity_max, \
     source_max, activity_ugc_max = [{}] * 12
@@ -409,21 +431,41 @@ def get_unscramble(data, sales_point):
         brand_attention=data["brand_concern"]["activity"],
         brand_attention_year=data["brand_concern"]["annual"],
         brand_attention_ratio=abs(data["brand_concern"]["delta"]),
-
-        sales_point_cognitive=data["tags_concern"]["activity"],
-        sales_point_cognitive_year=data["tags_concern"]["annual"],
-        sales_point_cognitive_ratio=abs(data["tags_concern"]["delta"]),
-        sales_point=sales_point,
-
     )
 
-    unscramble_rule = copy.deepcopy(sqls.unscramble_rule)
-    for k in unscramble_rule.keys():
-        unscramble = unscramble_rule[k]["unscramble"]
-        unscramble = [rule[1].format(**param) for rule in unscramble if eval(rule[0].format(**param))]
-        unscramble_rule[k]["unscramble"] = "".join(unscramble)
+    # 处理 sales_points
+    sp_unscramble = []
+    for i in range(len(sales_points)):
+        sp_param = dict(
+            sales_point_cognitive=data["tags_concern"][i]["activity"],
+            sales_point_cognitive_year=data["tags_concern"][i]["annual"],
+            sales_point_cognitive_ratio=abs(data["tags_concern"][i]["delta"]),
+            sales_point=sales_points[i]["name"],
+        )
+        sp_unscramble.append(unscramble("effect_sales_point", sp_param))
+
+    unscramble_rule = dict(effect_sales_point=sp_unscramble)
+    # 处理其他
+    for k in sqls.unscramble_rule.keys():
+        if k == "effect_sales_point":
+            continue
+        unscramble_rule.update({k: unscramble(k, param)})
 
     return unscramble_rule
+
+
+def unscramble(unscramble_type, param):
+    '''
+    传入参数, 进行 解读
+    :param unscramble_type:
+    :param param:
+    :return:
+    '''
+    template = copy.deepcopy(sqls.unscramble_rule[unscramble_type])
+    unscramble = [rule[1].format(**param) for rule in template["unscramble"] if eval(rule[0].format(**param))]
+    template["unscramble"] = "".join(unscramble)
+
+    return template
 
 
 def report_unscramble_save(param, user):
@@ -495,7 +537,9 @@ def report_config_create(param, user, ip):
         tag=json.dumps(param["tag"]),
         accounts=json.dumps(param["accounts"]),
         platform=json.dumps(return_list),
-        competitors=json.dumps(param["competitors"]) if param.get("competitors") else None
+        competitors=json.dumps(param["competitors"]),
+        brand_id=json.dumps(param["brand_id"]),
+        sales_points=json.dumps(param["sales_points"]),
     )
 
     report_id = param.pop("report_id")
@@ -509,7 +553,6 @@ def report_config_create(param, user, ip):
         report = get_report(report_id, user, status=(1, ))
         param.update(id=report_id, update_time=datetime.datetime.now(), create_time=report.create_time)
 
-    param["sales_points"] = json.loads(param["sales_point", "[]"])
     report = Report(**param)
     report.save()
 
@@ -530,6 +573,7 @@ def get_report_config(report_id, user):
     report.platform = json.loads(report.platform)
     report.sales_points = json.loads(report.sales_points)
     report.competitors = json.loads(report.competitors)
+    report.brand_id = json.loads(report.brand_id)
 
     return report
 
@@ -676,12 +720,15 @@ def get_reports(status=0):
     try:
         reports = list(Report.objects.filter(status=status, delete=False).values(
             "id", "name", "industry__name", "tag", "monitor_start_date", "monitor_end_date",
-            "platform", "accounts", "sales_point__name", "brand__name",
+            "platform", "accounts", "sales_points", "brand_id", "competitors"
         ))
         map(lambda r: r.update(
             tag=json.loads(r["tag"]),
             accounts=json.loads(r["accounts"]),
             platform=json.loads(r["platform"]),
+            sales_points=json.loads(r["sales_points"]),
+            brand_id=json.loads(r["brand_id"]),
+            competitors=json.loads(r["competitors"]),
         ), reports)
 
     except:

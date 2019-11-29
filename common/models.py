@@ -167,13 +167,13 @@ class Report(models.Model):
     platform = models.TextField(help_text="渠道, json 格式")
 
     # industry = models.ForeignKey(DimIndustry, help_text="行业", on_delete=models.DO_NOTHING)
-    brand = models.ForeignKey(DimBrand, help_text="品牌", on_delete=models.DO_NOTHING)
+    brand_id = models.CharField(max_length=1024, help_text="品牌[json list 字符串]")
     category = models.ForeignKey(DimCategory, help_text="品类", on_delete=models.DO_NOTHING)
     product_line = models.CharField(max_length=32, help_text="产品线", null=True)
     competitors = models.CharField(max_length=1024, help_text="主要竞品【json list 字符串】", null=True)
 
     accounts = models.TextField(help_text="投放账号, JSon格式", null=True)
-    sales_points = models.CharField(max_length=1024, help_text="宣传卖点[json list 字符串]", null=True)
+    sales_points = models.CharField(max_length=512, help_text="宣传卖点[json list 字符串]", null=True)
     remark = models.TextField(help_text="备注", default="")
     status = models.IntegerField(help_text="状态", choices=STATUS_CHOICE, default=1)
     data = models.TextField(help_text="报表数据，JSon格式", null=True)
@@ -490,21 +490,57 @@ RDL_JSON = dict(
     ),
 
     # 6. 宣传卖点认知度
-    tags_concern=dict(
-        # 6.1. 浮动
-        delta=0.1,
+    tags_concern=[
+        dict(
+            # 6.1. 浮动
+            delta=0.1,
 
-        # 6.2. 活动期"过敏"认识度
-        activity=0.15,
+            # 6.2. 活动期"过敏"认识度
+            activity=0.15,
 
-        # 6.3. 年度"过敏"认识度
-        annual=0.05,
+            # 6.3. 年度"过敏"认识度
+            annual=0.05,
 
-        # 6.4. 年度趋势图
-        trend=[
-            # 年度品牌关注度是常量，可以将annual填入，一周一行数据
-            dict(value=20, date="2019-01-07"),
-            dict(value=30, date="2019-01-14")
-        ]
-    )
+            # 6.4. 年度趋势图
+            trend=[
+                # 年度品牌关注度是常量，可以将annual填入，一周一行数据
+                dict(value=20, date="2019-01-07"),
+                dict(value=30, date="2019-01-14")
+            ]
+        ),
+        dict(
+            # 6.1. 浮动
+            delta=0.1,
+
+            # 6.2. 活动期"过敏"认识度
+            activity=0.15,
+
+            # 6.3. 年度"过敏"认识度
+            annual=0.05,
+
+            # 6.4. 年度趋势图
+            trend=[
+                # 年度品牌关注度是常量，可以将annual填入，一周一行数据
+                dict(value=20, date="2019-01-07"),
+                dict(value=30, date="2019-01-14")
+            ]
+        ),
+        dict(
+            # 6.1. 浮动
+            delta=0.1,
+
+            # 6.2. 活动期"过敏"认识度
+            activity=0.15,
+
+            # 6.3. 年度"过敏"认识度
+            annual=0.05,
+
+            # 6.4. 年度趋势图
+            trend=[
+                # 年度品牌关注度是常量，可以将annual填入，一周一行数据
+                dict(value=20, date="2019-01-07"),
+                dict(value=30, date="2019-01-14")
+            ]
+        )
+    ]
 )
