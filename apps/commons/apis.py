@@ -7,8 +7,10 @@ from common.models import DimIndustry, DimBrand, DimBrandCategory, DimSalesPoint
 from django.db.models import F, Q
 from itertools import groupby
 from operator import itemgetter
-import json
 import apps.apis as apps_apis
+import json
+from common.db_helper import DB
+import sqls
 
 
 def get_user_info(user):
@@ -138,21 +140,11 @@ def competitor_list(param, user):
     :param user:
     :return:
     '''
-    competitors = SmCompetitor.objects
-    if param.get("queue_filter"):
-        filter = param["queue_filter"]
-        competitors = competitors.filter(Q(category__name__regex=filter) | Q(brand__name__regex=filter)
-                                       | Q(category__industry__name__regex=filter)).filter(user=user)
-    competitors = list(competitors.values("id", "category__industry__name", "category__name", "brand__name", "competitors").annotate(
-        industry_name=F("category__industry__name"),
-        category_name=F("category__name"),
-        brand_name=F("brand__name"),
-    ).values("id", "industry_name", "category_name", "brand_name", "competitors"))
+    params = dict(queue_filter=param.get("queue_filter", ''), user_id=user.id)
+    data = DB.search(sqls.competitor_list, params)
+    map(lambda x: x.update(competitors=json.loads(x["competitors"])), data)
 
-    for competitor in competitors:
-        competitor["competitors"] = json.loads(competitor["competitors"])
-
-    return competitors
+    return data
 
 
 def competitor_save(param, user):
@@ -162,7 +154,7 @@ def competitor_save(param, user):
     :param user:
     :return:
     '''
-    param.update(user=user)
+    param.update(user=user, brand_id=json.dumps(param["brand_id"]), competitors=json.dumps(param["competitors"]))
     SmCompetitor(**param).save()
 
 
@@ -181,6 +173,8 @@ def competitor_get(param, user):
                       .values("id", "industry_id", "category_id", "brand_id", "competitors"))[0]
 
     competitor["competitors"] = json.loads(competitor["competitors"])
+    competitor["brand_id"] = json.loads(competitor["brand_id"])
+
     return competitor
 
 

@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
+import json
+import pdb
 
 
 class SmApi(models.Model):
@@ -219,11 +221,11 @@ class APILog(models.Model):
 
 class SmCompetitor(models.Model):
     category = models.ForeignKey(DimCategory, help_text="品类", on_delete=models.DO_NOTHING)
-    brand = models.ForeignKey(DimBrand, help_text="品牌", on_delete=models.DO_NOTHING)
+    brand_id = models.CharField(max_length=1024, help_text="本品品牌 [json list字符串]")
     competitors = models.CharField(max_length=1024, help_text="竞品品牌[json list字符串]")
-    user = models.CharField(max_length=32, blank=True, help_text="访问的用户")
+    user = models.ForeignKey(SmUser, help_text="所属用户", on_delete=models.DO_NOTHING)
 
-    create_date = models.DateTimeField(help_text="访问时间")
+    create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
     update_time = models.DateTimeField(help_text="修改时间", null=True)
 
     class Meta:

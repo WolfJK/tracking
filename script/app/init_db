@@ -146,3 +146,18 @@ insert into dim_brand(name, industry_id, keyword) values ('伊利奶粉', '1', '
 -- 2.4、 dim_brand
 truncate table dim_brand_category;
 insert into dim_brand_category(brand_id, category_id) select id, 1 from dim_brand;
+
+
+
+-- 2.5 处理 获取 jison 数据 随后一个 元素(仅支持第一层为数组, 但支持嵌套使用, 为 json_extract 的升级补充)
+drop FUNCTION json_index;
+delimiter //
+create function json_index(json_array varchar(1024), i int, path varchar(64)) returns varchar(1024)
+begin
+    declare ret varchar(1024);
+    if i < 0 then set i = json_length(json_array) + i; end if ;
+    set ret = json_unquote(json_extract(json_array, concat('$[', i, ']', path)));
+RETURN ret;
+end
+//
+delimiter ;
