@@ -246,21 +246,21 @@ def data_transform(data, sales_points):
     dict_map = {x["date"]: x["value"] for x in annual_average}
     map(lambda x: x.update(dict(value_year=dict_map.get(x["date"], 0))), brand_ugc)
     brand_ugc.sort(key=lambda x: x["date"])
-    brand_ugc.append(dict(
-        date=apps_apis.next_period(brand_ugc[-1]["date"]),
-        value=data["spread_effectiveness"]["ugc_mentioned_brand_count"],
-        value_year=data["spread_effectiveness"]["predict"]
-    ))
+    # brand_ugc.append(dict(
+    #     date=apps_apis.next_period(brand_ugc[-1]["date"]),
+    #     value=data["spread_effectiveness"]["ugc_mentioned_brand_count"],
+    #     value_year=data["spread_effectiveness"]["predict"]
+    # ))
     data["spread_effectiveness"]["brand_ugc_web"] = brand_ugc
 
     # 品牌关注度
     map(lambda x: x.update(dict(value_year=data["brand_concern"]["annual"])), data["brand_concern"]["trend"])
     data["brand_concern"]["trend"].sort(key=lambda x: x["date"])
-    data["brand_concern"]["trend"].append(dict(
-        date=apps_apis.next_period(data["brand_concern"]["trend"][-1]["date"]),
-        value=data["brand_concern"]["activity"],
-        value_year=data["brand_concern"]["annual"]
-    ))
+    # data["brand_concern"]["trend"].append(dict(
+    #     date=apps_apis.next_period(data["brand_concern"]["trend"][-1]["date"]),
+    #     value=data["brand_concern"]["activity"],
+    #     value_year=data["brand_concern"]["annual"]
+    # ))
 
     # 单独处理 tags_concern
     tags_concern(data, sales_points)
@@ -299,11 +299,11 @@ def tags_concern(data, sales_points):
         tags_concern = data["tags_concern"][i]
         map(lambda x: x.update(dict(value_year=tags_concern["annual"])), tags_concern["trend"])
         tags_concern["trend"].sort(key=lambda x: x["date"])
-        tags_concern["trend"].append(dict(
-            date=apps_apis.next_period(tags_concern["trend"][-1]["date"]),
-            value=tags_concern["activity"],
-            value_year=tags_concern["annual"]
-        ))
+        # tags_concern["trend"].append(dict(
+        #     date=apps_apis.next_period(tags_concern["trend"][-1]["date"]),
+        #     value=tags_concern["activity"],
+        #     value_year=tags_concern["annual"]
+        # ))
 
         apps_apis.set_precision(tags_concern["trend"], keys=("value", "value_year"), precision=1, pct=100.0)
         apps_apis.set_precision(tags_concern, keys=("annual", "activity", "delta"), precision=1, pct=100.0)
