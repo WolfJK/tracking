@@ -240,7 +240,7 @@ class APILog(models.Model):
 
 class SmCompetitor(models.Model):
     category = models.ForeignKey(DimCategory, help_text="品类", on_delete=models.DO_NOTHING)
-    brand_id = models.CharField(max_length=1024, help_text="本品品牌 [json list字符串]")
+    brand = models.CharField(max_length=1024, help_text="本品品牌 [json list字符串]")
     competitors = models.CharField(max_length=1024, help_text="竞品品牌[json list字符串]")
     user = models.ForeignKey(SmUser, help_text="所属用户", on_delete=models.DO_NOTHING)
 
