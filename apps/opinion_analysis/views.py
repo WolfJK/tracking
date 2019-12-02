@@ -56,10 +56,11 @@ def data_monitor_analysis(request):
     :param request:
     :return:
     '''
+
     # 返回所有的监测的数据
     category_id = request.POST.get("category_id")
-    apis.get_all_monitor_card_data(category_id)
-    return JsonResponse(data={"result": "success"}, safe=False)
+    data = apis.get_all_monitor_card_data(category_id)
+    return JsonResponse(data=data, safe=False)
 
 
 def whole_net_analysis(request):
