@@ -9,9 +9,13 @@ ALTER TABLE dim_brand ADD parent_id int NULL;
 -- 2、report
 
 DROP INDEX report_sales_point_id_5b0bb778e38ce642_uniq ON report;
-ALTER TABLE report CHANGE sales_point_id sales_points varchar(64) COMMENT '主要竞品【json list 字符串】';
+ALTER TABLE report CHANGE sales_point_id sales_points varchar(512) COMMENT '主要竞品【json list 字符串】';
 
 ALTER TABLE report ADD competitorss varchar(1024) NULL;
+
+DROP INDEX report_brand_id_6195e9f82a8a6648_fk_dim_brand_id ON report;
+ALTER TABLE report MODIFY brand_id varchar(1024) NOT NULL;
+
 
 
 -- 3、添加 自定义函数

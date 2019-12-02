@@ -51,7 +51,7 @@ def report_config_create(request):
     params = [
         ("report_id", "", "int"),
         ("industry_id", "请选择行业", "int"),
-        ("brand_id", "请选择品牌", "int"),
+        ("brand_id", "请选择品牌", "list"),
         ("category_id", "请选择品类", "int"),
         ("competitors", "", "list"),
         ("product_line", "", "str"),
@@ -76,6 +76,9 @@ def report_config_create(request):
     if diff_date < 1 or diff_date > 90:
         raise Exception("请选择正确的检测周期")
 
+    if len(param["sales_points"]) > 3:
+        raise Exception("宣传卖点最多选择 3 个")
+
     report = apis.report_config_create(param, request.user, ip)
 
     return JsonResponse(dict(code=200, report_id=report.id))
@@ -90,8 +93,8 @@ def report_config_edit(request):
     param = apps_apis.get_parameter(request.POST, [("report_id", "请选择一个报告", "int")])
     data = apis.get_report_config(param["report_id"], request.user)
     data.__dict__.pop("_state")
-    data = apis.formatted_report([data.__dict__])[0]
-    return JsonResponse(data, safe=False)
+    # data = apis.formatted_report([data.__dict__])[0]
+    return JsonResponse(data.__dict__, safe=False)
 
 
 def report_details(request):
@@ -127,7 +130,7 @@ def report_unscramble_save(request):
 
 def update_report(request):
     '''
-    跟新报告状态
+    更新报告状态
     :param request:
     :return:
     '''
