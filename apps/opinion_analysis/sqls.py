@@ -3,8 +3,12 @@
 from __future__ import unicode_literals
 
 
-compete_brand = """
+sm_competitor_compete_brand = """
 select competitors from sm_competitor where json_index(brand, -1, '.id') = {brand_id};
+"""
+
+vc_monitor_brand_compete = """
+select competitor from vc_monitor_brand where id = {brand_id};
 """
 
 search_monitor_brand = """
@@ -15,3 +19,6 @@ search_monitor_brand_type = """
 select * from vc_monitor_brand where category_id = {category_id};
 """
 
+monitor_data_analysis_voice = """
+
+"""
