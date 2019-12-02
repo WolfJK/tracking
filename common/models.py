@@ -240,7 +240,7 @@ class APILog(models.Model):
 
 class SmCompetitor(models.Model):
     category = models.ForeignKey(DimCategory, help_text="品类", on_delete=models.DO_NOTHING)
-    brand_id = models.CharField(max_length=1024, help_text="本品品牌 [json list字符串]")
+    brand = models.CharField(max_length=1024, help_text="本品品牌 [json list字符串]")
     competitors = models.CharField(max_length=1024, help_text="竞品品牌[json list字符串]")
     user = models.ForeignKey(SmUser, help_text="所属用户", on_delete=models.DO_NOTHING)
 
@@ -251,7 +251,202 @@ class SmCompetitor(models.Model):
         db_table = "sm_competitor"
 
 
+# ###########################################  声量舆情  ###############################################
 
+class VcMonitorBrand(models.Model):
+
+    category = models.ForeignKey(DimCategory, help_text="品类", on_delete=models.DO_NOTHING)
+    brand = models.CharField(max_length=1024, help_text="所属品牌, 以 json 字符串, 多级")
+    competitor = models.CharField(max_length=1024, help_text="主要竞品[以 json 字符串, 单级,多个]")
+    time_slot = models.IntegerField(help_text="展示时段[为天数， 7 、30、90]")
+
+    create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
+    update_time = models.DateTimeField(help_text="修改时间", null=True)
+
+    class Meta:
+        db_table = "vc_monitor_brand"
+
+
+class VcSaasPlatformVolume(models.Model):
+    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    brand = models.CharField(max_length=32, help_text="品牌名称")
+    platform = models.CharField(max_length=32, help_text="平台  包括 saas 指定的平台、 其他、全部")
+
+    count = models.IntegerField(help_text="声量")
+    date = models.DateField(help_text="日期")
+
+    create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
+    update_time = models.DateTimeField(help_text="修改时间", null=True)
+
+    class Meta:
+        db_table = "vc_saas_platform_volume"
+
+
+class VcSaasAreaVolume(models.Model):
+    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    brand = models.CharField(max_length=32, help_text="品牌名称")
+    area = models.CharField(max_length=32, help_text="地域[仅全网]")
+
+    count = models.IntegerField(help_text="声量")
+    date = models.DateField(help_text="日期")
+
+    create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
+    update_time = models.DateTimeField(help_text="修改时间", null=True)
+
+    class Meta:
+        db_table = "vc_saas_area_volume"
+
+
+class VcMpPlatformAreaVolume(models.Model):
+    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    brand = models.CharField(max_length=32, help_text="品牌名称")
+    platform = models.CharField(max_length=32, help_text="平台[bbv+dsm]")
+    area = models.CharField(max_length=32, help_text="地域[仅全网]")
+
+    count = models.IntegerField(help_text="声量")
+    type = models.CharField(max_length=32, help_text="类型[bbv 或 dsm]")
+    date = models.DateField(help_text="日期")
+
+    create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
+    update_time = models.DateTimeField(help_text="修改时间", null=True)
+
+    class Meta:
+        db_table = "vc_mp_platform_area_volume"
+
+
+class VcMpKeywordsCloud(models.Model):
+    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    brand = models.CharField(max_length=32, help_text="品牌名称")
+    platform = models.CharField(max_length=32, help_text="平台[bbv+dsm]")
+    activity_tags = models.CharField(max_length=64, help_text="activity_tags", null=True)
+    keywords = models.CharField(max_length=64, help_text="关键词")
+
+    count = models.IntegerField(help_text="词个数")
+    type = models.CharField(max_length=32, help_text="类型[bbv 或 dsm]")
+    date = models.DateField(help_text="日期")
+
+    create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
+    update_time = models.DateTimeField(help_text="修改时间", null=True)
+
+    class Meta:
+        db_table = "vc_mp_keywords_cloud"
+
+
+class VcMpFirstLevelCognition(models.Model):
+    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    brand = models.CharField(max_length=32, help_text="品牌名称")
+    platform = models.CharField(max_length=32, help_text="平台[bbv+dsm]")
+    cognition = models.CharField(max_length=64, help_text="认知[认知为一级认知]")
+    count = models.IntegerField(help_text="词个数")
+
+    type = models.CharField(max_length=32, help_text="类型[bbv 或 dsm]")
+    date = models.DateField(help_text="日期")
+
+    create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
+    update_time = models.DateTimeField(help_text="修改时间", null=True)
+
+    class Meta:
+        db_table = "vc_mp_first_level_cognition"
+
+
+class VcMpCognition(models.Model):
+    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    brand = models.CharField(max_length=32, help_text="品牌名称")
+    platform = models.CharField(max_length=32, help_text="平台[bbv+dsm]")
+    level1 = models.CharField(max_length=64, help_text="一级认知")
+    level2 = models.CharField(max_length=64, help_text="二级认知")
+    level3 = models.CharField(max_length=64, help_text="三级认知")
+
+    count = models.IntegerField(help_text="认知数")
+    date = models.DateField(help_text="日期")
+
+    create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
+    update_time = models.DateTimeField(help_text="修改时间", null=True)
+
+    class Meta:
+        db_table = "vc_mp_cognition"
+
+
+class VcMpConsensusContent(models.Model):
+    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    brand = models.CharField(max_length=32, help_text="品牌名称")
+    platform = models.CharField(max_length=32, help_text="平台[深度社媒]")
+
+    account = models.CharField(max_length=64, help_text="账号", null=True)
+    title = models.CharField(max_length=128, help_text="标题", null=True)
+    url = models.CharField(max_length=512, help_text="帖子 url", null=True)
+
+    reading = models.IntegerField(help_text="阅读数")
+    reviews = models.IntegerField(help_text="评论数")
+    retweets = models.IntegerField(help_text="转发数")
+    praise_points = models.IntegerField(help_text="点赞数")
+    favorite = models.IntegerField(help_text="收藏数")
+
+    type = models.IntegerField(help_text="类型[官方发帖 或 用户发帖, 1:官方发帖, 2: 用户发帖]")
+    date = models.DateField(help_text="发帖日期[每日 top20]")
+
+    create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
+    update_time = models.DateTimeField(help_text="修改时间", null=True)
+
+    class Meta:
+        db_table = "vc_mp_consensus_content"
+
+
+class VcMpActivityContent(models.Model):
+    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    brand = models.CharField(max_length=32, help_text="品牌名称")
+    platform = models.CharField(max_length=32, help_text="平台")
+    activity_tag = models.CharField(max_length=128, help_text="活动标签[不包含 null]")
+
+    account = models.CharField(max_length=64, help_text="账号", null=True)
+    title = models.CharField(max_length=128, help_text="标题", null=True)
+    url = models.CharField(max_length=512, help_text="帖子 url", null=True)
+
+    reading = models.IntegerField(help_text="阅读数")
+    reviews = models.IntegerField(help_text="评论数")
+    retweets = models.IntegerField(help_text="转发数")
+    praise_points = models.IntegerField(help_text="点赞数")
+    favorite = models.IntegerField(help_text="收藏数")
+
+    date = models.DateField(help_text="发帖日期[每日 top20]")
+
+    create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
+    update_time = models.DateTimeField(help_text="修改时间", null=True)
+
+    class Meta:
+        db_table = "vc_mp_activity_content"
+
+
+class VcMpActivityTags(models.Model):
+    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    brand = models.CharField(max_length=32, help_text="品牌名称")
+    platform = models.CharField(max_length=32, help_text="平台")
+    activity_tag = models.CharField(max_length=128, help_text="活动标签")
+
+    count = models.IntegerField(help_text="言论数")
+    date = models.DateField(help_text="发帖日期")
+
+    create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
+    update_time = models.DateTimeField(help_text="修改时间", null=True)
+
+    class Meta:
+        db_table = "vc_mp_activity_tags"
+
+
+class VcMpRecommendActivatePeriod(models.Model):
+    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    brand = models.CharField(max_length=32, help_text="品牌名称")
+    platform = models.CharField(max_length=32, help_text="平台")
+
+    date = models.DateField(help_text="活动日期")
+
+    create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
+    update_time = models.DateTimeField(help_text="修改时间", null=True)
+
+    class Meta:
+        db_table = "vc_mp_recommend_activate_period"
+
+# ###########################################  报告分析 报告内容  ###############################################
 # TODO 检测结束时间和检测周期什么关系
 # 以检测周期的结束时间和当天的关系
 
