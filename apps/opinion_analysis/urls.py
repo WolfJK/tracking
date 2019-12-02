@@ -23,6 +23,7 @@ urlpatterns = patterns("apps.opinion_analysis.views",
    url(r"^milk-media-analysis/$", views.milk_media_analysis),
 
 
-
+   # 市场格局获取
+   url(r"^get-market-pattern/$", views.get_market_pattern),
 
 )

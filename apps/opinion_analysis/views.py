@@ -3,6 +3,8 @@
 from __future__ import unicode_literals
 
 from django.http.response import JsonResponse, HttpResponse
+import apis
+import json
 
 
 # ############################# 活动舆情分析 #################################
@@ -13,6 +15,14 @@ def add_monitor_brand(request):
     :param request:
     :return:
     '''
+
+    monitor_id = request.POST.get("monitor_id")
+    category = request.POST.get("category")
+    brand = request.POST.get("brand")
+    day = request.POST.get("day")
+    market_pattern = request.POST.get("market")
+    apis.add_monitor_brand(monitor_id, category, brand, day, market_pattern)
+
     return JsonResponse(data={"result": "success"}, safe=False)
 
 
@@ -77,3 +87,24 @@ def milk_media_analysis(request):
     :return:
     '''
     return JsonResponse(data={"result": "success"}, safe=False)
+
+
+def get_market_pattern(request):
+
+    '''
+    获取市场格局 对于新增加的获取的是原本设置的主要竞品 对于配置修改的获取的是原来存储的
+    :param request:
+    :return:
+    '''
+
+    vc_monitor_id = request.POST.get("monitor_brand_id")
+
+    if vc_monitor_id:
+        # 返回主要竞品
+        brand_list = json.loads(vc_monitor_id)
+        data = apis.get_compete_brand(brand_list)
+    else:
+        # 返回全品类
+        data = []
+    return JsonResponse(data=data, safe=False)
+
