@@ -30,6 +30,18 @@ def add_monitor_brand(monitor_id, category, brand, time_slot, competitor):
         monitor_brand.save()
 
 
+def delete_monitor_brand(brand_id):
+    VcMonitorBrand.objects.filter(id=brand_id).delete()
+
+
+def search_monitor_brand(brand_name, category_id):
+    if not brand_name:
+        result = DB.search(sqls.search_monitor_brand_type, {"category_id": category_id})
+    else:
+        result = DB.search(sqls.search_monitor_brand, {"brand_name": brand_name, "category_id": category_id})
+    return result
+
+
 def get_compete_brand(vc_monitor_list):
     if isinstance(vc_monitor_list, list):
         data = vc_monitor_list[-1]

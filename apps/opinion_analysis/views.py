@@ -32,7 +32,11 @@ def search_monitor_brand(request):
     :param request:
     :return:
     '''
-    return JsonResponse(data={"result": "success"}, safe=False)
+    brand_name = request.POST.get("brand_name")
+    category_id = request.POST.get("category_id")  # 行业
+    result = apis.search_monitor_brand(brand_name, category_id)
+
+    return JsonResponse(data=result, safe=False)
 
 
 def delete_monitor_brand(request):
@@ -41,6 +45,8 @@ def delete_monitor_brand(request):
     :param request:
     :return:
     '''
+    brand_id = request.POST.get("brand_id")
+    apis.delete_monitor_brand(brand_id)
     return JsonResponse(data={"result": "success"}, safe=False)
 
 
