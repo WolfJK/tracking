@@ -54,11 +54,43 @@ from vc_saas_area_volume where cagegory = {category_name} %s
 
 # 声量的趋势数据
 all_data_card_voice_assert = """
-select count, date from vc_saas_area_volume where brand={brand_name} and cagegory={category_name} %s 
+select count, date from vc_saas_area_volume where brand={brand_name} and cagegory={category_name}  
 order by date limit %s;
 """
 
 # 按照id获取某一个品牌的name
 get_brand_by_id = """
 select category_id, time_slot, competitor,json_index(brand, -1, '.name') brand_name from vc_monitor_brand where id={brand_id};
+"""
+
+
+# 获取竞品的年月日各个声量
+compete_day_month_week_voice = """
+with e as (
+    select a.brand,
+           a.cagegory,
+           b.month,
+           a.count,
+           b.week,
+           a.date,
+           ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
+    from vc_saas_area_volume a
+           join dim_date b on a.date = b.date
+    where a.brand in %s 
+      and a.cagegory = {category_name} %s 
+)select brand, %s, sum(count) as count from e where rn<=%s group by %s, brand;
+"""
+
+# top5声量 不含本品
+all_top5 = """
+with e as (
+    select a.brand,
+           a.count,
+           a.date,
+           ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
+    from vc_saas_area_volume a
+           join dim_date b on a.date = b.date
+    where a.brand != {bran_name}
+      and a.cagegory = {category_name} %s 
+)select brand, sum(count) as count from e where rn<={rn} group by brand order by count desc limit 5;
 """

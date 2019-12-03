@@ -57,9 +57,9 @@ def get_all_monitor_card_data(category_id):
     industry = DimIndustry.objects.get(id=category.industry_id)
     # 计算sov 获取所有竞品或者全品
     for vcBrand in vcBrands:
-        self_voice, data_assert, competitors, compete_voice = get_card_voice_sov(vcBrand, category)
-        # brand_name = vcBrand.get("brand_name")
-        # time_slot = vcBrand.get("time_slot")
+        self_voice, competitors, compete_voice = get_card_voice_sov(vcBrand, category)
+        time_slot = vcBrand.get("time_slot")
+        brand_name = vcBrand.get("brand_name")
         # competitors = json.loads(vcBrand.get("competitor"))
         #
         # list_compete = list()
@@ -77,8 +77,8 @@ def get_all_monitor_card_data(category_id):
         # new_sql = sqls.monitor_data_analysis_voice % (time_slot)
         # voice = DB.get(new_sql, {"brand_name": brand_name, "category_name": category.name})  # 获取声量
         # self_voice = int(voice.get("voice")) if voice.get("voice") else 0
-        # data_sql = sqls.all_data_card_voice_assert%(time_slot)
-        # data_assert = DB.search(data_sql, {"brand_name": brand_name, "category_name": category.name})  # 所有的日期数据
+        data_sql = sqls.all_data_card_voice_assert % (time_slot)
+        data_assert = DB.search(data_sql, {"brand_name": brand_name, "category_name": category.name})  # 所有当前品牌的日期数据
         vcBrand.update(competitor=competitors)
         vcBrand.update(data_assert=data_assert)
         vcBrand.update(self_voice=self_voice)
@@ -97,7 +97,7 @@ def get_all_monitor_card_data(category_id):
 
 def get_card_voice_sov(vcBrand, category,  date_range=None):
     """
-    仅按照时间日期获取相应的本品声量，竞品声量或者全品深量，按天数据
+    仅按照时间日期获取相应的本品声量，竞品声量或者全品声量
     :param vcBrand:
     :param category:
     :param date_range:
@@ -136,25 +136,24 @@ def get_card_voice_sov(vcBrand, category,  date_range=None):
         new_sql = sqls.monitor_data_analysis_voice % ("", time_slot)
     voice = DB.get(new_sql, {"brand_name": brand_name, "category_name": category.name})  # 本品的的声量
     self_voice = int(voice.get("voice")) if voice.get("voice") else 0
-    if date_range:
-        data_sql = sqls.all_data_card_voice_assert % (range_time, time_slot)
-    else:
-        data_sql = sqls.all_data_card_voice_assert % ("", time_slot)
-    data_assert = DB.search(data_sql, {"brand_name": brand_name, "category_name": category.name})  # 所有的日期数据
-    dict_date_assert = {"day": data_assert}
 
-    return self_voice, dict_date_assert, competitors, compete_voice
+    return self_voice, competitors, compete_voice
 
 
 def whole_net_analysis(brand_id, date_range):
-    try:
+    """
+    :param brand_id:
+    :param date_range:
+    :return:
+    """
+
+    if date_range:
         date_range = json.loads(date_range)
-    except Exception:
-        raise Exception("请传入正确的日期格式")
     vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
-    self_voice, dict_date_assert, competitors, compete_voice = get_card_voice_sov(vcBrand, category, date_range)
+    self_voice, competitors, compete_voice = get_card_voice_sov(vcBrand, category, date_range)
+    data_assert = get_day_month_week_analysis(vcBrand, category, date_range)
     try:
         # 计算sov
         sov = round(float(self_voice) / float(compete_voice) * 100, 2)
@@ -162,15 +161,86 @@ def whole_net_analysis(brand_id, date_range):
         # raise Exception("竞品声量或者全品声量不能为0")
         sov = 0
     # todo 添加分年分月的参数
-
     vcBrand.update(competitor=competitors)
     vcBrand.update(self_voice=self_voice)
     vcBrand.update(category_name=category.name)
     vcBrand.update(industry_name=industry.name)
     vcBrand.update(compete_voice=compete_voice)
-    vcBrand.update(data_assert=dict_date_assert)
+    vcBrand.update(data_assert=data_assert)
     vcBrand.update(sov=sov)
     return vcBrand
+
+
+def get_day_month_week_analysis(vcBrand, category, date_range):
+    """
+    # 全品类的时候声量top5+本品 有竞品的时候本品+竞品
+    assert_data = {
+        "name1": {"day": [], "month": [], "week": []},
+        "name2": {"day": [], "month": [], "week": []},
+        "name3": {"day": [], "month": [], "week": []},
+    }
+    :param brand_id:
+    :return:
+    """
+    dict_data = dict()
+
+    def assemble_data(assert_data, type):
+        for day in assert_data:
+            brand_name = day.get("brand")
+            print brand_name
+            if brand_name not in dict_data:
+                dict_data.update({brand_name: {"day": [], "month": [], "week": []}})
+                dict_data.get(brand_name).get(type).append(day)
+            else:
+                dict_data.get(brand_name).get(type).append(day)
+
+    def get_data():
+        if date_range:
+            sql_day = sqls.compete_day_month_week_voice%(bracket, range_time,  "date", time_slot, "date")
+            sql_month = sqls.compete_day_month_week_voice%(bracket, range_time,  "month", time_slot, "month")
+            sql_week = sqls.compete_day_month_week_voice%(bracket, range_time,  "week", time_slot, "week")
+        else:
+            sql_day = sqls.compete_day_month_week_voice % (bracket, "", "date", time_slot, "date")
+            sql_month = sqls.compete_day_month_week_voice % (bracket, "", "month", time_slot, "month")
+            sql_week = sqls.compete_day_month_week_voice % (bracket, "", "week", time_slot, "week")
+        day_assert = DB.search(sql_day, {"category_name": category.name})
+        month_assert = DB.search(sql_month, {"category_name": category.name})
+        week_assert = DB.search(sql_week, {"category_name": category.name})
+        assemble_data(day_assert, "day")
+        assemble_data(month_assert, "month")
+        assemble_data(week_assert, "week")
+
+    brand_name = vcBrand.get("brand_name")
+    time_slot = vcBrand.get("time_slot")
+    if date_range:
+        date1 = datetime.strptime(date_range[0], "%Y-%m-%d")
+        date2 = datetime.strptime(date_range[1], "%Y-%m-%d")
+        range_time = " and a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
+        time_slot = abs((date1 - date2).days)  # 天数也会改改变
+
+    competitors = json.loads(vcBrand.get("competitor"))
+    list_compete = list()
+    if competitors:  # 有竞品
+        for competitor in competitors:
+            list_compete.append(competitor.get("name"))
+        list_compete.append(brand_name)
+        bracket = join_sql_bracket(list_compete)
+        get_data()
+    else:
+        # 获取top5的声量
+        if date_range:
+            sql = sqls.all_top5%(range_time)
+            sql_brand = DB.search(sql, {"bran_name": brand_name, "category_name": category.name, "rn": time_slot})
+        else:
+            sql = sqls.all_top5 % ("")
+            sql_brand = DB.search(sql, {"bran_name": brand_name, "category_name": category.name, "rn": time_slot})
+        for brand in sql_brand:
+            list_compete.append(brand.get("brand"))
+        list_compete.append(brand_name)
+        bracket = join_sql_bracket(list_compete)
+        get_data()
+
+    return dict_data
 
 
 def join_sql_bracket(data):
