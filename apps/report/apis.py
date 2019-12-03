@@ -15,6 +15,8 @@ import copy
 from common.logger import Logger
 from apps.commons.apis import get_platform_info
 import apps.apis as apps_apis
+from itertools import chain
+import pdb
 
 
 logger = Logger.getLoggerInstance()
@@ -162,12 +164,13 @@ def get_common_info():
     return report_affilication, report_status, report_monitor_end_time, monitor_cycle
 
 
-def report_details(report_id, user):
+def report_details(report_id, user, need_unscramble=True):
     """
     生成报告详情
     聚合结果为0时，是不出现在数据里的，需要后端补全, 也可能出现长度为0的列表
     :param report_id:
     :param user: 当前用户
+    :param need_unscramble: 是否需要解读
     :return:
     """
     report = get_report(report_id, user, status=(0, ))
@@ -182,6 +185,7 @@ def report_details(report_id, user):
         start_date=report.monitor_start_date,
         end_date=report.monitor_end_date,
         name=report.name,
+        brand=json.loads(report.brand_id)[-1]["name"],
         sales_points=sales_points,
         period=(report.monitor_end_date - report.monitor_start_date).days + 1,
         status_value=report.get_status_display(),
@@ -294,6 +298,9 @@ def tags_concern(data, sales_points):
     :param sales_points:
     :return:
     '''
+    if len(sales_points) == 0:
+        return
+
     for i in range(len(data["tags_concern"])):
         tags_concern = data["tags_concern"][i]
         map(lambda x: x.update(dict(value_year=tags_concern["annual"])), tags_concern["trend"])
@@ -590,6 +597,109 @@ def get_report_config(report_id, user):
     report.brand_id = json.loads(report.brand_id)
 
     return report
+
+
+def activity_contrast(param, user):
+    '''
+    活动对比
+    :param param:
+    :param user:
+    :return:
+    '''
+    reports = [report_details(report_id, user) for report_id in param["report_ids"]]
+
+    datas = []
+    all_platform = []
+    # 数据规整
+    for report in reports:
+        brand = report["report_config"]["brand"]
+
+        platforms = chain.from_iterable([platform["children"] for platform in report["spread_overview"]["platform_web"]])
+        all_platform.append([m["name"] for m in platforms])
+
+        datas.append(dict(
+            brand=brand,
+
+            platform_overview={m["name"]: m for m in platforms},
+            account_overview=report["spread_overview"]["account_web"],
+
+            platform_efficiency=report["spread_efficiency"]["platform_web"],
+            account_efficiency=report["spread_efficiency"]["account_web"],
+            activity_efficiency=report["spread_efficiency"]["activity_web"],
+
+            activity_composition_efficiency=report["spread_efficiency"]["activity_composition"],
+            user_type_efficiency=report["spread_efficiency"]["user_type_composition"],
+
+            ugc_count_effectiveness=report["spread_effectiveness"]["ugc_count"],
+            ugc_in_activity_composition={
+                "提及品牌": report["spread_effectiveness"]["ugc_count"],
+                "未提及品牌": report["spread_effectiveness"]["ugc_count"]
+            },
+
+            ugc_in_activity_count=report["spread_effectiveness"]["ugc_in_activity_count"],
+            delta_absolute=report["spread_effectiveness"]["delta_absolute"],
+
+            activity_brand_concern=report["brand_concern"]["activity"],
+            delta_brand_concern=report["brand_concern"]["delta"],
+        ))
+
+    all_platform = list(set(chain.from_iterable(all_platform)))
+    # 数据处理
+    for data in datas:
+        data["platform_overview"] = [data["platform_overview"].get(platform, dict(name=platform, value=0)) for
+                                     platform in all_platform]
+
+        data["platform_all_efficiency"] = dict(
+            name=data["brand"],
+            value=sum([s["value"] for s in data["platform_efficiency"]]),
+            avg_value=sum([s["avg_value"] for s in data["platform_efficiency"]])
+        )
+
+    # 提取 efficiency, 并 进行 flat_map
+    def __flat_map(datas, efficiency):
+        array = []
+        for data in datas:
+            array.append([dict(
+                name=data["brand"] + '-' + e["name"],
+                value=e["value"], avg_value=e["avg_value"]
+            ) for e in data.pop(efficiency)]
+                         )
+
+        return list(chain.from_iterable(array))
+
+    # 进行 efficiency 处理
+    efficiency = dict(
+        platform_all=[data.pop("platform_all_efficiency") for data in datas],
+        platform_efficiency=__flat_map(datas, "platform_efficiency"),
+        account_efficiency=__flat_map(datas, "account_efficiency"),
+        activity_efficiency=__flat_map(datas, "activity_efficiency"),
+    )
+
+    return dict(efficiency=efficiency, data=datas)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def delete_report(user, report_id):
