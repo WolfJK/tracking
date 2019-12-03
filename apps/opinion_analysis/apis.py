@@ -89,7 +89,7 @@ def get_all_monitor_card_data(category_id):
             sov = round(float(self_voice)/float(compete_voice)*100, 2)
         except Exception:
             # raise Exception("竞品声量或者全品声量不能为0")
-            sov = 100
+            sov = 0
         vcBrand.update(sov=sov)
     return vcBrands
 

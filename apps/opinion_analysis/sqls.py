@@ -31,34 +31,23 @@ brand = {brand_name} and cagegory = {category_name} order by date desc limit %s;
 
 # 竞品所有的声量
 monitor_data_compete_voice = """
-SELECT sum(tt) AS voice_all
-FROM 
-    (SELECT brand,
-         sum(IFNULL(count,
-         0)) AS tt
-    FROM 
-        (SELECT *
-        FROM vc_saas_area_volume
-        WHERE brand IN %s
-                AND cagegory = {category_name}
-        ORDER BY  date DESC limit %s) a
-        GROUP BY  brand) b
+with e as (
+select brand,
+       count,
+       ROW_NUMBER() OVER(PARTITION BY brand ORDER BY date DESC) as rn
+from vc_saas_area_volume where brand in %s and cagegory = {category_name}
+    ) select sum(count) as voice_all from e where rn<=%s;
 """
 
 
 # 全品类的声量
 all_monitor_voice = """
-SELECT sum(tt) AS voice_all
-FROM 
-    (SELECT brand,
-         sum(IFNULL(count,
-        0)) AS tt
-    FROM 
-        (SELECT *
-        FROM vc_saas_area_volume
-        WHERE cagegory = {category_name}
-        ORDER BY  date limit %s) a
-        GROUP BY  brand) b;
+with e as (
+select brand,
+       count,
+       ROW_NUMBER() OVER(PARTITION BY brand ORDER BY date DESC) as rn
+from vc_saas_area_volume where cagegory = {category_name}
+    ) select sum(count) as voice_all from e where rn<=%s;
 """
 
 
