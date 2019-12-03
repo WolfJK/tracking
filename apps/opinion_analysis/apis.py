@@ -53,35 +53,44 @@ def get_compete_brand(vc_monitor):
 def get_all_monitor_card_data(category_id):
     # 按照品类查询所有的品牌id, 计算声量信息
     vcBrands = DB.search(sqls.get_all_brand_id, {"category_id": category_id})
-    category_name = DimCategory.objects.get(id=category_id)
-    industry_name = DimIndustry.objects.get(id=category_name.industry_id)
+    category = DimCategory.objects.get(id=category_id)
+    industry = DimIndustry.objects.get(id=category.industry_id)
     # 计算sov 获取所有竞品或者全品
     for vcBrand in vcBrands:
         brand_name = vcBrand.get("brand_name")
         time_slot = vcBrand.get("time_slot")
         competitors = json.loads(vcBrand.get("competitor"))
-        list_compete_voice = []
+
         list_compete = list()
         if competitors:  # 有竞品
             for competitor in competitors:
                 list_compete.append(competitor.get("name"))
             bracket = join_sql_bracket(list_compete)
             sql = sqls.monitor_data_compete_voice%(bracket, time_slot)
-            voice = DB.get(sql, {"brand_name": brand_name, "category_name": category_name.name})  # 获取竞品声量
-            voice_data = voice.get("voice_all")
-            list_compete_voice.append(int(voice_data) if voice_data else 0)
+            voice = DB.get(sql, {"brand_name": brand_name, "category_name": category.name})  # 获取竞品声量
+            compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
         else:  # 全品
             sql = sqls.all_monitor_voice%(time_slot)
-            voice = DB.get(sql, {"category_name": category_name.name})  # 获取全品类声量
-            voice_data = voice.get("voice_all")
-            list_compete_voice.append(int(voice_data) if voice_data else 0)
+            voice = DB.get(sql, {"category_name": category.name})  # 获取全品类声量
+            compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
         new_sql = sqls.monitor_data_analysis_voice % (time_slot)
-        voice = DB.get(new_sql, {"brand_name": brand_name, "category_name": category_name.name})  # 获取声量
-        count_voice = voice.get("voice")
+        voice = DB.get(new_sql, {"brand_name": brand_name, "category_name": category.name})  # 获取声量
+        self_voice = int(voice.get("voice")) if voice.get("voice") else 0
+        data_sql = sqls.all_data_card_voice_assert%(time_slot)
+        data_assert = DB.search(data_sql, {"brand_name": brand_name, "category_name": category.name})  # 所有的日期数据
         vcBrand.update(competitor=competitors)
-        vcBrand.update(count_voice=count_voice if count_voice else 0)
-        vcBrand.update(industry_name=industry_name.name)
-        vcBrand.update(compete_voice=sum(list_compete_voice))
+        vcBrand.update(data_assert=data_assert)
+        vcBrand.update(count_voice=self_voice)
+        vcBrand.update(category_name=category.name)
+        vcBrand.update(industry_name=industry.name)
+        vcBrand.update(compete_voice=compete_voice)
+        try:
+            # 计算sov
+            sov = round(float(self_voice)/float(compete_voice)*100, 2)
+        except Exception:
+            # raise Exception("竞品声量或者全品声量不能为0")
+            sov = 100
+        vcBrand.update(sov=sov)
     return vcBrands
 
 

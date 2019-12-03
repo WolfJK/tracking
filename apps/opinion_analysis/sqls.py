@@ -23,11 +23,13 @@ get_all_brand_id = """
 select id, json_index(brand, -1, '.name') as brand_name, competitor, time_slot from vc_monitor_brand where category_id = {category_id};
 """
 
+# 当前品牌的声量
 monitor_data_analysis_voice = """
 select sum(IFNULL(count, 0)) as voice from vc_saas_area_volume where 
 brand = {brand_name} and cagegory = {category_name} order by date desc limit %s;
 """
 
+# 竞品所有的声量
 monitor_data_compete_voice = """
 SELECT sum(tt) AS voice_all
 FROM 
@@ -43,6 +45,8 @@ FROM
         GROUP BY  brand) b
 """
 
+
+# 全品类的声量
 all_monitor_voice = """
 SELECT sum(tt) AS voice_all
 FROM 
@@ -55,4 +59,10 @@ FROM
         WHERE cagegory = {category_name}
         ORDER BY  date limit %s) a
         GROUP BY  brand) b;
+"""
+
+
+# 声量的趋势数据
+all_data_card_voice_assert = """
+select count, date from vc_saas_area_volume where brand={brand_name} and cagegory={category_name} order by date limit %s;
 """
