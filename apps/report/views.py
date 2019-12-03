@@ -257,3 +257,19 @@ def download_panel(request):
 
     return response
 
+
+def activity_contrast(request):
+    '''
+    活动对比
+    :param request:
+    :return:
+    '''
+    param = apps_apis.get_parameter(request.POST, [("report_ids", "请选择报告", "list")])
+
+    if len(param["report_ids"]) > 5 or len(param["report_ids"]) < 2:
+        raise Exception("报告个数必须大于 2 小于 5")
+
+    data = apis.activity_contrast(param, request.user)
+
+    return JsonResponse(data, safe=False)
+

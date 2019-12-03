@@ -4,8 +4,6 @@ from __future__ import unicode_literals
 
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
-import json
-import pdb
 
 
 class SmApi(models.Model):
