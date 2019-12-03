@@ -69,7 +69,10 @@ def whole_net_analysis(request):
     :param request:
     :return:
     '''
-    return JsonResponse(data={"result": "success"}, safe=False)
+    brand_id = request.POST.get("brand_id")
+    date_range = request.POST.get("date_range")  # list格式
+    data = apis.whole_net_analysis(brand_id, date_range)
+    return JsonResponse(data=data, safe=False)
 
 
 def bbv_analysis(request):
