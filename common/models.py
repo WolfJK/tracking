@@ -144,6 +144,7 @@ class DimPlatform(models.Model):
     渠道表
     """
     name = models.CharField(max_length=32, help_text="平台名称")
+    visible = models.BooleanField(help_text="是否展示, 是否可见", default=True)
     parent = models.CharField(max_length=32, help_text="父平台名称")
 
     class Meta:
@@ -422,6 +423,7 @@ class VcMpActivityTags(models.Model):
     activity_tag = models.CharField(max_length=128, help_text="活动标签")
 
     count = models.IntegerField(help_text="言论数")
+    type = models.CharField(max_length=32, help_text="类型[bbv 或 dsm]")
     date = models.DateField(help_text="发帖日期")
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
