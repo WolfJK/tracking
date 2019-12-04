@@ -26,7 +26,7 @@ select id, json_index(brand, -1, '.name') as brand_name, competitor, time_slot f
 
 # 当前品牌的声量
 monitor_data_analysis_voice = """
-select sum(IFNULL(count, 0)) as voice from vc_saas_area_volume where 
+select sum(IFNULL(count, 0)) as voice from vc_saas_platform_volume where 
 brand = {brand_name} and cagegory = {category_name} %s order by date desc limit %s;
 """
 
@@ -36,7 +36,7 @@ with e as (
 select brand,
        count,
        ROW_NUMBER() OVER(PARTITION BY brand ORDER BY date DESC) as rn
-from vc_saas_area_volume where brand in %s and cagegory = {category_name}  %s
+from vc_saas_platform_volume where brand in %s and cagegory = {category_name}  %s
     ) select sum(count) as voice_all from e where rn<=%s;
 """
 
@@ -47,14 +47,14 @@ with e as (
 select brand,
        count,
        ROW_NUMBER() OVER(PARTITION BY brand ORDER BY date DESC) as rn
-from vc_saas_area_volume where cagegory = {category_name} %s
+from vc_saas_platform_volume where cagegory = {category_name} %s
     ) select sum(count) as voice_all from e where rn<=%s;
 """
 
 
 # 声量的趋势数据
 all_data_card_voice_assert = """
-select count, date from vc_saas_area_volume where brand={brand_name} and cagegory={category_name}  
+select count, date from vc_saas_platform_volume where brand={brand_name} and cagegory={category_name}  
 order by date limit %s;
 """
 
@@ -74,7 +74,7 @@ with e as (
            b.week,
            a.date,
            ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
-    from vc_saas_area_volume a
+    from vc_saas_platform_volume a
            join dim_date b on a.date = b.date
     where a.brand in %s 
       and a.cagegory = {category_name} %s 
@@ -88,7 +88,7 @@ with e as (
            a.count,
            a.date,
            ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
-    from vc_saas_area_volume a
+    from vc_saas_platform_volume a
            join dim_date b on a.date = b.date
     where a.brand != {bran_name}
       and a.cagegory = {category_name} %s 
@@ -105,7 +105,7 @@ with e as (
            b.week,
            a.date,
            ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
-    from vc_saas_area_volume a
+    from vc_saas_platform_volume a
            join dim_date b on a.date = b.date
     where a.brand in %s
       and a.cagegory = {category_name}  %s 
@@ -117,9 +117,40 @@ round_sum_sov = """
 with e as (
     select a.count,
            ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
-    from vc_saas_area_volume a
+    from vc_saas_platform_volume a
            join dim_date b on a.date = b.date
     where a.brand in %s
       and a.cagegory = {category_name}  %s
 )select sum(count) as count from e where rn<={rn};
+"""
+
+# 获取分类的年月周的分类数据总和 用于计算sov的趋势图
+area_of_tend_sov = """
+with e as (
+    select a.brand,
+           a.cagegory,
+           b.month,
+           a.count,
+           b.week,
+           a.date,
+           ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
+    from vc_saas_platform_volume a
+           join dim_date b on a.date = b.date
+    where a.brand in %s
+      and a.cagegory = {category_name} %s
+)select %s, sum(count) as count from e where rn<=%s group by %s;
+"""
+
+# 获取各个平台总的声量
+platform_voice_sum = """
+select platform, sum(count) as count from vc_saas_platform_volume a where brand in %s
+ and cagegory = {category_name} %s
+group by platform;
+"""
+
+# 各个平台的分类的声量
+platfom_classify_count = """
+select platform, brand, sum(count) as  count from vc_saas_platform_volume a where brand in %s
+and cagegory = {category_name}  %s
+group by platform, brand;
 """
