@@ -407,6 +407,7 @@ class VcMpActivityContent(models.Model):
     praise_points = models.IntegerField(help_text="点赞数")
     favorite = models.IntegerField(help_text="收藏数")
 
+    type = models.CharField(max_length=32, help_text="类型[bbv 或 dsm]")
     date = models.DateField(help_text="发帖日期[每日 top20]")
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
