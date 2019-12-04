@@ -94,3 +94,32 @@ with e as (
       and a.cagegory = {category_name} %s 
 )select brand, sum(count) as count from e where rn<={rn} group by brand order by count desc limit 5;
 """
+
+# 品牌声量柱形图
+brand_voice_histogram = """
+with e as (
+    select a.brand,
+           a.cagegory,
+           b.month,
+           a.count,
+           b.week,
+           a.date,
+           ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
+    from vc_saas_area_volume a
+           join dim_date b on a.date = b.date
+    where a.brand in %s
+      and a.cagegory = {category_name}  %s 
+)select brand, sum(count) as count from e where rn<={rn}  group by brand order by count desc;
+"""
+
+# 单前所选时间段的各品牌的总和用于计算环形图sov
+round_sum_sov = """
+with e as (
+    select a.count,
+           ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
+    from vc_saas_area_volume a
+           join dim_date b on a.date = b.date
+    where a.brand in %s
+      and a.cagegory = {category_name}  %s
+)select sum(count) as count from e where rn<={rn};
+"""

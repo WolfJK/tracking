@@ -85,12 +85,7 @@ def get_all_monitor_card_data(category_id):
         vcBrand.update(category_name=category.name)
         vcBrand.update(industry_name=industry.name)
         vcBrand.update(compete_voice=compete_voice)
-        try:
-            # 计算sov
-            sov = round(float(self_voice)/float(compete_voice)*100, 2)
-        except Exception:
-            # raise Exception("竞品声量或者全品声量不能为0")
-            sov = 0
+        sov = get_all_sov(competitors, self_voice, compete_voice)
         vcBrand.update(sov=sov)
     return vcBrands
 
@@ -153,14 +148,11 @@ def whole_net_analysis(brand_id, date_range):
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
     self_voice, competitors, compete_voice = get_card_voice_sov(vcBrand, category, date_range)
-    data_assert = get_day_month_week_analysis(vcBrand, category, date_range)
-    try:
-        # 计算sov
-        sov = round(float(self_voice) / float(compete_voice) * 100, 2)
-    except Exception:
-        # raise Exception("竞品声量或者全品声量不能为0")
-        sov = 0
-    # todo 添加分年分月的参数
+    data_assert, data_voice_histogram, data_voice_round = get_day_month_week_analysis(vcBrand, category, date_range)
+    sov = get_all_sov(competitors, self_voice, compete_voice)
+    # todo 计算sov趋势
+    classy_sov = get_classify_sov(vcBrand, data_assert)
+    get_round_sov(data_voice_histogram, data_voice_round)  # sov环形图
     vcBrand.update(competitor=competitors)
     vcBrand.update(self_voice=self_voice)
     vcBrand.update(category_name=category.name)
@@ -168,7 +160,36 @@ def whole_net_analysis(brand_id, date_range):
     vcBrand.update(compete_voice=compete_voice)
     vcBrand.update(data_assert=data_assert)
     vcBrand.update(sov=sov)
+    vcBrand.update(data_voice_histogram=data_voice_histogram)
     return vcBrand
+
+
+def get_classify_sov(vcBrand, data_assert):
+    """
+    获取日周月的sov
+    :param vcBrand:
+    :param data_assert:
+    :return:
+    """
+    brand_name = vcBrand.get("brand_name")
+    pass
+
+
+def get_round_sov(data_voice_histogram, data_voice_round):
+    """
+    获取环形图的sov
+    :return:
+    """
+    voice_count = data_voice_round.get("count")
+    for histogram in data_voice_histogram:
+        histogram_count = histogram.get("count")
+        try:
+            sov = round(histogram_count/voice_count, 2) * 100
+        except Exception:
+            sov = 0
+        histogram.update(sov=sov)
+    return data_voice_histogram
+
 
 
 def get_day_month_week_analysis(vcBrand, category, date_range):
@@ -225,7 +246,6 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
             list_compete.append(competitor.get("name"))
         list_compete.append(brand_name)
         bracket = join_sql_bracket(list_compete)
-        get_data()
     else:
         # 获取top5的声量
         if date_range:
@@ -238,9 +258,19 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
             list_compete.append(brand.get("brand"))
         list_compete.append(brand_name)
         bracket = join_sql_bracket(list_compete)
-        get_data()
+    get_data()
 
-    return dict_data
+    # 获取声量助柱形图
+    if date_range:
+        sql_his = sqls.brand_voice_histogram%(bracket, range_time,)
+        sql_round = sqls.round_sum_sov%(bracket, range_time)  # 声量总和计算sov环形图
+    else:
+        sql_his = sqls.brand_voice_histogram%(bracket, "",)
+        sql_round = sqls.round_sum_sov % (bracket, range_time)
+    data_voice_histogram = DB.search(sql_his, {"category_name": category.name, "rn": time_slot})
+    data_voice_round = DB.get(sql_round, {"category_name": category.name, "rn": time_slot})
+
+    return dict_data, data_voice_histogram, data_voice_round
 
 
 def join_sql_bracket(data):
@@ -254,3 +284,16 @@ def join_sql_bracket(data):
             break
         str_data += ","
     return str_data
+
+
+def get_all_sov(competitors, self_voice, compete_voice):
+    try:
+        # 计算sov全品类和竞品分开 全品类包含了本品 竞品没有包含
+        if not competitors:
+            sov = round(float(self_voice) / float(compete_voice) * 100, 2)
+        else:
+            sov = round(float(self_voice) / (float(compete_voice)+float(self_voice)) * 100, 2)
+    except Exception:
+        # raise Exception("竞品声量或者全品声量不能为0")
+        sov = 0
+    return sov
