@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from django.http.response import JsonResponse, HttpResponse
 import apis
 import json
+from apps import apis as apps_apis
 
 
 # ############################# 活动舆情分析 #################################
@@ -123,4 +124,70 @@ def get_market_pattern(request):
         brand_list = json.loads(brand_list)
         data = apis.get_compete_brand(brand_list)
     return JsonResponse(data=data, safe=False)
+
+
+
+
+# ############################# 活动定位: activity orientation #################################
+
+ao_params = [
+        ("category", "请选择品牌", "str"),
+        ("brand", "请选择品牌", "str"),
+        ("type", "请选择品牌", "str"),
+        ("platform", "请选择平台", "str"),
+        ("start_date", "请选择开始时间", "str"),
+        ("end_date", "请选择结束时间", "str"),
+]
+
+activity_tag = ("activity_tag", "", "str")
+
+
+def ao_activity_tag_list(request):
+    '''
+    活动定位 -> 标签列表
+    :param request:
+    :return:
+    '''
+
+    params = apps_apis.get_parameter(request.POST, ao_params)
+    data = apis.ao_activity_tag_list(params)
+
+    return JsonResponse(data=data, safe=False)
+
+
+def ao_volume_trend(request):
+    '''
+    活动定位 -> 品牌声量趋势
+    :param request:
+    :return:
+    '''
+    params = apps_apis.get_parameter(request.POST, ao_params + activity_tag)
+    data = apis.ao_volume_trend(params)
+
+    return JsonResponse(data=data, safe=False)
+
+
+def ao_keywords_cloud(request):
+    '''
+    活动定位 -> 获取关键词云
+    :param request:
+    :return:
+    '''
+    params = apps_apis.get_parameter(request.POST, ao_params + activity_tag)
+    data = apis.ao_keywords_cloud(params)
+
+    return JsonResponse(data=data, safe=False)
+
+
+def ao_activity_content(request):
+    '''
+    活动定位 -> 热帖一览
+    :param request:
+    :return:
+    '''
+    params = apps_apis.get_parameter(request.POST, ao_params + activity_tag)
+    data = apis.ao_activity_content(params)
+
+    return JsonResponse(data=data, safe=False)
+
 

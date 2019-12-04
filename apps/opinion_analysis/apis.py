@@ -7,6 +7,8 @@ import json
 from apps.opinion_analysis import sqls
 from common.db_helper import DB
 from datetime import datetime
+from django.db.models import Q, F, Sum
+import copy
 
 
 def add_monitor_brand(monitor_id, category, brand, time_slot, competitor):
@@ -253,4 +255,116 @@ def join_sql_bracket(data):
             str_data += " )"
             break
         str_data += ","
+
     return str_data
+
+
+# ############################# 活动定位: activity orientation #################################
+
+
+def bbv_all_and_date(params):
+    '''
+    活动定位 -> 功能函数:
+        1、处理 bbv 全部, 即:删除 params中的 platform
+        2、将 params 中的 start_date 和 end_date 封装成 model 查询方式
+    :param params:
+    :return: 返回 platform
+    '''
+    params.update(date__range=[params.pop("start_date"), params.pop("end_date")])
+
+    if params["type"] == "bbv" and params["platform"] == "全部":
+        return params.pop("platform")
+
+    return params["platform"]
+
+
+def ao_activity_tag_list(params):
+    '''
+    活动定位 -> 标签列表
+    :param params:
+    :return:
+    '''
+    bbv_all_and_date(params)
+    activity_tags = list(VcMpActivityTags.objects.filter(**params)
+                         .values("activity_tag").annotate(count=Sum("count"))
+                         .order_by("-count").values("activity_tag")[:20])
+
+    return activity_tags
+
+
+def ao_volume_trend(params):
+    '''
+    活动定位 -> 品牌声量趋势
+    :param params:
+    :return:
+    '''
+    platform = bbv_all_and_date(params)
+
+    if params["activity_tag"] == "":
+        params.pop("activity_tag")
+        activity_date = ao_recommend_activate_period(copy.deepcopy(params))
+    else:
+        # 获取 活动日期
+        activity_date = ao_activity_date(params)
+
+    if platform in ["微信", "微博"]:
+        volume_obj = VcSaasPlatformVolume.objects.filter(**params)
+    else:
+        volume_obj = VcMpPlatformAreaVolume.objects.filter(**params)
+
+    data = list(volume_obj.values("date").annotate(count=Sum("count")).order_by("-date"))
+
+    return list(data=data, activity_date=activity_date)
+
+
+def ao_activity_date(params):
+    '''
+    活动定位 -> 获取活动所在的 日期列表
+    :param params:
+    :return:
+    '''
+    activity_tags = list(VcMpActivityTags.objects.filter(**params).values("date").distinct().order_by("-date"))
+
+    return activity_tags
+
+
+def ao_keywords_cloud(params):
+    '''
+    活动定位 -> 获取关键词云
+    :param params:
+    :return:
+    '''
+    bbv_all_and_date(params)
+    data = list(VcMpKeywordsCloud.objects.filter(**params)
+                .values("keywords").annotate(count=Sum("count")).values("keywords", "count"))
+
+    return data
+
+
+def ao_activity_content(params):
+    '''
+    活动定位 -> 热帖一览
+    :param params:
+    :return:
+    '''
+    bbv_all_and_date(params)
+    activity_content = VcMpActivityContent.objects.filter(**params).annotate(
+        interaction=F("reading") + F("reviews") + F("retweets") + F("praise_points") + F("favorite"))\
+        .order_by("account", "-interaction").values(
+        "account", "title", "url", "reading", "reviews", "retweets", "praise_points", "favorite"
+    )[:30]
+
+    return list(activity_content)
+
+
+def ao_recommend_activate_period(params):
+    '''
+    活动定位 -> 系统推荐活动期
+    :param params:
+    :return:
+    '''
+    params.pop("type")
+    data = list(VcMpRecommendActivatePeriod.objects.filter(**params).values("date").distinct().order_by("date"))
+
+    return data
+
