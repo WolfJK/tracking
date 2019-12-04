@@ -149,13 +149,8 @@ def whole_net_analysis(brand_id, date_range):
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
     self_voice, competitors, compete_voice = get_card_voice_sov(vcBrand, category, date_range)
-    data_assert, data_voice_histogram, data_voice_round, dict_sov_classify, vioce_platform = get_day_month_week_analysis(vcBrand, category, date_range)
+    data_assert, data_voice_histogram, vioce_platform, area_voice, net_keywords = get_day_month_week_analysis(vcBrand, category, date_range)
     sov = get_all_sov(self_voice, compete_voice)
-    # 增加 sov趋势 sov环形
-    get_classify_sov(data_assert, dict_sov_classify)
-    get_round_sov(data_voice_histogram, data_voice_round)
-    # 获取声量平台来源数据
-
     vcBrand.update(competitor=competitors)
     vcBrand.update(self_voice=self_voice)
     vcBrand.update(category_name=category.name)
@@ -165,6 +160,8 @@ def whole_net_analysis(brand_id, date_range):
     vcBrand.update(sov=sov)
     vcBrand.update(data_voice_histogram=data_voice_histogram)
     vcBrand.update(vioce_platform=vioce_platform)
+    vcBrand.update(area_voice=area_voice)
+    vcBrand.update(net_keywords=net_keywords)
     return vcBrand
 
 
@@ -291,18 +288,40 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
         sql_round = sqls.round_sum_sov%(bracket, range_time)  # 声量总和计算sov环形图
         sql_platform_sum = sqls.platform_voice_sum%(bracket, range_time) # 平台的声量sum
         sql_platform_classify = sqls.platfom_classify_count%(bracket, range_time)  # 各个平台的分类声量
+        # sql_area_sum = sqls.area_voice_sum%(bracket, range_time)  # 各个地域的分类声量之和
+        sql_area_classify = sqls.area_voice_classify%(bracket, range_time)  # 各个地域的分类声量
+        net_keywords = sqls.net_keywords%(bracket, range_time)  # 获取全网关键词
 
     else:
         sql_his = sqls.brand_voice_histogram%(bracket, "",)
         sql_round = sqls.round_sum_sov % (bracket, range_time)
         sql_platform_sum = sqls.platform_voice_sum % (bracket, "")  # 平台的声量sum
         sql_platform_classify = sqls.platfom_classify_count % (bracket, "")  # 各个平台的分类声量
+        # sql_area_sum = sqls.area_voice_sum % (bracket, "")  # 各个地域的分类声量之和
+        sql_area_classify = sqls.area_voice_classify % (bracket, "")  # 各个地域的分类声量
+        net_keywords = sqls.net_keywords % (bracket, "")  # 获取全网关键词
+
     data_voice_histogram = DB.search(sql_his, {"category_name": category.name, "rn": time_slot})
     data_voice_round = DB.get(sql_round, {"category_name": category.name, "rn": time_slot})
     data_voice_platform_sum = DB.search(sql_platform_sum, {"category_name": category.name})
     data_voice_platform_classify = DB.search(sql_platform_classify, {"category_name": category.name})
-    vioce_platform = dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify)  # 获取声量平台来源
-    return dict_data, data_voice_histogram, data_voice_round, dict_sov_classify, vioce_platform
+    # 获取声量平台来源
+    vioce_platform = dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify)
+
+    # 获取地域声量来源
+    # data_voice_area_sum = DB.search(sql_area_sum, {"category_name": category.name})
+    data_voice_area_classify = DB.search(sql_area_classify, {"category_name": category.name})
+
+    # 增加 sov趋势 sov环形
+    get_classify_sov(dict_data, dict_sov_classify)
+    get_round_sov(data_voice_histogram, data_voice_round)
+    # 获取声量平台来源数据
+
+    # 获取全网关键词
+    net_keywords = DB.search(net_keywords, {"category_name": category.name})
+    # 获取内容分布
+
+    return dict_data, data_voice_histogram, vioce_platform, data_voice_area_classify, net_keywords
 
 
 def join_sql_bracket(data):

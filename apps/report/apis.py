@@ -892,11 +892,14 @@ def read_url_excle(file_url):
 
     dict_dfs = df1.to_dict("records")
     data_dict.update(url=dict_dfs)
+    data_dict.update(kol=list())
+    data_dict.update(bgc=list())
     return data_dict
 
 
 def read_bgc_kol_excle(file_kol, file_bgc):
     data_dict = dict()
+    data_dict.update(url=list())
 
     def get_data_from_df(sheets, file, flag):
         list_data = list()
@@ -932,11 +935,14 @@ def read_bgc_kol_excle(file_kol, file_bgc):
         xl_kol = pandas.ExcelFile(file_kol)
         sheets_kol = xl_kol.sheet_names
         get_data_from_df(sheets_kol, file_kol, flag=2)
+    else:
+        data_dict.update(kol=list())
     if file_bgc:
         xl_bgc = pandas.ExcelFile(file_bgc)
         sheets_bgc = xl_bgc.sheet_names
         get_data_from_df(sheets_bgc, file_bgc, flag=1)
-
+    else:
+        data_dict.update(bgc=list())
     return data_dict
 
 

@@ -154,3 +154,27 @@ select platform, brand, sum(count) as  count from vc_saas_platform_volume a wher
 and cagegory = {category_name}  %s
 group by platform, brand;
 """
+
+# 各个地域声量的总计
+area_voice_sum = """
+select area, sum(count) as count from vc_saas_area_volume a where brand in %s
+ and cagegory = {category_name} %s
+group by area;
+"""
+
+
+# 各个地域的分类的声量
+area_voice_classify = """
+select area, sum(count) count from vc_saas_area_volume a where brand in %s
+ and cagegory = {category_name}  %s
+group by area order by count desc ;
+"""
+
+# 全网关键词获取
+net_keywords = """
+select keywords, sum(count) as count from vc_mp_keywords_cloud a where
+    brand in %s and
+    a.cagegory= {category_name} %s 
+group by keywords
+order by count desc limit 20;
+"""
