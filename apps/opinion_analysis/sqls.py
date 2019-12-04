@@ -178,3 +178,16 @@ select keywords, sum(count) as count from vc_mp_keywords_cloud a where
 group by keywords
 order by count desc limit 20;
 """
+
+
+# 内容分布雷达图总数
+content_radar = """
+select sum(count) count  from vc_mp_first_level_cognition a
+where brand in %s and cagegory= {category_name} %s;
+"""
+
+content_radar_classify = """
+select cognition, sum(count) count  from vc_mp_first_level_cognition a
+where brand in %s and cagegory= {category_name} %s
+group by  cognition
+"""

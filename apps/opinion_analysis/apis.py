@@ -149,7 +149,7 @@ def whole_net_analysis(brand_id, date_range):
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
     self_voice, competitors, compete_voice = get_card_voice_sov(vcBrand, category, date_range)
-    data_assert, data_voice_histogram, vioce_platform, area_voice, net_keywords = get_day_month_week_analysis(vcBrand, category, date_range)
+    data_assert, data_voice_histogram, vioce_platform, area_voice, net_keywords, data_radar_classify= get_day_month_week_analysis(vcBrand, category, date_range)
     sov = get_all_sov(self_voice, compete_voice)
     vcBrand.update(competitor=competitors)
     vcBrand.update(self_voice=self_voice)
@@ -162,6 +162,8 @@ def whole_net_analysis(brand_id, date_range):
     vcBrand.update(vioce_platform=vioce_platform)
     vcBrand.update(area_voice=area_voice)
     vcBrand.update(net_keywords=net_keywords)
+    vcBrand.update(data_radar_classify=data_radar_classify)
+    # todo 环比
     return vcBrand
 
 
@@ -268,6 +270,7 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
             list_compete.append(competitor.get("name"))
         list_compete.append(brand_name)
         bracket = join_sql_bracket(list_compete)
+
     else:
         # 获取top5的声量
         if date_range:
@@ -320,8 +323,35 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
     # 获取全网关键词
     net_keywords = DB.search(net_keywords, {"category_name": category.name})
     # 获取内容分布
+    if competitors:
+        if date_range:
+            sql_radar = sqls.content_radar%(bracket, range_time)
+            sql_radar_classify = sqls.content_radar_classify%(bracket, range_time)
+        else:
+            sql_radar = sqls.content_radar % (bracket, "")
+            sql_radar_classify = sqls.content_radar_classify % (bracket, "")
+    else:
+        str_brand = join_sql_bracket([brand_name, ])
+        if date_range:
+            sql_radar = sqls.content_radar%(str_brand, range_time)
+            sql_radar_classify = sqls.content_radar_classify%(str_brand, range_time)
+        else:
+            sql_radar = sqls.content_radar % (str_brand, "")
+            sql_radar_classify = sqls.content_radar_classify % (str_brand, "")
+    data_radar = DB.search(sql_radar, {"category_name": category.name})
+    data_radar_classify = DB.search(sql_radar_classify, {"category_name": category.name})
+    dispose_content_radar(data_radar, data_radar_classify)
+    return dict_data, data_voice_histogram, vioce_platform, data_voice_area_classify, net_keywords, data_radar_classify
 
-    return dict_data, data_voice_histogram, vioce_platform, data_voice_area_classify, net_keywords
+
+def dispose_content_radar(data_radar, data_radar_classify):
+    for platform_sum in data_radar:
+        for platform_classify in data_radar_classify:
+            all_count = platform_sum.get("count")
+            classify_count = platform_classify.get("count")
+            sov = get_all_sov(classify_count, all_count)
+            platform_classify.update(sov=sov)
+    return data_radar_classify
 
 
 def join_sql_bracket(data):
