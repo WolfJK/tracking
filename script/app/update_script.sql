@@ -31,3 +31,16 @@ RETURN ret;
 end
 //
 delimiter ;
+
+
+-- 4、添加唯一索引
+create
+alter table vc_saas_platform_volume add unique index unique_saas(`cagegory`, `brand`, `platform`, `date`);
+alter table vc_saas_area_volume add  unique index  unique_saas(`cagegory`, `brand`, `date`, `area`);
+
+-- 创建 saas 表
+create table saas_platform_volume like vc_saas_platform_volume;
+create table saas_area_volume like vc_saas_area_volume;
+
+alter table saas_platform_volume add unique index unique_saas(`cagegory`, `brand`, `platform`, `date`);
+alter table saas_area_volume add  unique index  unique_saas(`cagegory`, `brand`, `date`, `area`);
