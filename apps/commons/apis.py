@@ -133,6 +133,21 @@ def get_platform_info():
     return platforms
 
 
+def get_vc_platform(type):
+    '''
+    获取 声量舆情监测的品牌列表
+    :param type: bbv、dsm
+    :return:
+    '''
+    platforms = DimPlatform.objects.filter(visible=True).values("id", "name")
+
+    q = Q(parent="母垂")
+    if type == "dsm":
+        q = ~q
+
+    return list(platforms.filter(q))
+
+
 def competitor_list(param, user):
     '''
     设置, 竞品列表
