@@ -55,7 +55,10 @@ def common_param(request):
         "industry_list": industry_list,
         "menus": menus,
         "user_info": user_info,
-        "platforms": platforms
+        "platforms": platforms,
+        # 舆情监测  公用参数
+        "bbv": apis.get_vc_platform("bbv"),
+        "dsm": apis.get_vc_platform("dsm")
     }, safe=False)
 
 
