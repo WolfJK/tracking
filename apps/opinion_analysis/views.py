@@ -82,6 +82,10 @@ def bbv_analysis(request):
     :param request:
     :return:
     '''
+    brand_id = request.POST.get("brand_id")
+    date_range = request.POST.get("date_range")  # list格式
+    platform = request.POST.get("platform")  # 默认全部
+    data = apis.get_bbv_analysis(brand_id, date_range, platform)
     return JsonResponse(data={"result": "success"}, safe=False)
 
 

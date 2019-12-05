@@ -83,7 +83,7 @@ def get_all_monitor_card_data(category_id):
     return vcBrands
 
 
-def get_card_voice_sov(vcBrand, category,  date_range):
+def get_card_voice_sov(vcBrand, category, date_range, type="net"):
     """
     仅按照时间日期获取相应的本品声量，竞品声量或者全品声量
     :param vcBrand:
@@ -109,23 +109,47 @@ def get_card_voice_sov(vcBrand, category,  date_range):
             list_compete.append(competitor.get("name"))
         list_compete.append(brand_name)  # 所有的竞品加上本品的总数
         bracket = join_sql_bracket(list_compete)
-        sql = sqls.monitor_data_compete_voice % (bracket, range_time)  # 获取当前
-        sql_previous = sqls.monitor_data_compete_voice% (bracket, range_time_previous)  # 获取上个阶段
+        if type == "net":
+            sql = sqls.monitor_data_compete_voice % (bracket, range_time)  # 获取当前
+            sql_previous = sqls.monitor_data_compete_voice% (bracket, range_time_previous)  # 获取上个阶段
+        elif type == "all":
+            # 只是针对深度bbv的全部
+            sql = sqls.monitor_data_bbv_all_compete_voice % (bracket, range_time)  # 获取当前
+            sql_previous = sqls.monitor_data_bbv_all_compete_voice % (bracket, range_time_previous)  # 获取上个阶段
+        else:
+            # 各个平台的, 包括深度社煤和深度bbv的所有子集
+            bracket_platform = join_sql_bracket([type, ])
+            sql = sqls.monitor_data_classify_compete_voice % (bracket, bracket_platform,  range_time)  # 获取当前
+            sql_previous = sqls.monitor_data_classify_compete_voice % (bracket, bracket_platform, range_time_previous)  # 获取上个阶段
         voice = DB.get(sql, {"category_name": category.name})  # 获取竞品声量
         voice_previous = DB.get(sql_previous, {"category_name": category.name})  # 获取竞品声量
-
         compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
         compete_voice_previous = int(voice_previous.get("voice_all")) if voice_previous.get("voice_all") else 0
     else:  # 全品
-        sql = sqls.all_monitor_voice % (range_time)
-        sql_previous = sqls.all_monitor_voice % (range_time_previous)
+        if type == 'net':
+            sql = sqls.all_monitor_voice % (range_time)
+            sql_previous = sqls.all_monitor_voice % (range_time_previous)
+        elif type == 'all':
+            sql = sqls.bbv_all_sum_voice % (range_time)
+            sql_previous = sqls.bbv_all_sum_voice % (range_time_previous)
+        else:
+            bracket_platform = join_sql_bracket([type, ])
+            sql = sqls.bbv_platform_classify_voice % (bracket_platform, range_time)
+            sql_previous = sqls.bbv_platform_classify_voice % (bracket_platform, range_time_previous)
         voice = DB.get(sql, {"category_name": category.name})  # 获取全品类声量
         voice_previous = DB.get(sql_previous, {"category_name": category.name})  # 获取全品类声量
         compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
         compete_voice_previous = int(voice_previous.get("voice_all")) if voice_previous.get("voice_all") else 0
-
-    new_sql = sqls.monitor_data_analysis_voice % (range_time)
-    new_sql_previous = sqls.monitor_data_analysis_voice % (range_time_previous)
+    if type == 'net':
+        new_sql = sqls.monitor_data_analysis_voice % (range_time)
+        new_sql_previous = sqls.monitor_data_analysis_voice % (range_time_previous)
+    elif type == "all":
+        new_sql = sqls.self_brand_bbv_all % (range_time)
+        new_sql_previous = sqls.self_brand_bbv_all % (range_time_previous)
+    else:
+        bracket_platform = join_sql_bracket([type, ])
+        new_sql = sqls.self_brand_bbv_classify % (bracket_platform, range_time)
+        new_sql_previous = sqls.self_brand_bbv_classify % (bracket_platform, range_time_previous)
 
     voice = DB.get(new_sql, {"brand_name": brand_name, "category_name": category.name})  # 本品的的声量
     voice_previous = DB.get(new_sql_previous, {"brand_name": brand_name, "category_name": category.name})  # 本品的的声量
@@ -146,7 +170,7 @@ def whole_net_analysis(brand_id, date_range):
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
     self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range)
-    data_assert, data_voice_histogram, vioce_platform, area_voice, net_keywords, data_radar_classify = get_day_month_week_analysis(vcBrand, category, date_range)
+    data_assert, data_voice_histogram, vioce_platform, area_voice, net_keywords, data_radar_classify = get_net_day_month_week_analysis(vcBrand, category, date_range)
     sov = get_all_sov(self_voice, compete_voice)
     vcBrand.update(competitor=competitors)
     vcBrand.update(self_voice=self_voice)
@@ -207,7 +231,7 @@ def get_round_sov(data_voice_histogram, data_voice_round):
     return data_voice_histogram
 
 
-def get_day_month_week_analysis(vcBrand, category, date_range):
+def get_net_day_month_week_analysis(vcBrand, category, date_range):
     """
     # 全品类的时候声量top5+本品 有竞品的时候本品+竞品
     assert_data = {
@@ -366,6 +390,19 @@ def dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify
                 platform_classify.update(sov=sov)
                 platform_classify.update(sum_coun=sum_data)
     return data_voice_platform_classify
+
+
+def get_bbv_analysis(brand_id, date_range, platform):
+    # bbv数据分析
+    date_range = json.loads(date_range)
+    vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
+    category = DimCategory.objects.get(id=vcBrand.get("category_id"))
+    industry = DimIndustry.objects.get(id=category.industry_id)
+    if platform:
+        self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range, type=platform)
+    else:  # 全网
+        self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous =get_card_voice_sov(vcBrand, category, date_range, type='all')
+
 
 
 # ############################# 活动定位: activity orientation #################################

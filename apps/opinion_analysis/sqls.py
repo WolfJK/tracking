@@ -174,8 +174,39 @@ group by  cognition
 """
 
 
-# 计算上个日期的环比
-previous_ratio = """
-select sum(IFNULL(count, 0)) voice_all from vc_saas_platform_volume where brand in %s
-and  cagegory= {category_name} %s;
+# bbv竞品所有的声量
+monitor_data_bbv_all_compete_voice = """
+select ifnull(sum(count), 0) as voice_all from vc_mp_platform_area_volume
+where brand in %s
+and cagegory = {category_name} and type='bbv' %s;
+"""
+
+# bbv各个平台的竞品所有的声量
+monitor_data_classify_compete_voice = """
+select ifnull(sum(count), 0) as voice_all from vc_mp_platform_area_volume
+where brand in %s
+and cagegory = {category_name} and platform in %s %s;
+"""
+
+# bbv获取全品类的声量
+bbv_all_sum_voice = """
+select IFNULL(sum(count), 0) as voice_all from vc_mp_platform_area_volume 
+where cagegory = {category_name}  and type='bbv' %s;
+"""
+
+bbv_platform_classify_voice = """
+select IFNULL(sum(count), 0) as voice_all from vc_mp_platform_area_volume 
+where cagegory = {category_name} and platform in %s %s;
+"""
+
+# 本品的bbv平台分类
+self_brand_bbv_classify = """
+select IFNULL(sum(count), 0) as voice from vc_mp_platform_area_volume
+where brand = {brand_name} and cagegory = {category_name} 
+and platform in %s %s
+"""
+
+self_brand_bbv_all = """
+select IFNULL(sum(count), 0) as voice from vc_mp_platform_area_volume
+where brand = {brand_name} and cagegory = {category_name}  and type='bbv' %s
 """
