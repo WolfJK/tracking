@@ -9,6 +9,7 @@ from common.db_helper import DB
 from datetime import datetime
 from django.db.models import Q, F, Sum
 import copy
+from dateutil.relativedelta import relativedelta
 
 
 def add_monitor_brand(monitor_id, category, brand, time_slot, competitor):
@@ -57,29 +58,18 @@ def get_all_monitor_card_data(category_id):
     vcBrands = DB.search(sqls.get_all_brand_id, {"category_id": category_id})
     category = DimCategory.objects.get(id=category_id)
     industry = DimIndustry.objects.get(id=category.industry_id)
+
     # 计算sov 获取所有竞品或者全品
     for vcBrand in vcBrands:
-        self_voice, competitors, compete_voice = get_card_voice_sov(vcBrand, category)
         time_slot = vcBrand.get("time_slot")
+        # 时间周期计算
+        date1 = datetime.now().strftime("%Y-%m-%d")
+        date2 = (datetime.now() - relativedelta(days=time_slot)).strftime("%Y-%m-%d")
+        date_range = [date2, date1]
+        vcBrand.update(date_range=date_range)
+        self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range)
         brand_name = vcBrand.get("brand_name")
-        # competitors = json.loads(vcBrand.get("competitor"))
-        #
-        # list_compete = list()
-        # if competitors:  # 有竞品
-        #     for competitor in competitors:
-        #         list_compete.append(competitor.get("name"))
-        #     bracket = join_sql_bracket(list_compete)
-        #     sql = sqls.monitor_data_compete_voice%(bracket, time_slot)
-        #     voice = DB.get(sql, {"category_name": category.name})  # 获取竞品声量
-        #     compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
-        # else:  # 全品
-        #     sql = sqls.all_monitor_voice%(time_slot)
-        #     voice = DB.get(sql, {"category_name": category.name})  # 获取全品类声量
-        #     compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
-        # new_sql = sqls.monitor_data_analysis_voice % (time_slot)
-        # voice = DB.get(new_sql, {"brand_name": brand_name, "category_name": category.name})  # 获取声量
-        # self_voice = int(voice.get("voice")) if voice.get("voice") else 0
-        data_sql = sqls.all_data_card_voice_assert % (time_slot)
+        data_sql = sqls.all_data_card_voice_assert %(time_slot)
         data_assert = DB.search(data_sql, {"brand_name": brand_name, "category_name": category.name})  # 所有当前品牌的日期数据
         vcBrand.update(competitor=competitors)
         vcBrand.update(data_assert=data_assert)
@@ -87,17 +77,13 @@ def get_all_monitor_card_data(category_id):
         vcBrand.update(category_name=category.name)
         vcBrand.update(industry_name=industry.name)
         vcBrand.update(compete_voice=compete_voice)
-        try:
-            # 计算sov
-            sov = round(float(self_voice)/float(compete_voice)*100, 2)
-        except Exception:
-            # raise Exception("竞品声量或者全品声量不能为0")
-            sov = 0
+        sov = get_all_sov(self_voice, compete_voice)
         vcBrand.update(sov=sov)
+
     return vcBrands
 
 
-def get_card_voice_sov(vcBrand, category,  date_range=None):
+def get_card_voice_sov(vcBrand, category,  date_range):
     """
     仅按照时间日期获取相应的本品声量，竞品声量或者全品声量
     :param vcBrand:
@@ -106,40 +92,47 @@ def get_card_voice_sov(vcBrand, category,  date_range=None):
     :return:
     """
     brand_name = vcBrand.get("brand_name")
-    time_slot = vcBrand.get("time_slot")
-    if date_range:
-        date1 = datetime.strptime(date_range[0], "%Y-%m-%d")
-        date2 = datetime.strptime(date_range[1], "%Y-%m-%d")
-        range_time = " and date between '{}' and '{}' ".format(date_range[0], date_range[1])
-        time_slot = abs((date1-date2).days)  # 天数也会改改变
+
+    date1 = datetime.strptime(date_range[0], "%Y-%m-%d")
+    date2 = datetime.strptime(date_range[1], "%Y-%m-%d")
+    range_time = " and date between '{}' and '{}' ".format(date_range[0], date_range[1])
+    time_slot = abs((date2-date1).days)
+
+    date_previous1 = (date1 - relativedelta(days=1)).strftime("%Y-%m-%d")
+    date_previous2 = (date1 - relativedelta(days=time_slot+1)).strftime("%Y-%m-%d")
+    range_time_previous = " and date between '{}' and '{}' ".format(date_previous2, date_previous1)
 
     competitors = json.loads(vcBrand.get("competitor"))
     list_compete = list()
     if competitors:  # 有竞品
         for competitor in competitors:
             list_compete.append(competitor.get("name"))
+        list_compete.append(brand_name)  # 所有的竞品加上本品的总数
         bracket = join_sql_bracket(list_compete)
-        if date_range:
-            sql = sqls.monitor_data_compete_voice % (bracket, range_time,  time_slot)
-        else:
-            sql = sqls.monitor_data_compete_voice % (bracket, '', time_slot)
+        sql = sqls.monitor_data_compete_voice % (bracket, range_time)  # 获取当前
+        sql_previous = sqls.monitor_data_compete_voice% (bracket, range_time_previous)  # 获取上个阶段
         voice = DB.get(sql, {"category_name": category.name})  # 获取竞品声量
-        compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
-    else:  # 全品
-        if date_range:
-            sql = sqls.all_monitor_voice % (range_time, time_slot)
-        else:
-            sql = sqls.all_monitor_voice % ("", time_slot)
-        voice = DB.get(sql, {"category_name": category.name})  # 获取全品类声量
-        compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
-    if date_range:
-        new_sql = sqls.monitor_data_analysis_voice % (range_time, time_slot)
-    else:
-        new_sql = sqls.monitor_data_analysis_voice % ("", time_slot)
-    voice = DB.get(new_sql, {"brand_name": brand_name, "category_name": category.name})  # 本品的的声量
-    self_voice = int(voice.get("voice")) if voice.get("voice") else 0
+        voice_previous = DB.get(sql_previous, {"category_name": category.name})  # 获取竞品声量
 
-    return self_voice, competitors, compete_voice
+        compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
+        compete_voice_previous = int(voice_previous.get("voice_all")) if voice_previous.get("voice_all") else 0
+    else:  # 全品
+        sql = sqls.all_monitor_voice % (range_time)
+        sql_previous = sqls.all_monitor_voice % (range_time_previous)
+        voice = DB.get(sql, {"category_name": category.name})  # 获取全品类声量
+        voice_previous = DB.get(sql_previous, {"category_name": category.name})  # 获取全品类声量
+        compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
+        compete_voice_previous = int(voice_previous.get("voice_all")) if voice_previous.get("voice_all") else 0
+
+    new_sql = sqls.monitor_data_analysis_voice % (range_time)
+    new_sql_previous = sqls.monitor_data_analysis_voice % (range_time_previous)
+
+    voice = DB.get(new_sql, {"brand_name": brand_name, "category_name": category.name})  # 本品的的声量
+    voice_previous = DB.get(new_sql_previous, {"brand_name": brand_name, "category_name": category.name})  # 本品的的声量
+    self_voice = int(voice.get("voice")) if voice.get("voice") else 0
+    self_voice_previous = int(voice_previous.get("voice")) if voice_previous.get("voice") else 0
+
+    return self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous
 
 
 def whole_net_analysis(brand_id, date_range):
@@ -148,21 +141,13 @@ def whole_net_analysis(brand_id, date_range):
     :param date_range:
     :return:
     """
-
-    if date_range:
-        date_range = json.loads(date_range)
+    date_range = json.loads(date_range)
     vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
-    self_voice, competitors, compete_voice = get_card_voice_sov(vcBrand, category, date_range)
-    data_assert = get_day_month_week_analysis(vcBrand, category, date_range)
-    try:
-        # 计算sov
-        sov = round(float(self_voice) / float(compete_voice) * 100, 2)
-    except Exception:
-        # raise Exception("竞品声量或者全品声量不能为0")
-        sov = 0
-    # todo 添加分年分月的参数
+    self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range)
+    data_assert, data_voice_histogram, vioce_platform, area_voice, net_keywords, data_radar_classify = get_day_month_week_analysis(vcBrand, category, date_range)
+    sov = get_all_sov(self_voice, compete_voice)
     vcBrand.update(competitor=competitors)
     vcBrand.update(self_voice=self_voice)
     vcBrand.update(category_name=category.name)
@@ -170,7 +155,56 @@ def whole_net_analysis(brand_id, date_range):
     vcBrand.update(compete_voice=compete_voice)
     vcBrand.update(data_assert=data_assert)
     vcBrand.update(sov=sov)
+    vcBrand.update(data_voice_histogram=data_voice_histogram)
+    vcBrand.update(vioce_platform=vioce_platform)
+    vcBrand.update(area_voice=area_voice)
+    vcBrand.update(net_keywords=net_keywords)
+    vcBrand.update(data_radar_classify=data_radar_classify)
+    # todo 环比
+    sov_previous = get_all_sov(self_voice_previous, compete_voice_previous)
+    try:
+        link_relative = round((float(self_voice)-float(self_voice_previous) )/ float(self_voice_previous) * 100, 2)
+        link_relative_sov = round((float(sov)-float(sov_previous) )/ float(sov_previous) * 100, 2)
+    except Exception:
+        link_relative = 0
+        link_relative_sov = 0
+    vcBrand.update(link_relative={"link_relative": link_relative, "link_relative_sov": link_relative_sov})
     return vcBrand
+
+
+def get_classify_sov(data_assert, dict_sov_classify):
+    """
+    获取日周月的sov面积图
+    :param vcBrand:
+    :param data_assert:
+    :return:
+    """
+    for key, value in data_assert.items():
+        for key_type, value_type in value.items():
+            for key_sov, value_sov in dict_sov_classify.items():
+                if key_type == key_sov:
+                    for sov_data in value_sov:
+                        for assert_data in value_type:
+                            if key_type == "day":
+                                key_sov = key_type = "date"
+                            if sov_data.get(key_sov) == assert_data.get(key_type):
+                                count_assert = assert_data.get('count')
+                                count_sov = sov_data.get('count')
+                                sov = get_all_sov(count_assert, count_sov)
+                                assert_data.update(sov=sov)
+
+
+def get_round_sov(data_voice_histogram, data_voice_round):
+    """
+    获取环形图的sov
+    :return:
+    """
+    voice_count = data_voice_round.get("count")
+    for histogram in data_voice_histogram:
+        histogram_count = histogram.get("count")
+        sov = get_all_sov(histogram_count, voice_count)
+        histogram.update(sov=sov)
+    return data_voice_histogram
 
 
 def get_day_month_week_analysis(vcBrand, category, date_range):
@@ -185,11 +219,11 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
     :return:
     """
     dict_data = dict()
+    dict_sov_classify = dict()  # 分类的声量之和
 
     def assemble_data(assert_data, type):
         for day in assert_data:
             brand_name = day.get("brand")
-            print brand_name
             if brand_name not in dict_data:
                 dict_data.update({brand_name: {"day": [], "month": [], "week": []}})
                 dict_data.get(brand_name).get(type).append(day)
@@ -197,28 +231,35 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
                 dict_data.get(brand_name).get(type).append(day)
 
     def get_data():
-        if date_range:
-            sql_day = sqls.compete_day_month_week_voice%(bracket, range_time,  "date", time_slot, "date")
-            sql_month = sqls.compete_day_month_week_voice%(bracket, range_time,  "month", time_slot, "month")
-            sql_week = sqls.compete_day_month_week_voice%(bracket, range_time,  "week", time_slot, "week")
-        else:
-            sql_day = sqls.compete_day_month_week_voice % (bracket, "", "date", time_slot, "date")
-            sql_month = sqls.compete_day_month_week_voice % (bracket, "", "month", time_slot, "month")
-            sql_week = sqls.compete_day_month_week_voice % (bracket, "", "week", time_slot, "week")
+        sql_day = sqls.compete_day_month_week_voice%(bracket, range_time,  "date", "date", "date")
+        sov_day = sqls.area_of_tend_sov%(bracket, range_time,  "date", time_slot, "date")
+        sql_month = sqls.compete_day_month_week_voice%(bracket, range_time,  "month", "month", "month")
+        sov_month = sqls.area_of_tend_sov%(bracket, range_time,  "month", time_slot, "month")
+        sql_week = sqls.compete_day_month_week_voice%(bracket, range_time,  "week", "week", "week")
+        sov_week = sqls.area_of_tend_sov%(bracket, range_time,  "week", time_slot, "week")
+
         day_assert = DB.search(sql_day, {"category_name": category.name})
         month_assert = DB.search(sql_month, {"category_name": category.name})
         week_assert = DB.search(sql_week, {"category_name": category.name})
+
+        # 日月周的总数 用于计算sov
+        day_sov_assert = DB.search(sov_day, {"category_name": category.name})
+        month_sov_assert = DB.search(sov_month, {"category_name": category.name})
+        week_sov_assert = DB.search(sov_week, {"category_name": category.name})
+        dict_sov_classify.update(day=day_sov_assert)
+        dict_sov_classify.update(month=month_sov_assert)
+        dict_sov_classify.update(week=week_sov_assert)
         assemble_data(day_assert, "day")
         assemble_data(month_assert, "month")
         assemble_data(week_assert, "week")
 
     brand_name = vcBrand.get("brand_name")
     time_slot = vcBrand.get("time_slot")
-    if date_range:
-        date1 = datetime.strptime(date_range[0], "%Y-%m-%d")
-        date2 = datetime.strptime(date_range[1], "%Y-%m-%d")
-        range_time = " and a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
-        time_slot = abs((date1 - date2).days)  # 天数也会改改变
+
+    date1 = datetime.strptime(date_range[0], "%Y-%m-%d")
+    date2 = datetime.strptime(date_range[1], "%Y-%m-%d")
+    range_time = " and a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
+    time_slot = abs((date1 - date2).days)  # 天数也会改改变
 
     competitors = json.loads(vcBrand.get("competitor"))
     list_compete = list()
@@ -227,22 +268,68 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
             list_compete.append(competitor.get("name"))
         list_compete.append(brand_name)
         bracket = join_sql_bracket(list_compete)
-        get_data()
+
     else:
         # 获取top5的声量
-        if date_range:
-            sql = sqls.all_top5%(range_time)
-            sql_brand = DB.search(sql, {"bran_name": brand_name, "category_name": category.name, "rn": time_slot})
-        else:
-            sql = sqls.all_top5 % ("")
-            sql_brand = DB.search(sql, {"bran_name": brand_name, "category_name": category.name, "rn": time_slot})
+        sql = sqls.all_top5%(range_time)
+        sql_brand = DB.search(sql, {"bran_name": brand_name, "category_name": category.name, "rn": time_slot})
+
         for brand in sql_brand:
             list_compete.append(brand.get("brand"))
         list_compete.append(brand_name)
         bracket = join_sql_bracket(list_compete)
-        get_data()
+    get_data()
 
-    return dict_data
+    # 获取声量助柱形图
+    sql_his = sqls.brand_voice_histogram%(bracket, range_time,)
+    sql_round = sqls.round_sum_sov%(bracket, range_time)  # 声量总和计算sov环形图
+    sql_platform_sum = sqls.platform_voice_sum%(bracket, range_time) # 平台的声量sum
+    sql_platform_classify = sqls.platfom_classify_count%(bracket, range_time)  # 各个平台的分类声量
+    # sql_area_sum = sqls.area_voice_sum%(bracket, range_time)  # 各个地域的分类声量之和
+    sql_area_classify = sqls.area_voice_classify%(bracket, range_time)  # 各个地域的分类声量
+    net_keywords = sqls.net_keywords%(bracket, range_time)  # 获取全网关键词
+
+    data_voice_histogram = DB.search(sql_his, {"category_name": category.name, "rn": time_slot})
+    data_voice_round = DB.get(sql_round, {"category_name": category.name, "rn": time_slot})
+    data_voice_platform_sum = DB.search(sql_platform_sum, {"category_name": category.name})
+    data_voice_platform_classify = DB.search(sql_platform_classify, {"category_name": category.name})
+    # 获取声量平台来源
+    vioce_platform = dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify)
+
+    # 获取地域声量来源
+    # data_voice_area_sum = DB.search(sql_area_sum, {"category_name": category.name})
+    data_voice_area_classify = DB.search(sql_area_classify, {"category_name": category.name})
+
+    # 增加 sov趋势 sov环形
+    get_classify_sov(dict_data, dict_sov_classify)
+    get_round_sov(data_voice_histogram, data_voice_round)
+    # 获取声量平台来源数据
+
+    # 获取全网关键词
+    net_keywords = DB.search(net_keywords, {"category_name": category.name})
+    # 获取内容分布
+    if competitors:
+        sql_radar = sqls.content_radar%(bracket, range_time)
+        sql_radar_classify = sqls.content_radar_classify%(bracket, range_time)
+
+    else:
+        str_brand = join_sql_bracket([brand_name, ])
+        sql_radar = sqls.content_radar%(str_brand, range_time)
+        sql_radar_classify = sqls.content_radar_classify%(str_brand, range_time)
+    data_radar = DB.search(sql_radar, {"category_name": category.name})
+    data_radar_classify = DB.search(sql_radar_classify, {"category_name": category.name})
+    dispose_content_radar(data_radar, data_radar_classify)
+    return dict_data, data_voice_histogram, vioce_platform, data_voice_area_classify, net_keywords, data_radar_classify
+
+
+def dispose_content_radar(data_radar, data_radar_classify):
+    for platform_sum in data_radar:
+        for platform_classify in data_radar_classify:
+            all_count = platform_sum.get("count")
+            classify_count = platform_classify.get("count")
+            sov = get_all_sov(classify_count, all_count)
+            platform_classify.update(sov=sov)
+    return data_radar_classify
 
 
 def join_sql_bracket(data):
@@ -255,8 +342,33 @@ def join_sql_bracket(data):
             str_data += " )"
             break
         str_data += ","
-
     return str_data
+
+
+def get_all_sov(self_voice, compete_voice):
+    try:
+        sov = round(float(self_voice) / float(compete_voice) * 100, 2)
+    except Exception:
+        # raise Exception("竞品声量或者全品声量不能为0")
+        sov = 0
+    return sov
+
+
+def dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify):
+    """
+    处理声量
+    :return:
+    """
+
+    for platform_sum in data_voice_platform_sum:
+        for platform_classify in data_voice_platform_classify:
+            if platform_sum.get("platform") == platform_classify.get("platform"):
+                sum_data = platform_sum.get("count")
+                classify_data = platform_classify.get("count")
+                sov = get_all_sov(classify_data, sum_data)
+                platform_classify.update(sov=sov)
+                platform_classify.update(sum_coun=sum_data)
+    return data_voice_platform_classify
 
 
 # ############################# 活动定位: activity orientation #################################

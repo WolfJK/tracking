@@ -26,29 +26,20 @@ select id, json_index(brand, -1, '.name') as brand_name, competitor, time_slot f
 
 # 当前品牌的声量
 monitor_data_analysis_voice = """
-select sum(IFNULL(count, 0)) as voice from vc_saas_platform_volume where 
-brand = {brand_name} and cagegory = {category_name} %s order by date desc limit %s;
+select IFNULL(sum(count), 0) as voice from vc_saas_platform_volume where 
+brand = {brand_name} and cagegory = {category_name} %s;
 """
 
 # 竞品所有的声量
 monitor_data_compete_voice = """
-with e as (
-select brand,
-       count,
-       ROW_NUMBER() OVER(PARTITION BY brand ORDER BY date DESC) as rn
-from vc_saas_platform_volume where brand in %s and cagegory = {category_name}  %s
-    ) select sum(count) as voice_all from e where rn<=%s;
+select IFNULL(sum(count), 0) as voice_all from  vc_saas_platform_volume  
+where brand in %s and cagegory = {category_name}  %s ;
 """
 
 
 # 全品类的声量
 all_monitor_voice = """
-with e as (
-select brand,
-       count,
-       ROW_NUMBER() OVER(PARTITION BY brand ORDER BY date DESC) as rn
-from vc_saas_platform_volume where cagegory = {category_name} %s
-    ) select sum(count) as voice_all from e where rn<=%s;
+select IFNULL(sum(count), 0) as voice_all from vc_saas_platform_volume where cagegory = {category_name} %s;
 """
 
 
@@ -72,13 +63,12 @@ with e as (
            b.month,
            a.count,
            b.week,
-           a.date,
-           ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
-    from vc_saas_platform_volume a
+           a.date
+    from vc_saas_area_volume a
            join dim_date b on a.date = b.date
-    where a.brand in %s 
+    where a.brand in %s
       and a.cagegory = {category_name} %s 
-)select brand, %s, sum(count) as count from e where rn<=%s group by %s, brand;
+)select brand, %s, sum(count) as count from e group by %s, brand order by brand, %s asc;
 """
 
 # top5声量 不含本品
@@ -190,4 +180,11 @@ content_radar_classify = """
 select cognition, sum(count) count  from vc_mp_first_level_cognition a
 where brand in %s and cagegory= {category_name} %s
 group by  cognition
+"""
+
+
+# 计算上个日期的环比
+previous_ratio = """
+select sum(IFNULL(count, 0)) voice_all from vc_saas_platform_volume where brand in %s
+and  cagegory= {category_name} %s;
 """
