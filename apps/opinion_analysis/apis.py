@@ -280,25 +280,7 @@ def get_net_day_month_week_analysis(vcBrand, category, date_range):
 
     brand_name = vcBrand.get("brand_name")
 
-    range_time = " and a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
-
-    competitors = json.loads(vcBrand.get("competitor"))
-    list_compete = list()
-    if competitors:  # 有竞品
-        for competitor in competitors:
-            list_compete.append(competitor.get("name"))
-        list_compete.append(brand_name)
-        bracket = join_sql_bracket(list_compete)
-
-    else:
-        # 获取top5的声量
-        sql = sqls.all_top5%(range_time)
-        sql_brand = DB.search(sql, {"bran_name": brand_name, "category_name": category.name})
-
-        for brand in sql_brand:
-            list_compete.append(brand.get("brand"))
-        list_compete.append(brand_name)
-        bracket = join_sql_bracket(list_compete)
+    bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
     get_data()
 
     # 获取声量助柱形图
@@ -452,7 +434,7 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
     import time
     start = time.time()
-    # get_data()
+    get_data()
     end = time.time()
     print "世界", end-start
     # 获取声量助柱形图
@@ -496,12 +478,12 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
 
     # 获取内容分布
     if competitors:
-        sql_radar = sqls.content_radar%(bracket, range_time)
-        sql_radar_classify = sqls.content_radar_classify%(bracket, range_time)
+        sql_radar = sqls.bbv_content_radar%(bracket, range_time)
+        sql_radar_classify = sqls.bbv_content_radar_classify%(bracket, range_time)
     else:
         str_brand = join_sql_bracket([brand_name, ])
-        sql_radar = sqls.content_radar%(str_brand, range_time)
-        sql_radar_classify = sqls.content_radar_classify%(str_brand, range_time)
+        sql_radar = sqls.bbv_platform_content_radar%(str_brand, bracket_platform, range_time)
+        sql_radar_classify = sqls.bbv_platform_content_radar_classify%(str_brand, bracket_platform, range_time)
     data_radar = DB.search(sql_radar, {"category_name": category.name})
     data_radar_classify = DB.search(sql_radar_classify, {"category_name": category.name})
     dispose_content_radar(data_radar, data_radar_classify)
@@ -520,9 +502,33 @@ def get_bbv_analysis(brand_id, date_range, platform):
         self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous =get_card_voice_sov(vcBrand, category, date_range, type='all')
     import time
     st = time.time()
-    dict_data, data_voice_histogram, vioce_platform, data_voice_area_classify, net_keywords, data_radar_classify = get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform)
+    data_assert, data_voice_histogram, vioce_platform, area_voice, net_keywords, data_radar_classify = get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform)
     ed = time.time()
-    return dict_data
+    print '==========', ed-st
+
+    sov = get_all_sov(self_voice, compete_voice)
+    vcBrand.update(competitor=competitors)
+    vcBrand.update(self_voice=self_voice)
+    vcBrand.update(category_name=category.name)
+    vcBrand.update(industry_name=industry.name)
+    vcBrand.update(compete_voice=compete_voice)
+    vcBrand.update(data_assert=data_assert)
+    vcBrand.update(sov=sov)
+    vcBrand.update(data_voice_histogram=data_voice_histogram)
+    vcBrand.update(vioce_platform=vioce_platform)
+    vcBrand.update(area_voice=area_voice)
+    vcBrand.update(net_keywords=net_keywords)
+    vcBrand.update(data_radar_classify=data_radar_classify)
+    # todo 环比
+    sov_previous = get_all_sov(self_voice_previous, compete_voice_previous)
+    try:
+        link_relative = round((float(self_voice) - float(self_voice_previous)) / float(self_voice_previous) * 100, 2)
+        link_relative_sov = round((float(sov) - float(sov_previous)) / float(sov_previous) * 100, 2)
+    except Exception:
+        link_relative = 0
+        link_relative_sov = 0
+    vcBrand.update(link_relative={"link_relative": link_relative, "link_relative_sov": link_relative_sov})
+    return vcBrand
 
 
 def get_bracket_datarange(vcBrand, category, date_range):
@@ -544,6 +550,7 @@ def get_bracket_datarange(vcBrand, category, date_range):
         list_compete.append(brand_name)
         bracket = join_sql_bracket(list_compete)
     return bracket, competitors, range_time
+
 
 # ############################# 活动定位: activity orientation #################################
 
