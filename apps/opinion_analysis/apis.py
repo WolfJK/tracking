@@ -232,11 +232,11 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
 
     def get_data():
         sql_day = sqls.compete_day_month_week_voice%(bracket, range_time,  "date", "date", "date")
-        sov_day = sqls.area_of_tend_sov%(bracket, range_time,  "date", time_slot, "date")
+        sov_day = sqls.area_of_tend_sov%(bracket, range_time,  "date", "date", "date")
         sql_month = sqls.compete_day_month_week_voice%(bracket, range_time,  "month", "month", "month")
-        sov_month = sqls.area_of_tend_sov%(bracket, range_time,  "month", time_slot, "month")
+        sov_month = sqls.area_of_tend_sov%(bracket, range_time,  "month", "month", "month")
         sql_week = sqls.compete_day_month_week_voice%(bracket, range_time,  "week", "week", "week")
-        sov_week = sqls.area_of_tend_sov%(bracket, range_time,  "week", time_slot, "week")
+        sov_week = sqls.area_of_tend_sov%(bracket, range_time,  "week", "week", "week")
 
         day_assert = DB.search(sql_day, {"category_name": category.name})
         month_assert = DB.search(sql_month, {"category_name": category.name})
@@ -246,6 +246,7 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
         day_sov_assert = DB.search(sov_day, {"category_name": category.name})
         month_sov_assert = DB.search(sov_month, {"category_name": category.name})
         week_sov_assert = DB.search(sov_week, {"category_name": category.name})
+
         dict_sov_classify.update(day=day_sov_assert)
         dict_sov_classify.update(month=month_sov_assert)
         dict_sov_classify.update(week=week_sov_assert)
@@ -254,12 +255,8 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
         assemble_data(week_assert, "week")
 
     brand_name = vcBrand.get("brand_name")
-    time_slot = vcBrand.get("time_slot")
 
-    date1 = datetime.strptime(date_range[0], "%Y-%m-%d")
-    date2 = datetime.strptime(date_range[1], "%Y-%m-%d")
     range_time = " and a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
-    time_slot = abs((date1 - date2).days)  # 天数也会改改变
 
     competitors = json.loads(vcBrand.get("competitor"))
     list_compete = list()
@@ -272,7 +269,7 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
     else:
         # 获取top5的声量
         sql = sqls.all_top5%(range_time)
-        sql_brand = DB.search(sql, {"bran_name": brand_name, "category_name": category.name, "rn": time_slot})
+        sql_brand = DB.search(sql, {"bran_name": brand_name, "category_name": category.name})
 
         for brand in sql_brand:
             list_compete.append(brand.get("brand"))
@@ -289,8 +286,10 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
     sql_area_classify = sqls.area_voice_classify%(bracket, range_time)  # 各个地域的分类声量
     net_keywords = sqls.net_keywords%(bracket, range_time)  # 获取全网关键词
 
-    data_voice_histogram = DB.search(sql_his, {"category_name": category.name, "rn": time_slot})
-    data_voice_round = DB.get(sql_round, {"category_name": category.name, "rn": time_slot})
+    data_voice_histogram = DB.search(sql_his, {"category_name": category.name})
+
+    data_voice_round = DB.get(sql_round, {"category_name": category.name})
+
     data_voice_platform_sum = DB.search(sql_platform_sum, {"category_name": category.name})
     data_voice_platform_classify = DB.search(sql_platform_classify, {"category_name": category.name})
     # 获取声量平台来源
@@ -303,7 +302,6 @@ def get_day_month_week_analysis(vcBrand, category, date_range):
     # 增加 sov趋势 sov环形
     get_classify_sov(dict_data, dict_sov_classify)
     get_round_sov(data_voice_histogram, data_voice_round)
-    # 获取声量平台来源数据
 
     # 获取全网关键词
     net_keywords = DB.search(net_keywords, {"category_name": category.name})
@@ -359,10 +357,9 @@ def dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify
     处理声量
     :return:
     """
-
     for platform_sum in data_voice_platform_sum:
         for platform_classify in data_voice_platform_classify:
-            if platform_sum.get("platform") == platform_classify.get("platform"):
+            if platform_sum.get("brand") == platform_classify.get("brand"):
                 sum_data = platform_sum.get("count")
                 classify_data = platform_classify.get("count")
                 sov = get_all_sov(classify_data, sum_data)

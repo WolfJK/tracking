@@ -65,7 +65,7 @@ with e as (
            b.week,
            a.date
     from vc_saas_area_volume a
-           join dim_date b on a.date = b.date
+    join dim_date b on a.date = b.date
     where a.brand in %s
       and a.cagegory = {category_name} %s 
 )select brand, %s, sum(count) as count from e group by %s, brand order by brand, %s asc;
@@ -76,13 +76,11 @@ all_top5 = """
 with e as (
     select a.brand,
            a.count,
-           a.date,
-           ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
+           a.date
     from vc_saas_platform_volume a
-           join dim_date b on a.date = b.date
-    where a.brand != {bran_name}
-      and a.cagegory = {category_name} %s 
-)select brand, sum(count) as count from e where rn<={rn} group by brand order by count desc limit 5;
+    where a.brand != {bran_name} 
+    and a.cagegory = {category_name} %s 
+)select brand, sum(count) as count from e  group by brand order by count desc limit 5;
 """
 
 # 品牌声量柱形图
@@ -90,28 +88,22 @@ brand_voice_histogram = """
 with e as (
     select a.brand,
            a.cagegory,
-           b.month,
            a.count,
-           b.week,
-           a.date,
-           ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
+           a.date
     from vc_saas_platform_volume a
-           join dim_date b on a.date = b.date
     where a.brand in %s
-      and a.cagegory = {category_name}  %s 
-)select brand, sum(count) as count from e where rn<={rn}  group by brand order by count desc;
+    and a.cagegory = {category_name}  %s 
+)select brand, sum(count) as count from e  group by brand order by count desc;
 """
 
 # 单前所选时间段的各品牌的总和用于计算环形图sov
 round_sum_sov = """
 with e as (
-    select a.count,
-           ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
+    select a.count
     from vc_saas_platform_volume a
-           join dim_date b on a.date = b.date
     where a.brand in %s
-      and a.cagegory = {category_name}  %s
-)select sum(count) as count from e where rn<={rn};
+    and a.cagegory = {category_name}  %s
+)select sum(count) as count from e;
 """
 
 # 获取分类的年月周的分类数据总和 用于计算sov的趋势图
@@ -122,20 +114,19 @@ with e as (
            b.month,
            a.count,
            b.week,
-           a.date,
-           ROW_NUMBER() OVER(PARTITION BY a.brand ORDER BY a.date DESC) as rn
+           a.date
     from vc_saas_platform_volume a
-           join dim_date b on a.date = b.date
+    join dim_date b on a.date = b.date
     where a.brand in %s
-      and a.cagegory = {category_name} %s
-)select %s, sum(count) as count from e where rn<=%s group by %s;
+    and a.cagegory = {category_name} %s
+)select %s, sum(count) as count from e group by %s order by %s asc;
 """
 
 # 获取各个平台总的声量
 platform_voice_sum = """
-select platform, sum(count) as count from vc_saas_platform_volume a where brand in %s
- and cagegory = {category_name} %s
-group by platform;
+select brand, sum(count) as count from vc_saas_platform_volume a where brand in %s
+and cagegory = {category_name} %s
+group by brand;
 """
 
 # 各个平台的分类的声量
