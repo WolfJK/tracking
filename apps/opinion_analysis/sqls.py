@@ -210,3 +210,146 @@ self_brand_bbv_all = """
 select IFNULL(sum(count), 0) as voice from vc_mp_platform_area_volume
 where brand = {brand_name} and cagegory = {category_name}  and type='bbv' %s
 """
+
+# ==========bbv================
+# 获取竞品的年月日各个声量 all
+bbv_compete_day_month_week_voice = """
+with e as (
+    select a.brand,
+           a.cagegory,
+           b.month,
+           a.count,
+           b.week,
+           a.date
+    from vc_mp_platform_area_volume a
+    join dim_date b on a.date = b.date
+    where a.brand in %s
+    and a.cagegory = {category_name}
+    and a.type = 'bbv' %s 
+)select brand, %s, sum(count) as count from e group by %s, brand order by brand, %s asc;
+"""
+
+bbv_platform_compete_day_month_week_voice = """
+with e as (
+    select a.brand,
+           a.cagegory,
+           b.month,
+           a.count,
+           b.week,
+           a.date
+    from vc_mp_platform_area_volume a
+    join dim_date b on a.date = b.date
+    where a.brand in %s
+    and a.cagegory = {category_name}
+    and a.platform in %s %s 
+)select brand, %s, sum(count) as count from e group by %s, brand order by brand, %s asc;
+"""
+
+bbv_area_of_tend_sov = """
+with e as (
+    select a.brand,
+           a.cagegory,
+           b.month,
+           a.count,
+           b.week,
+           a.date
+    from vc_mp_platform_area_volume a
+    join dim_date b on a.date = b.date
+    where a.brand in %s
+    and a.cagegory = {category_name} 
+    and a.type = 'bbv' %s
+)select %s, sum(count) as count from e group by %s order by %s asc;
+"""
+
+bbv_platform_area_of_tend_sov = """
+with e as (
+    select a.brand,
+           a.cagegory,
+           b.month,
+           a.count,
+           b.week,
+           a.date
+    from vc_mp_platform_area_volume a
+    join dim_date b on a.date = b.date
+    where a.brand in %s
+    and a.cagegory = {category_name} 
+    and a.platform in %s %s
+)select %s, sum(count) as count from e group by %s order by %s asc;
+"""
+
+# all品牌声量条形图
+bbv_brand_voice_histogram = """
+with e as (
+    select a.brand,
+           a.cagegory,
+           a.count,
+           a.date
+    from vc_mp_platform_area_volume a
+    where a.brand in %s
+    and a.cagegory = {category_name} 
+    and a.type = 'bbv' %s 
+)select brand, sum(count) as count from e  group by brand order by count desc;
+"""
+
+bbv_platform_brand_voice_histogram = """
+with e as (
+    select a.brand,
+           a.cagegory,
+           a.count,
+           a.date
+    from vc_mp_platform_area_volume a
+    where a.brand in %s
+    and a.cagegory = {category_name} 
+    and a.platform in %s %s 
+)select brand, sum(count) as count from e  group by brand order by count desc;
+"""
+
+# bbv_声量总数用于计算sov面积图的百分比
+bbv_round_sum_sov = """
+with e as (
+    select a.count
+    from vc_mp_platform_area_volume a
+    where a.brand in %s
+    and a.cagegory = {category_name} 
+    and a.type = 'bbv' %s 
+)select sum(count) as count from e;
+"""
+
+bbv_platform_round_sum_sov = """
+with e as (
+    select a.count
+    from vc_mp_platform_area_volume a
+    where a.brand in %s
+    and a.cagegory = {category_name} 
+    and a.platform in %s %s 
+)select sum(count) as count from e;
+"""
+
+# bbv获取各个平台总的声量
+bbv_platform_voice_sum_all = """
+select brand, sum(count) as count from vc_mp_platform_area_volume a 
+where brand in %s
+and cagegory = {category_name}  and a.type = 'bbv' %s 
+group by brand;
+"""
+
+bbv_platform_voice_all_classify = """
+select platform, brand, sum(count) as count from vc_mp_platform_area_volume a 
+where brand in %s
+and cagegory = {category_name}  and a.type = 'bbv' %s 
+group by platform, brand;
+"""
+
+
+# 子集下面平台的分类的声量
+bbv_platfom_classify_sum = """
+select platform, brand, sum(count) as  count from vc_mp_platform_area_volume a where brand in %s
+and cagegory = {category_name}  and a.platform in %s %s 
+group by platform, brand;
+"""
+
+bbv_platfom_classify_count = """
+select brand, sum(count) as  count from vc_mp_platform_area_volume a where brand in %s
+and cagegory = {category_name}  and a.platform in %s %s 
+group by brand;
+"""
