@@ -26,4 +26,9 @@ urlpatterns = patterns("apps.opinion_analysis.views",
    # 市场格局获取
    url(r"^get-market-pattern/$", views.get_market_pattern),
 
+   # 活动定位
+   url(r"^ao-activity-tag-list/$", views.ao_activity_tag_list),
+   url(r"^ao-volume-trend/$", views.ao_volume_trend),
+   url(r"^ao-keywords-cloud/$", views.ao_keywords_cloud),
+   url(r"^ao-activity-content/$", views.ao_activity_content),
 )
