@@ -446,7 +446,7 @@ class VcMpRecommendActivatePeriod(models.Model):
     update_time = models.DateTimeField(help_text="修改时间", null=True)
 
     class Meta:
-        db_table = "vc_mp_recommend_activate_period"
+        db_table = "vc_mp_recommend_activity_period"
 
 # ###########################################  报告分析 报告内容  ###############################################
 # TODO 检测结束时间和检测周期什么关系

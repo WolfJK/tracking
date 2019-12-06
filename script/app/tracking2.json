@@ -1691,7 +1691,7 @@
               "notNull": true
             },
             {
-              "name": "activity_tags",
+              "name": "activity_tag",
               "type": "LongKey",
               "remark": "",
               "chnname": "活动标签[包含标签为 null]",
@@ -1750,7 +1750,6 @@
               "fields": [
                 "brand",
                 "platform",
-                "activity_tags",
                 "keywords",
                 "type",
                 "date"
@@ -1764,7 +1763,6 @@
                 "date",
                 "platform",
                 "keywords",
-                "activity_tags",
                 "type"
               ]
             }
@@ -2612,7 +2610,7 @@
           "remark": "活动标签表， 声量舆情  volume consensus"
         },
         {
-          "title": "vc_mp_recommend_activate_period",
+          "title": "vc_mp_recommend_activity_period",
           "fields": [
             {
               "name": "id",
@@ -2810,7 +2808,7 @@
           },
           {
             "shape": "table",
-            "title": "vc_mp_recommend_activate_period",
+            "title": "vc_mp_recommend_activity_period",
             "moduleName": false,
             "x": 750,
             "y": 450,
