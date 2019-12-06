@@ -200,3 +200,16 @@ def next_period(date):
         raise Exception("数据计算结果有误")
 
 
+def combine_list_map(lm1, lm2, key, default):
+    '''
+    以 lm1 为基数合并 lm2
+    :param lm1:
+    :param lm2:
+    :param key:
+    :param default:
+    :return:
+    '''
+    lm2_map = {lm[key]: lm for lm in lm2}
+    map(lambda lm: lm.update(lm2_map.get(lm[key], default)), lm1)
+    return lm1
+
