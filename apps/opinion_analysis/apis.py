@@ -7,7 +7,9 @@ import json
 from apps.opinion_analysis import sqls
 from common.db_helper import DB
 from datetime import datetime
-from django.db.models import Q, F, Sum
+from apps import apis as apps_apis
+from django.db.models import Q, F, Sum, Value
+from django.db import models
 import copy
 from dateutil.relativedelta import relativedelta
 
@@ -606,8 +608,12 @@ def ao_volume_trend(params):
         volume_obj = VcMpPlatformAreaVolume.objects.filter(**params)
 
     volume_trend = list(volume_obj.values("date").annotate(count=Sum("count")).order_by("date"))
+    date_list = list(DimDate.objects.filter(date__range=params["date__range"]).values("date").distinct().order_by("date"))
 
-    return dict(volume_trend=volume_trend, activity_date=activity_date)
+    volume_trend = apps_apis.combine_list_map(date_list, volume_trend, "date", dict(count=0))
+    data = apps_apis.combine_list_map(volume_trend, activity_date, "date", dict(is_activity=0))
+
+    return data
 
 
 def ao_activity_date(params):
@@ -616,9 +622,24 @@ def ao_activity_date(params):
     :param params:
     :return:
     '''
-    activity_tags = list(VcMpActivityTags.objects.filter(**params).values("date").distinct().order_by("date"))
+    activity_tags = list(VcMpActivityTags.objects.filter(**params).values("date")
+                         .annotate(is_activity=Value(1, output_field=models.IntegerField())).values("date", "is_activity"))
 
     return activity_tags
+
+
+def ao_recommend_activate_period(params):
+    '''
+    活动定位 -> 系统推荐活动期
+    :param params:
+    :return:
+    '''
+    params.pop("type")
+    params.pop("activity_tag")
+    data = list(VcMpRecommendActivatePeriod.objects.filter(**params).values("date")
+                .annotate(is_activity=Value(1, output_field=models.IntegerField())).values("date", "is_activity"))
+
+    return data
 
 
 def ao_keywords_cloud(params):
@@ -650,15 +671,5 @@ def ao_activity_content(params):
     return list(activity_content)
 
 
-def ao_recommend_activate_period(params):
-    '''
-    活动定位 -> 系统推荐活动期
-    :param params:
-    :return:
-    '''
-    params.pop("type")
-    params.pop("activity_tag")
-    data = list(VcMpRecommendActivatePeriod.objects.filter(**params).values("date").distinct().order_by("date"))
 
-    return data
 
