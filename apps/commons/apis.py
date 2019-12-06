@@ -169,7 +169,7 @@ def competitor_save(param, user):
     :param user:
     :return:
     '''
-    param.update(user=user, brand_id=json.dumps(param["brand_id"]), competitors=json.dumps(param["competitors"]))
+    param.update(user=user, brand=json.dumps(param["brand"]), competitors=json.dumps(param["competitors"]))
     SmCompetitor(**param).save()
 
 
@@ -185,10 +185,10 @@ def competitor_get(param, user):
         raise Exception("记录不存在")
 
     competitor = list(competitor.annotate(industry_id=F("category__industry_id"))
-                      .values("id", "industry_id", "category_id", "brand_id", "competitors"))[0]
+                      .values("id", "industry_id", "category_id", "brand", "competitors"))[0]
 
     competitor["competitors"] = json.loads(competitor["competitors"])
-    competitor["brand_id"] = json.loads(competitor["brand_id"])
+    competitor["brand"] = json.loads(competitor["brand"])
 
     return competitor
 

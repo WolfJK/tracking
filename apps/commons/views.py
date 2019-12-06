@@ -129,7 +129,7 @@ def competitor_save(request):
     '''
     param = apps_apis.get_parameter(request.POST, [
         ("category_id", "请选择品类", "int"),
-        ("brand_id", "请选择品牌", "list"),
+        ("brand", "请选择品牌", "list"),
         ("competitors", "请选择竞品", "list"),
     ])
     apis.competitor_save(param, request.user)

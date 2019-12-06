@@ -8,7 +8,7 @@ select
     c1.id,
     c3.name as industry,
     c2.name as category,
-    json_index(c1.brand_id, -1, '.name') as brand,
+    json_index(c1.brand, -1, '.name') as brand,
     c1.competitors
 from
     sm_competitor c1
@@ -21,7 +21,7 @@ on c2.industry_id = c3.id
 where
     (c3.name regexp {queue_filter}
  or c2.name regexp {queue_filter}
- or json_index(brand_id, -1, '.name') regexp {queue_filter}
+ or json_index(brand, -1, '.name') regexp {queue_filter}
  or '' = {queue_filter}
  ) and user_id = {user_id}
 ;

@@ -161,3 +161,55 @@ RETURN ret;
 end
 //
 delimiter ;
+
+
+
+
+
+-- ------ 3、初始化测试数据
+-- 如果有多个维度, 用 sql cross join 解决
+DROP PROCEDURE IF EXISTS generate_test_data;
+delimiter //
+CREATE PROCEDURE generate_test_data (IN date_in varchar(32))
+BEGIN
+    declare done1 int default 0;
+    declare done2 int default 0;
+    declare brand varchar(32);
+    declare platform varchar(32);
+
+    begin
+        declare brand_cur cursor for select `name` as name from dim_brand;
+        declare continue handler for not found set done1 = 1;
+        start transaction;
+        open brand_cur;
+            brand_loop:LOOP
+                fetch brand_cur into brand;
+                if done1 = 1 then leave brand_loop; -- 判断是否结束
+                else
+                    set done2 = 0; -- 重置内部循环 标识
+                    begin
+                        declare platform_cur cursor for select name from dim_platform;
+                        declare continue handler for not found set done2 = 1; -- 结束标识
+                        open platform_cur;
+                            platform_loop:loop
+                                fetch platform_cur into platform;
+                                if done2 = 1 then leave platform_loop; -- 判断是否结束
+                                else -- 对表进行操作
+                                    insert into vc_saas_platform_volume(cagegory, brand, platform, count, date)
+                                    values ('奶粉', brand, platform, round(rand() * 100), date_in);
+                                end if ;
+                            end loop;
+                        close platform_cur;
+                    end;
+                end if;
+            end loop;
+        close brand_cur;
+        commit;
+    end ;
+END;
+//
+delimiter ;
+
+
+select * from vc_saas_platform_volume_tmp;
+CALL generate_test_data('2019-11-20');
