@@ -55,6 +55,7 @@ class DimBrand(models.Model):
     name = models.CharField(max_length=32, help_text="品牌名称")
     keyword = models.CharField(max_length=512, help_text="抓取关键词")
     parent = models.ForeignKey("DimBrand", help_text="父品牌", on_delete=models.DO_NOTHING, null=True)
+    saas = models.CharField(max_length=32, help_text="saas 品牌名", null=True)
 
     class Meta:
         db_table = "dim_brand"
