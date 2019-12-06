@@ -116,6 +116,11 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
             # 只是针对深度bbv的全部
             sql = sqls.monitor_data_bbv_all_compete_voice % (bracket, range_time)  # 获取当前
             sql_previous = sqls.monitor_data_bbv_all_compete_voice % (bracket, range_time_previous)  # 获取上个阶段
+        elif type in ["微博", "微信"]:  # 微博微信的平台声量是从sass取出来
+            bracket_platform = join_sql_bracket([type, ])
+            sql = sqls.milk_dw_all_compete_voice % (bracket, bracket_platform, range_time)  # 获取当前
+            sql_previous = sqls.milk_dw_all_compete_voice % (bracket, bracket_platform, range_time_previous)  # 获取上个阶段
+
         else:
             # 各个平台的, 包括深度社煤和深度bbv的所有子集
             bracket_platform = join_sql_bracket([type, ])
@@ -132,6 +137,11 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
         elif type == 'all':
             sql = sqls.bbv_all_sum_voice % (range_time)
             sql_previous = sqls.bbv_all_sum_voice % (range_time_previous)
+
+        elif type in ["微博", "微信"]:
+            bracket_platform = join_sql_bracket([type, ])
+            sql = sqls.milk_platform_classify_voice % (bracket_platform, range_time)  # 获取当前
+            sql_previous = sqls.milk_platform_classify_voice % (bracket_platform, range_time_previous)  # 获取上个阶段
         else:
             bracket_platform = join_sql_bracket([type, ])
             sql = sqls.bbv_platform_classify_voice % (bracket_platform, range_time)
@@ -146,6 +156,10 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
     elif type == "all":
         new_sql = sqls.self_brand_bbv_all % (range_time)
         new_sql_previous = sqls.self_brand_bbv_all % (range_time_previous)
+    elif type in ["微博", "微信"]:
+        bracket_platform = join_sql_bracket([type, ])
+        new_sql = sqls.self_brand_milk_classify % (bracket_platform, range_time)
+        new_sql_previous = sqls.self_brand_milk_classify % (bracket_platform, range_time_previous)
     else:
         bracket_platform = join_sql_bracket([type, ])
         new_sql = sqls.self_brand_bbv_classify % (bracket_platform, range_time)
@@ -432,11 +446,7 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
 
     brand_name = vcBrand.get("brand_name")
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
-    import time
-    start = time.time()
     get_data()
-    end = time.time()
-    print "世界", end-start
     # 获取声量助柱形图
     bracket_platform = join_sql_bracket([platform, ])
     if platform == 'all':
@@ -460,7 +470,7 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
     data_voice_platform_classify = DB.search(sql_platform_classify, {"category_name": category.name})
     # 获取声量平台来源
     vioce_platform = dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify)
-
+    # 获取地域的声量 子类下面没有地域的数据
     if platform == 'all':
         sql_area_classify = sqls.bbv_area_voice_classify%(bracket, range_time)  # 各个地域的分类声量
         data_voice_area_classify = DB.search(sql_area_classify, {"category_name": category.name})
@@ -500,11 +510,8 @@ def get_bbv_analysis(brand_id, date_range, platform):
         self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range, type=platform)
     else:  # 全网
         self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous =get_card_voice_sov(vcBrand, category, date_range, type='all')
-    import time
-    st = time.time()
+
     data_assert, data_voice_histogram, vioce_platform, area_voice, net_keywords, data_radar_classify = get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform)
-    ed = time.time()
-    print '==========', ed-st
 
     sov = get_all_sov(self_voice, compete_voice)
     vcBrand.update(competitor=competitors)
@@ -550,6 +557,125 @@ def get_bracket_datarange(vcBrand, category, date_range):
         list_compete.append(brand_name)
         bracket = join_sql_bracket(list_compete)
     return bracket, competitors, range_time
+
+
+def get_dsm_milk_analysis(brand_id, date_range, platform):
+    """
+    奶粉深度社媒数据分析 其中微博微信的数据的声量数据来源与sass
+    """
+    date_range = json.loads(date_range)
+    vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
+    category = DimCategory.objects.get(id=vcBrand.get("category_id"))
+    industry = DimIndustry.objects.get(id=category.industry_id)
+    self_voice, competitors, compete_voice, \
+    self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range, platform)
+    get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform)
+
+
+def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform):
+    dict_data = dict()
+    dict_sov_classify = dict()  # 分类的声量之和
+
+    def assemble_data(assert_data, type):
+        for day in assert_data:
+            brand_name = day.get("brand")
+            if brand_name not in dict_data:
+                dict_data.update({brand_name: {"day": [], "month": [], "week": []}})
+                dict_data.get(brand_name).get(type).append(day)
+            else:
+                dict_data.get(brand_name).get(type).append(day)
+
+    def get_data():
+        if platform in ["微博", "微信"]:
+            sql_day = sqls.compete_day_month_week_voice % (bracket, range_time, "date", "date", "date")
+            sov_day = sqls.area_of_tend_sov % (bracket, range_time, "date", "date", "date")
+            sql_month = sqls.compete_day_month_week_voice % (bracket, range_time, "month", "month", "month")
+            sov_month = sqls.area_of_tend_sov % (bracket, range_time, "month", "month", "month")
+            sql_week = sqls.compete_day_month_week_voice % (bracket, range_time, "week", "week", "week")
+            sov_week = sqls.area_of_tend_sov % (bracket, range_time, "week", "week", "week")
+        else:  # 知乎小红数
+            sql_day = sqls.bbv_platform_compete_day_month_week_voice % (bracket, range_time, "date", "date", "date")
+            sov_day = sqls.bbv_platform_area_of_tend_sov % (bracket, range_time, "date", "date", "date")
+            sql_month = sqls.bbv_platform_compete_day_month_week_voice % (bracket, range_time, "month", "month", "month")
+            sov_month = sqls.bbv_platform_area_of_tend_sov % (bracket, range_time, "month", "month", "month")
+            sql_week = sqls.bbv_platform_compete_day_month_week_voice % (bracket, range_time, "week", "week", "week")
+            sov_week = sqls.bbv_platform_area_of_tend_sov % (bracket, range_time, "week", "week", "week")
+
+        day_assert = DB.search(sql_day, {"category_name": category.name})
+        month_assert = DB.search(sql_month, {"category_name": category.name})
+        week_assert = DB.search(sql_week, {"category_name": category.name})
+
+        # 日月周的总数 用于计算sov
+        day_sov_assert = DB.search(sov_day, {"category_name": category.name})
+        month_sov_assert = DB.search(sov_month, {"category_name": category.name})
+        week_sov_assert = DB.search(sov_week, {"category_name": category.name})
+
+        dict_sov_classify.update(day=day_sov_assert)
+        dict_sov_classify.update(month=month_sov_assert)
+        dict_sov_classify.update(week=week_sov_assert)
+        assemble_data(day_assert, "day")
+        assemble_data(month_assert, "month")
+        assemble_data(week_assert, "week")
+
+    brand_name = vcBrand.get("brand_name")
+    bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
+    import time
+    start = time.time()
+    get_data()
+    end = time.time()
+    print "世界", end - start
+    # 获取声量助柱形图
+    bracket_platform = join_sql_bracket([platform, ])
+    if platform == 'all':
+        sql_his = sqls.bbv_brand_voice_histogram % (bracket, range_time,)
+        sql_round = sqls.bbv_round_sum_sov % (bracket, range_time)  # 柱形图数据和声量总和计算sov环形图合并在一起
+    else:
+        sql_his = sqls.bbv_platform_brand_voice_histogram % (bracket, bracket_platform, range_time,)
+        sql_round = sqls.bbv_platform_round_sum_sov % (bracket, bracket_platform, range_time)  # 柱形图数据和声量总和计算sov环形图合并在一起
+    data_voice_histogram = DB.search(sql_his, {"category_name": category.name})
+    data_voice_round = DB.get(sql_round, {"category_name": category.name})
+    get_round_sov(data_voice_histogram, data_voice_round)
+
+    # 获取平台声量的条形图
+    if platform == 'all':
+        sql_platform_sum = sqls.bbv_platform_voice_sum_all % (bracket, range_time)  # 平台的声量sum
+        sql_platform_classify = sqls.bbv_platform_voice_all_classify % (bracket, range_time)  # 各个平台的分类声量
+    else:
+        sql_platform_sum = sqls.bbv_platfom_classify_sum % (bracket, bracket_platform, range_time)  # 平台的声量sum
+        sql_platform_classify = sqls.bbv_platfom_classify_count % (bracket, bracket_platform, range_time)  # 各个平台的分类声量
+    data_voice_platform_sum = DB.search(sql_platform_sum, {"category_name": category.name})
+    data_voice_platform_classify = DB.search(sql_platform_classify, {"category_name": category.name})
+    # 获取声量平台来源
+    vioce_platform = dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify)
+
+    # 获取地域的声量 子类下面没有地域的数据
+    if platform == 'all':
+        sql_area_classify = sqls.bbv_area_voice_classify % (bracket, range_time)  # 各个地域的分类声量
+        data_voice_area_classify = DB.search(sql_area_classify, {"category_name": category.name})
+    else:
+        data_voice_area_classify = []
+    if platform == 'all':
+        net_keywords = sqls.bbv_all_keywords % (bracket, range_time)  # 获取全网关键词
+    else:
+        net_keywords = sqls.bbv_platform_keywords_classify % (bracket, bracket_platform, range_time)  # 获取全网关键词
+    # 获取全网关键词
+    net_keywords = DB.search(net_keywords, {"category_name": category.name})
+
+    # 增加 sov趋势 sov环形
+    get_classify_sov(dict_data, dict_sov_classify)
+
+    # 获取内容分布
+    if competitors:
+        sql_radar = sqls.bbv_content_radar % (bracket, range_time)
+        sql_radar_classify = sqls.bbv_content_radar_classify % (bracket, range_time)
+    else:
+        str_brand = join_sql_bracket([brand_name, ])
+        sql_radar = sqls.bbv_platform_content_radar % (str_brand, bracket_platform, range_time)
+        sql_radar_classify = sqls.bbv_platform_content_radar_classify % (str_brand, bracket_platform, range_time)
+    data_radar = DB.search(sql_radar, {"category_name": category.name})
+    data_radar_classify = DB.search(sql_radar_classify, {"category_name": category.name})
+    dispose_content_radar(data_radar, data_radar_classify)
+    return dict_data, data_voice_histogram, vioce_platform, data_voice_area_classify, net_keywords, data_radar_classify
 
 
 # ############################# 活动定位: activity orientation #################################

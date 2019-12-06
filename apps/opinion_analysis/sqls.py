@@ -64,7 +64,7 @@ with e as (
            a.count,
            b.week,
            a.date
-    from vc_saas_area_volume a
+    from vc_saas_platform_volume a
     join dim_date b on a.date = b.date
     where a.brand in %s
       and a.category = {category_name} %s
@@ -400,3 +400,26 @@ select cognition, sum(count) count  from vc_mp_first_level_cognition a
 where brand in %s and category= {category_name} and a.platform in %s %s
 group by  cognition
 """
+
+
+# ====================奶粉社煤微博微信平台=================================
+# 奶粉社煤竞品 微信 微博从sass
+milk_dw_all_compete_voice = """
+select ifnull(sum(count), 0) as voice_all from vc_saas_platform_volume
+where brand in %s
+and cagegory = {category_name} and platform in %s %s;
+"""
+
+# 微薄微信全品类的声量
+milk_platform_classify_voice = """
+select IFNULL(sum(count), 0) as voice_all from vc_saas_platform_volume 
+where cagegory = {category_name} and platform in %s %s;
+"""
+
+# 微薄微信本品类的声量
+self_brand_milk_classify = """
+select IFNULL(sum(count), 0) as voice from vc_saas_platform_volume
+where brand = {brand_name} and cagegory = {category_name} 
+and platform in %s %s
+"""
+
