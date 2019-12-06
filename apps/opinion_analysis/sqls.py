@@ -361,6 +361,12 @@ and category = {category_name} and a.type='bbv'  %s
 group by area  order by count desc ;
 """
 
+bbv_platform_area_voice_classify = """
+select area, sum(count) count from vc_mp_platform_area_volume a where brand in %s
+and category = {category_name} and a.platform in %s  %s
+group by area  order by count desc ;
+"""
+
 # bbv全网关键词获取
 bbv_all_keywords = """
 select keywords, sum(count) as count from vc_mp_keywords_cloud a where
@@ -407,19 +413,19 @@ group by  cognition
 milk_dw_all_compete_voice = """
 select ifnull(sum(count), 0) as voice_all from vc_saas_platform_volume
 where brand in %s
-and cagegory = {category_name} and platform in %s %s;
+and category = {category_name} and platform in %s %s;
 """
 
 # 微薄微信全品类的声量
 milk_platform_classify_voice = """
 select IFNULL(sum(count), 0) as voice_all from vc_saas_platform_volume 
-where cagegory = {category_name} and platform in %s %s;
+where category = {category_name} and platform in %s %s;
 """
 
 # 微薄微信本品类的声量
 self_brand_milk_classify = """
 select IFNULL(sum(count), 0) as voice from vc_saas_platform_volume
-where brand = {brand_name} and cagegory = {category_name} 
+where brand = {brand_name} and category = {category_name} 
 and platform in %s %s
 """
 
