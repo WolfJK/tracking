@@ -268,7 +268,7 @@ class VcMonitorBrand(models.Model):
 
 
 class VcSaasPlatformVolume(models.Model):
-    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    category = models.CharField(max_length=32, help_text="品类名称")
     brand = models.CharField(max_length=32, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台  包括 saas 指定的平台、 其他、全部")
 
@@ -283,7 +283,7 @@ class VcSaasPlatformVolume(models.Model):
 
 
 class VcSaasAreaVolume(models.Model):
-    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    category = models.CharField(max_length=32, help_text="品类名称")
     brand = models.CharField(max_length=32, help_text="品牌名称")
     area = models.CharField(max_length=32, help_text="地域[仅全网]")
 
@@ -298,7 +298,7 @@ class VcSaasAreaVolume(models.Model):
 
 
 class VcMpPlatformAreaVolume(models.Model):
-    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    category = models.CharField(max_length=32, help_text="品类名称")
     brand = models.CharField(max_length=32, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台[bbv+dsm]")
     area = models.CharField(max_length=32, help_text="地域[仅全网]")
@@ -315,7 +315,7 @@ class VcMpPlatformAreaVolume(models.Model):
 
 
 class VcMpKeywordsCloud(models.Model):
-    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    category = models.CharField(max_length=32, help_text="品类名称")
     brand = models.CharField(max_length=32, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台[bbv+dsm]")
     activity_tags = models.CharField(max_length=64, help_text="activity_tags", null=True)
@@ -333,7 +333,7 @@ class VcMpKeywordsCloud(models.Model):
 
 
 class VcMpFirstLevelCognition(models.Model):
-    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    category = models.CharField(max_length=32, help_text="品类名称")
     brand = models.CharField(max_length=32, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台[bbv+dsm]")
     cognition = models.CharField(max_length=64, help_text="认知[认知为一级认知]")
@@ -350,7 +350,7 @@ class VcMpFirstLevelCognition(models.Model):
 
 
 class VcMpCognition(models.Model):
-    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    category = models.CharField(max_length=32, help_text="品类名称")
     brand = models.CharField(max_length=32, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台[bbv+dsm]")
     level1 = models.CharField(max_length=64, help_text="一级认知")
@@ -368,7 +368,7 @@ class VcMpCognition(models.Model):
 
 
 class VcMpConsensusContent(models.Model):
-    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    category = models.CharField(max_length=32, help_text="品类名称")
     brand = models.CharField(max_length=32, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台[深度社媒]")
 
@@ -393,7 +393,7 @@ class VcMpConsensusContent(models.Model):
 
 
 class VcMpActivityContent(models.Model):
-    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    category = models.CharField(max_length=32, help_text="品类名称")
     brand = models.CharField(max_length=32, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台")
     activity_tag = models.CharField(max_length=128, help_text="活动标签[不包含 null]")
@@ -419,7 +419,7 @@ class VcMpActivityContent(models.Model):
 
 
 class VcMpActivityTags(models.Model):
-    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    category = models.CharField(max_length=32, help_text="品类名称")
     brand = models.CharField(max_length=32, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台")
     activity_tag = models.CharField(max_length=128, help_text="活动标签")
@@ -436,7 +436,7 @@ class VcMpActivityTags(models.Model):
 
 
 class VcMpRecommendActivatePeriod(models.Model):
-    cagegory = models.CharField(max_length=32, help_text="品类名称")
+    category = models.CharField(max_length=32, help_text="品类名称")
     brand = models.CharField(max_length=32, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台")
 

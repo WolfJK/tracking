@@ -902,7 +902,7 @@
               "autoIncrement": true
             },
             {
-              "name": "cagegory_id",
+              "name": "category_id",
               "type": "int unsigned",
               "remark": "",
               "chnname": "品类id",
@@ -1007,7 +1007,7 @@
               "autoIncrement": true
             },
             {
-              "name": "cagegory",
+              "name": "category",
               "type": "DefaultString",
               "remark": "",
               "chnname": "品类名称",
@@ -1063,7 +1063,6 @@
               "name": "unique_index",
               "isUnique": true,
               "fields": [
-                "cagegory",
                 "brand",
                 "platform",
                 "date"
@@ -1075,8 +1074,7 @@
               "fields": [
                 "brand",
                 "date",
-                "platform",
-                "cagegory"
+                "platform"
               ]
             }
           ],
@@ -1138,7 +1136,7 @@
               "autoIncrement": true
             },
             {
-              "name": "cagegory",
+              "name": "category",
               "type": "DefaultString",
               "remark": "",
               "chnname": "品类名称",
@@ -1194,7 +1192,6 @@
               "name": "unique_index",
               "isUnique": true,
               "fields": [
-                "cagegory",
                 "brand",
                 "area",
                 "date"
@@ -1206,8 +1203,7 @@
               "fields": [
                 "brand",
                 "date",
-                "area",
-                "cagegory"
+                "area"
               ]
             }
           ],
@@ -1269,7 +1265,7 @@
               "autoIncrement": true
             },
             {
-              "name": "cagegory",
+              "name": "category",
               "type": "DefaultString",
               "remark": "",
               "chnname": "品类名称",
@@ -1325,7 +1321,6 @@
               "name": "unique_index",
               "isUnique": true,
               "fields": [
-                "cagegory",
                 "brand",
                 "platform",
                 "date"
@@ -1337,8 +1332,7 @@
               "fields": [
                 "brand",
                 "date",
-                "platform",
-                "cagegory"
+                "platform"
               ]
             }
           ],
@@ -1400,7 +1394,7 @@
               "autoIncrement": true
             },
             {
-              "name": "cagegory",
+              "name": "category",
               "type": "DefaultString",
               "remark": "",
               "chnname": "品类名称",
@@ -1456,7 +1450,6 @@
               "name": "unique_index",
               "isUnique": true,
               "fields": [
-                "cagegory",
                 "brand",
                 "area",
                 "date"
@@ -1468,8 +1461,7 @@
               "fields": [
                 "brand",
                 "date",
-                "area",
-                "cagegory"
+                "area"
               ]
             }
           ],
@@ -1531,7 +1523,7 @@
               "autoIncrement": true
             },
             {
-              "name": "cagegory",
+              "name": "category",
               "type": "DefaultString",
               "remark": "",
               "chnname": "品类名称",
@@ -1601,7 +1593,6 @@
               "name": "unique_index",
               "isUnique": true,
               "fields": [
-                "cagegory",
                 "brand",
                 "platform",
                 "area",
@@ -1615,7 +1606,6 @@
               "fields": [
                 "brand",
                 "date",
-                "cagegory",
                 "type",
                 "platform",
                 "area"
@@ -1680,7 +1670,7 @@
               "autoIncrement": true
             },
             {
-              "name": "cagegory",
+              "name": "category",
               "type": "DefaultString",
               "remark": "",
               "chnname": "品类名称",
@@ -1705,7 +1695,8 @@
               "type": "LongKey",
               "remark": "",
               "chnname": "活动标签[包含标签为 null]",
-              "notNull": false
+              "notNull": true,
+              "defaultValue": "''"
             },
             {
               "name": "keywords",
@@ -1757,7 +1748,6 @@
               "name": "unique_index",
               "isUnique": true,
               "fields": [
-                "cagegory",
                 "brand",
                 "platform",
                 "activity_tags",
@@ -1772,7 +1762,6 @@
               "fields": [
                 "brand",
                 "date",
-                "cagegory",
                 "platform",
                 "keywords",
                 "activity_tags",
@@ -1838,7 +1827,7 @@
               "autoIncrement": true
             },
             {
-              "name": "cagegory",
+              "name": "category",
               "type": "DefaultString",
               "remark": "",
               "chnname": "品类名称",
@@ -1908,7 +1897,6 @@
               "name": "unique_index",
               "isUnique": true,
               "fields": [
-                "cagegory",
                 "brand",
                 "platform",
                 "cognition",
@@ -1923,7 +1911,6 @@
                 "brand",
                 "date",
                 "platform",
-                "cagegory",
                 "type",
                 "cognition"
               ]
@@ -1987,7 +1974,7 @@
               "autoIncrement": true
             },
             {
-              "name": "cagegory",
+              "name": "category",
               "type": "DefaultString",
               "remark": "",
               "chnname": "品类名称",
@@ -2064,7 +2051,6 @@
               "name": "unique_index",
               "isUnique": true,
               "fields": [
-                "cagegory",
                 "brand",
                 "platform",
                 "level1",
@@ -2080,7 +2066,6 @@
                 "brand",
                 "date",
                 "platform",
-                "cagegory",
                 "level1",
                 "level2"
               ]
@@ -2144,7 +2129,7 @@
               "autoIncrement": true
             },
             {
-              "name": "cagegory",
+              "name": "category",
               "type": "DefaultString",
               "remark": "",
               "chnname": "品类名称",
@@ -2252,7 +2237,6 @@
               "fields": [
                 "brand",
                 "date",
-                "cagegory",
                 "platform",
                 "type"
               ]
@@ -2316,7 +2300,7 @@
               "autoIncrement": true
             },
             {
-              "name": "cagegory",
+              "name": "category",
               "type": "DefaultString",
               "remark": "",
               "chnname": "品类名称",
@@ -2431,7 +2415,6 @@
                 "date",
                 "platform",
                 "activity_tag",
-                "cagegory",
                 "type"
               ]
             }
@@ -2494,7 +2477,7 @@
               "autoIncrement": true
             },
             {
-              "name": "cagegory",
+              "name": "category",
               "type": "DefaultString",
               "remark": "",
               "chnname": "品类名称",
@@ -2564,7 +2547,6 @@
               "name": "unique_index",
               "isUnique": true,
               "fields": [
-                "cagegory",
                 "brand",
                 "platform",
                 "activity_tag",
@@ -2579,7 +2561,6 @@
                 "brand",
                 "date",
                 "platform",
-                "cagegory",
                 "activity_tag",
                 "type"
               ]
@@ -2643,7 +2624,7 @@
               "autoIncrement": true
             },
             {
-              "name": "cagegory",
+              "name": "category",
               "type": "DefaultString",
               "remark": "",
               "chnname": "品类名称",
@@ -2692,7 +2673,6 @@
               "name": "unique_index",
               "isUnique": true,
               "fields": [
-                "cagegory",
                 "brand",
                 "platform",
                 "date"
@@ -2704,8 +2684,7 @@
               "fields": [
                 "brand",
                 "date",
-                "platform",
-                "cagegory"
+                "platform"
               ]
             }
           ],
