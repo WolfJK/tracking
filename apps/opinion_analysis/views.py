@@ -143,7 +143,7 @@ ao_params = [
         ("end_date", "请选择结束时间", "str"),
 ]
 
-activity_tag = ("activity_tag", "", "str")
+activity_tag = [("activity_tag", "", "str")]
 
 
 def ao_activity_tag_list(request):

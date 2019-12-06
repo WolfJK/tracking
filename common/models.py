@@ -318,7 +318,7 @@ class VcMpKeywordsCloud(models.Model):
     category = models.CharField(max_length=32, help_text="品类名称")
     brand = models.CharField(max_length=32, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台[bbv+dsm]")
-    activity_tags = models.CharField(max_length=64, help_text="activity_tags", null=True)
+    activity_tag = models.CharField(max_length=64, help_text="活动名称", null=True)
     keywords = models.CharField(max_length=64, help_text="关键词")
 
     count = models.IntegerField(help_text="词个数")

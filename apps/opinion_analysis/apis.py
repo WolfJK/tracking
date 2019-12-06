@@ -593,21 +593,21 @@ def ao_volume_trend(params):
     '''
     platform = bbv_all_and_date(params)
 
+    # 获取 活动日期 或者 系统推荐活动日期
     if params["activity_tag"] == "":
-        params.pop("activity_tag")
         activity_date = ao_recommend_activate_period(copy.deepcopy(params))
     else:
-        # 获取 活动日期
         activity_date = ao_activity_date(params)
 
+    params.pop("activity_tag")
     if platform in ["微信", "微博"]:
         volume_obj = VcSaasPlatformVolume.objects.filter(**params)
     else:
         volume_obj = VcMpPlatformAreaVolume.objects.filter(**params)
 
-    data = list(volume_obj.values("date").annotate(count=Sum("count")).order_by("-date"))
+    volume_trend = list(volume_obj.values("date").annotate(count=Sum("count")).order_by("date"))
 
-    return list(data=data, activity_date=activity_date)
+    return dict(volume_trend=volume_trend, activity_date=activity_date)
 
 
 def ao_activity_date(params):
@@ -616,7 +616,7 @@ def ao_activity_date(params):
     :param params:
     :return:
     '''
-    activity_tags = list(VcMpActivityTags.objects.filter(**params).values("date").distinct().order_by("-date"))
+    activity_tags = list(VcMpActivityTags.objects.filter(**params).values("date").distinct().order_by("date"))
 
     return activity_tags
 
@@ -657,6 +657,7 @@ def ao_recommend_activate_period(params):
     :return:
     '''
     params.pop("type")
+    params.pop("activity_tag")
     data = list(VcMpRecommendActivatePeriod.objects.filter(**params).values("date").distinct().order_by("date"))
 
     return data
