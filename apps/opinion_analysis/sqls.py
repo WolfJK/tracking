@@ -429,3 +429,33 @@ where brand = {brand_name} and category = {category_name}
 and platform in %s %s
 """
 
+ww_compete_day_month_week_voice = """
+with e as (
+    select a.brand,
+           a.category,
+           b.month,
+           a.count,
+           b.week,
+           a.date
+    from vc_saas_platform_volume a
+    join dim_date b on a.date = b.date
+    where a.brand in %s
+      and a.category = {category_name} and a.platform in %s  %s
+)select brand, %s, sum(count) as count from e group by %s, brand order by brand, %s asc;
+"""
+
+
+ww_area_of_tend_sov = """
+with e as (
+    select a.brand,
+           a.category,
+           b.month,
+           a.count,
+           b.week,
+           a.date
+    from vc_saas_platform_volume a
+    join dim_date b on a.date = b.date
+    where a.brand in %s
+    and a.category = {category_name} and a.platform in %s %s
+)select %s, sum(count) as count from e group by %s order by %s asc;
+"""

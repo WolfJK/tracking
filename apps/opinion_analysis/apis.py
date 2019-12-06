@@ -571,7 +571,9 @@ def get_dsm_milk_analysis(brand_id, date_range, platform):
     industry = DimIndustry.objects.get(id=category.industry_id)
     self_voice, competitors, compete_voice, \
     self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range, platform)
-    get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform)
+    dict_data, data_voice_histogram, data_voice_area_classify, net_keywords, data_radar_classify = get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform)
+    # todo 需要增加官方发帖 用户发帖
+    print  data_voice_area_classify
 
 
 def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform):
@@ -589,19 +591,19 @@ def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform
 
     def get_data():
         if platform in ["微博", "微信"]:
-            sql_day = sqls.compete_day_month_week_voice % (bracket, range_time, "date", "date", "date")
-            sov_day = sqls.area_of_tend_sov % (bracket, range_time, "date", "date", "date")
-            sql_month = sqls.compete_day_month_week_voice % (bracket, range_time, "month", "month", "month")
-            sov_month = sqls.area_of_tend_sov % (bracket, range_time, "month", "month", "month")
-            sql_week = sqls.compete_day_month_week_voice % (bracket, range_time, "week", "week", "week")
-            sov_week = sqls.area_of_tend_sov % (bracket, range_time, "week", "week", "week")
+            sql_day = sqls.ww_compete_day_month_week_voice % (bracket, bracket_platform, range_time, "date", "date", "date")
+            sov_day = sqls.ww_area_of_tend_sov % (bracket, bracket_platform, range_time, "date", "date", "date")
+            sql_month = sqls.ww_compete_day_month_week_voice % (bracket, bracket_platform,  range_time, "month", "month", "month")
+            sov_month = sqls.ww_area_of_tend_sov % (bracket, bracket_platform, range_time, "month", "month", "month")
+            sql_week = sqls.ww_compete_day_month_week_voice % (bracket, bracket_platform, range_time, "week", "week", "week")
+            sov_week = sqls.ww_area_of_tend_sov % (bracket, bracket_platform, range_time, "week", "week", "week")
         else:  # 知乎小红数
-            sql_day = sqls.bbv_platform_compete_day_month_week_voice % (bracket, range_time, "date", "date", "date")
-            sov_day = sqls.bbv_platform_area_of_tend_sov % (bracket, range_time, "date", "date", "date")
-            sql_month = sqls.bbv_platform_compete_day_month_week_voice % (bracket, range_time, "month", "month", "month")
-            sov_month = sqls.bbv_platform_area_of_tend_sov % (bracket, range_time, "month", "month", "month")
-            sql_week = sqls.bbv_platform_compete_day_month_week_voice % (bracket, range_time, "week", "week", "week")
-            sov_week = sqls.bbv_platform_area_of_tend_sov % (bracket, range_time, "week", "week", "week")
+            sql_day = sqls.bbv_platform_compete_day_month_week_voice % (bracket, bracket_platform, range_time, "date", "date", "date")
+            sov_day = sqls.bbv_platform_area_of_tend_sov % (bracket, bracket_platform, range_time,  "date", "date", "date")
+            sql_month = sqls.bbv_platform_compete_day_month_week_voice % (bracket, bracket_platform, range_time, "month", "month", "month")
+            sov_month = sqls.bbv_platform_area_of_tend_sov % (bracket, bracket_platform, range_time, "month", "month", "month")
+            sql_week = sqls.bbv_platform_compete_day_month_week_voice % (bracket, bracket_platform, range_time, "week", "week", "week")
+            sov_week = sqls.bbv_platform_area_of_tend_sov % (bracket, bracket_platform, range_time,  "week", "week", "week")
 
         day_assert = DB.search(sql_day, {"category_name": category.name})
         month_assert = DB.search(sql_month, {"category_name": category.name})
@@ -621,13 +623,9 @@ def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform
 
     brand_name = vcBrand.get("brand_name")
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
-    import time
-    start = time.time()
-    get_data()
-    end = time.time()
-    print "世界", end - start
     # 获取品牌声量助柱形图和sov
     bracket_platform = join_sql_bracket([platform, ])
+    get_data()
     if platform in ["微博", "微信"]:
         sql_his = sqls.brand_voice_histogram % (bracket, range_time,)
         sql_round = sqls.round_sum_sov % (bracket, range_time)  # 声量总和计算sov环形图
