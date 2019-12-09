@@ -213,3 +213,157 @@ delimiter ;
 
 select * from vc_saas_platform_volume_tmp;
 CALL generate_test_data('2019-11-20');
+
+
+-- ------ 4、saas 数据入库 的 存储过程
+DROP PROCEDURE IF EXISTS saas_loading_saas;
+delimiter //
+CREATE PROCEDURE saas_loading_saas (IN date_in varchar(32))
+BEGIN
+
+    -- 1、saas 原始数据 + 全网
+    insert ignore into vc_saas_platform_volume(category, brand, platform, count, date)
+    with base as (
+        select
+        t1.category,
+        t2.name as brand,
+        t1.platform,
+        t1.count,
+        t1.date,
+        case
+            when t1.category = '奶粉' and t1.platform in ('微博', '微信', '新闻', '视频') then 'milk'
+            when t1.category = '咖啡' and t1.platform in ('微博', '微信', '新闻', '视频', '客户端', '论坛') then 'coffee'
+            else 'other'
+        end as saas_type
+        from
+            saas_platform_volume t1
+        inner join
+            dim_brand t2
+        on t1.brand = t2.saas
+        inner join
+            dim_brand_category t3
+        on t2.id = t3.brand_id
+        inner join
+            dim_category t4
+        on t3.category_id = t4.id and t1.category = t4.name
+        where t1.date = date_in
+    ),
+    base1 as (
+        select category, brand, platform, count, date from base where saas_type in ('milk', 'coffee')
+        union all
+        select category, brand, '全网' as platform, sum(count) as count, date from base group by category, brand, date
+    )
+      select * from base1
+      ON DUPLICATE KEY UPDATE count = base1.count;
+
+END;
+//
+delimiter ;
+
+
+
+-- ------ 5、mp 数据入库 的 存储过程
+DROP PROCEDURE IF EXISTS mp_loading_saas;
+delimiter //
+CREATE PROCEDURE mp_loading_saas ()
+BEGIN
+
+    -- 1、saas 奶费 bbv
+    insert ignore into vc_saas_platform_volume(category, brand, platform, count, date)
+    with base as (
+        select
+        category,
+        brand,
+        'bbv' as platform,
+        sum(count) as count,
+        date
+        from
+        vc_mp_platform_area_volume
+        where
+            type = 'bbv'
+        and platform != '其他'
+        group by category, brand, date
+    )
+    select * from base
+    ON DUPLICATE KEY UPDATE count = base.count;
+
+
+    -- 2、saas 其他
+    insert ignore into vc_saas_platform_volume(category, brand, platform, count, date)
+    with base as (
+        select
+            category,
+            brand,
+            sum(
+                case
+                    when category = '奶粉' and platform in ('微博', '微信', '新闻', '视频', 'bbv') then count
+                    when category = '咖啡' and platform in ('微博', '微信', '新闻', '视频', '客户端', '论坛') then count
+                    else 0
+                end
+            ) as count,
+            date
+        from vc_saas_platform_volume
+        where platform in ('微博', '微信', '新闻', '视频', 'bbv', '客户端', '论坛')
+        group by category, brand, date
+    ),
+    base1 as (
+        select
+            category,
+            brand,
+            platform,
+            count,
+            date
+        from vc_saas_platform_volume
+        where platform = '全部'
+    ),
+    base2 as (
+        select
+            base1.category,
+            base1.brand,
+            '其他' as platform,
+            base1.count - base.count as count,
+            base1.date
+        from
+            base1
+        left join
+            base
+        on base1.category = base.category and base1.brand = base.brand and base1.date = base.date
+    )
+    select * from base2
+    ON DUPLICATE KEY UPDATE count = base2.count;
+
+    -- 3、母垂其他
+    insert ignore into vc_mp_platform_area_volume(category, brand, platform, area, count, type, date)
+    with base as (
+        select
+        t1.category,
+        t1.brand,
+        sum(if(t2.visible = 2, t1.count, 0)) as plat_count,
+        sum(t1.count) as all_count,
+        t1.date
+        from
+            vc_mp_platform_area_volume t1
+        inner join
+            dim_platform t2
+        on t1.platform = t2.name
+        where  t1.category = '奶粉'
+        group by category, brand, date
+    ),
+    base1 as (
+        select
+            category,
+            brand,
+            '其他' as platform,
+            '其他' as area,
+            all_count - plat_count as count,
+            'bbv' as type,
+            date
+        from
+            base
+    )
+    select * from base1
+    ON DUPLICATE KEY UPDATE count = base1.count;
+
+END;
+//
+delimiter ;
