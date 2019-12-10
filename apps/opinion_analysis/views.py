@@ -109,7 +109,7 @@ def milk_media_analysis(request):
     platform = request.POST.get("platform")  # 默认全部
     data = apis.get_dsm_milk_analysis(brand_id, date_range, platform)
 
-    return JsonResponse(data={"result": "success"}, safe=False)
+    return JsonResponse(data=data, safe=False)
 
 
 def get_market_pattern(request):

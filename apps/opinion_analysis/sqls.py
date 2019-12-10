@@ -106,6 +106,23 @@ with e as (
 )select sum(count) as count from e;
 """
 
+round_all_brand_sum_sov = """
+with e as (
+    select a.count
+    from vc_saas_platform_volume a
+    where a.category = {category_name}  %s
+)select sum(count) as count from e;
+"""
+
+ww_round_sum_sov = """
+with e as (
+    select a.count
+    from vc_saas_platform_volume a
+    where a.platform in %s
+    and a.category = {category_name}  %s
+)select sum(count) as count from e;
+"""
+
 # 获取分类的年月周的分类数据总和 用于计算sov的趋势图
 area_of_tend_sov = """
 with e as (
@@ -121,6 +138,22 @@ with e as (
     and a.category = {category_name} %s
 )select %s, sum(count) as count from e group by %s order by %s asc;
 """
+
+area_of_all_brand_tend_sov = """
+with e as (
+    select a.brand,
+           a.category,
+           b.month,
+           a.count,
+           b.week,
+           a.date
+    from vc_saas_platform_volume a
+    join dim_date b on a.date = b.date
+    where a.category = {category_name} %s
+)select %s, sum(count) as count from e group by %s order by %s asc;
+"""
+
+
 
 # 获取各个平台总的声量
 platform_voice_sum = """
@@ -261,6 +294,23 @@ with e as (
 )select %s, sum(count) as count from e group by %s order by %s asc;
 """
 
+
+bbv_area_all_brand_of_tend_sov = """
+with e as (
+    select a.brand,
+           a.category,
+           b.month,
+           a.count,
+           b.week,
+           a.date
+    from vc_mp_platform_area_volume a
+    join dim_date b on a.date = b.date
+    where a.category = {category_name}
+    and a.type = 'bbv' %s
+)select %s, sum(count) as count from e group by %s order by %s asc;
+"""
+
+
 bbv_platform_area_of_tend_sov = """
 with e as (
     select a.brand,
@@ -276,6 +326,23 @@ with e as (
     and a.platform in %s %s
 )select %s, sum(count) as count from e group by %s order by %s asc;
 """
+
+bbv_platform_area_all_brand_of_tend_sov = """
+with e as (
+    select a.brand,
+           a.category,
+           b.month,
+           a.count,
+           b.week,
+           a.date
+    from vc_mp_platform_area_volume a
+    join dim_date b on a.date = b.date
+    where  a.category = {category_name}
+    and a.platform in %s %s
+)select %s, sum(count) as count from e group by %s order by %s asc;
+"""
+
+
 
 # all品牌声量条形图
 bbv_brand_voice_histogram = """
@@ -315,6 +382,16 @@ with e as (
 )select sum(count) as count from e;
 """
 
+
+bbv_all_brand_round_sum_sov = """
+with e as (
+    select a.count
+    from vc_mp_platform_area_volume a
+    where a.category = {category_name}
+    and a.type = 'bbv' %s 
+)select sum(count) as count from e;
+"""
+
 bbv_platform_round_sum_sov = """
 with e as (
     select a.count
@@ -324,6 +401,16 @@ with e as (
     and a.platform in %s %s 
 )select sum(count) as count from e;
 """
+
+bbv_platform_all_brand_round_sum_sov = """
+with e as (
+    select a.count
+    from vc_mp_platform_area_volume a
+    where a.category = {category_name}
+    and a.platform in %s %s 
+)select sum(count) as count from e;
+"""
+
 
 # bbv获取各个平台总的声量
 bbv_platform_voice_sum_all = """
@@ -458,4 +545,65 @@ with e as (
     where a.brand in %s
     and a.category = {category_name} and a.platform in %s %s
 )select %s, sum(count) as count from e group by %s order by %s asc;
+"""
+
+ww_area_all_brand_of_tend_sov = """
+with e as (
+    select a.brand,
+           a.category,
+           b.month,
+           a.count,
+           b.week,
+           a.date
+    from vc_saas_platform_volume a
+    join dim_date b on a.date = b.date
+    where  a.category = {category_name} and a.platform in %s %s
+)select %s, sum(count) as count from e group by %s order by %s asc;
+"""
+
+# dsmtop20微博发帖
+dsm_weibo_official_top20 = """
+with e as (
+    select id, sum(ifnull(reviews, 0) + ifnull(retweets, 0) + ifnull(praise_points, 0)) count
+    from vc_mp_consensus_content a
+      where %s
+      and type={type_from}
+      and a.platform ={platform}
+      and a.brand ={brand_name}
+      and a.category={category_name}
+    group by id
+    order by count desc
+    limit 20
+) select b.*,e.count from vc_mp_consensus_content b join e on b.id=e.id order by e.count desc;
+"""
+# 微信
+dsm_weixin_official_top20 = """
+with e as (
+    select id, sum(ifnull(praise_points, 0)) count
+    from vc_mp_consensus_content a
+      where %s
+      and type={type_from}
+      and a.platform ={platform}
+      and a.brand ={brand_name}
+      and a.category={category_name}
+    group by id
+    order by count desc
+    limit 20
+) select b.*,e.count from vc_mp_consensus_content b join e on b.id=e.id order by e.count desc;
+"""
+
+# 小红书
+dsm_redbook_official_top20 = """
+with e as (
+    select id, sum(ifnull(reviews, 0) + ifnull(retweets, 0) + ifnull(praise_points, 0) + ifnull(favorite, 0)) count
+    from vc_mp_consensus_content a
+      where %s
+      and type={type_from}
+      and a.platform ={platform}
+      and a.brand ={brand_name}
+      and a.category={category_name}
+    group by id
+    order by count desc
+    limit 20
+) select b.*,e.count from vc_mp_consensus_content b join e on b.id=e.id order by e.count desc;
 """
