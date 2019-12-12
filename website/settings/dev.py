@@ -41,6 +41,7 @@ SESSION_REDIS = {
     'retry_on_timeout': False
     }
 
+SESSION_COOKIE_AGE = 10 * 60000
 # local special
 #SESSION_EXPIRE_USER = 15 * 60
 USE_CATCHED=False
