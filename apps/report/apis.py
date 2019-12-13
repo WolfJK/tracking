@@ -931,16 +931,19 @@ def read_bgc_kol_excle(file_kol, file_bgc):
         else:
             data_dict.update(kol=list_data)
 
+    def get_file(filename):
+        xl = pandas.ExcelFile(filename)
+        sheets = xl.sheet_names
+        return xl, sheets
+
     if file_kol:
-        xl_kol = pandas.ExcelFile(file_kol)
-        sheets_kol = xl_kol.sheet_names
-        get_data_from_df(sheets_kol, file_kol, flag=2)
+        xl_kol, sheets_kol = get_file(file_kol)
+        get_data_from_df(sheets_kol, xl_kol, flag=2)
     else:
         data_dict.update(kol=list())
     if file_bgc:
-        xl_bgc = pandas.ExcelFile(file_bgc)
-        sheets_bgc = xl_bgc.sheet_names
-        get_data_from_df(sheets_bgc, file_bgc, flag=1)
+        xl_bgc, sheets_bgc = get_file(file_bgc)
+        get_data_from_df(sheets_bgc, xl_bgc, flag=1)
     else:
         data_dict.update(bgc=list())
     return data_dict
