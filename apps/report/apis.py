@@ -882,7 +882,7 @@ def read_url_excle(file_url):
         if not value.lower():
             raise Exception("填写的帖子链接不能为空")
 
-    df1 = pandas.read_excel(file_url, encoding="utf-8", sheet_name=sheets[num])
+    df1 = pandas.read_excel(xl, encoding="utf-8", sheet_name=sheets[num])
     if ("帐号类型(必填)" and "帖子链接(必填)" and "子活动名称(选填)") not in df1.keys():
         raise Exception("请按照模板抬头填写注意抬头是否和模板对应,帐号类型(必填), 帖子链接(必填), 子活动名称(选填)")
     df1 = df1[["帐号类型(必填)", "帖子链接(必填)", "子活动名称(选填)"]]
