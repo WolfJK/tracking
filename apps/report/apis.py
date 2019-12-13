@@ -565,7 +565,7 @@ def report_config_create(param, user, ip):
     # 清楚活动关键字和投放平台 url链接的投放平台是通过链接来判定的
     accounts = param["accounts"]
     if accounts:
-        if accounts.get('url') or accounts.get("bgc") or accounts.get('kol'):
+        if accounts.get('url'):
             accounts.update(type=list())
         else:
             accounts.update(type=param["type"])
