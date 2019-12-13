@@ -203,8 +203,6 @@ def upload_account(request):
     file_kol = request.FILES.get("kol")
     file_url = request.FILES.get("url")
 
-    if not file_bgc and not file_kol and not file_url:
-        raise Exception("没有找到文件")
     if file_url and (file_kol or file_bgc):
         raise Exception("url链接和kol,bgl不能同时上传")
     # data = apis.read_excle(file_obj)

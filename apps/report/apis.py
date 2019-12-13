@@ -879,7 +879,7 @@ def read_url_excle(file_url):
             raise Exception("填写的帐号名必须是BGC或者KOL")
 
     def verify_is_null(value):
-        if not value.lower():
+        if not value:
             raise Exception("填写的帖子链接不能为空")
 
     df1 = pandas.read_excel(xl, encoding="utf-8", sheet_name=sheets[num])
@@ -901,6 +901,10 @@ def read_bgc_kol_excle(file_kol, file_bgc):
     data_dict = dict()
     data_dict.update(url=list())
 
+    def verify_is_null(value):
+        if not value:
+            raise Exception("填写的帐号不能为空")
+
     def get_data_from_df(sheets, file, flag):
         list_data = list()
         for num, value in enumerate(sheets):
@@ -915,6 +919,7 @@ def read_bgc_kol_excle(file_kol, file_bgc):
                 raise Exception("表名称必须含有列所在地, 帐号")
             df1 = df1[["所在地", "帐号"]]
             df1.fillna("", inplace=True)
+            df1["帐号"].apply(verify_is_null)
             if df1.empty:
                 continue
             df1["platform_name"] = value
