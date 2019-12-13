@@ -556,12 +556,23 @@ def report_config_create(param, user, ip):
     param.update(
         user=user,
         tag=json.dumps(param["tag"]),
-        accounts=json.dumps(param["accounts"]),
         platform=json.dumps(return_list),
         competitors=json.dumps(param["competitors"]),
         brand_id=json.dumps(param["brand_id"]),
         sales_points=json.dumps(param["sales_points"]),
     )
+    # 判断帐号类型 # 判断如果选择的是url则清空关键字和投放平台，不启用bgc，kol库
+    # 清楚活动关键字和投放平台 url链接的投放平台是通过链接来判定的
+    accounts = param["accounts"]
+    if accounts:
+        if accounts.get('url') or accounts.get("bgc") or accounts.get('kol'):
+            accounts.update(type=list())
+        else:
+            accounts.update(type=param["type"])
+    else:
+        accounts.update(url=list(), bgc=list(), kol=list(), type=param["type"] )
+    param.pop('type')
+    param.update(accounts=json.dumps(accounts))
 
     report_id = param.pop("report_id")
     reports = Report.objects.filter(name=param["name"], user__corporation=user.corporation, delete=False)

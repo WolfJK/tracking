@@ -61,9 +61,10 @@ def report_config_create(request):
         ("monitor_start_date", "请选择活动检测周期", "str"),
         ("monitor_end_date", "请选择活动检测周期", "str"),
         ("platform", "请选择投放渠道", "list"),
-        ("accounts", "", "list"),
+        ("accounts", "", "dict"),
         ("sales_points", "", "list"),
         ("remark", "", "str"),
+        ("type", "使用帐号类型", "list"),
     ]
 
     if request.user.is_admin:
