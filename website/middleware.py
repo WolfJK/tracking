@@ -31,7 +31,7 @@ class MpMiddleware:
 
     def _build_response_with_needcode(self, msg, code, needcode=0):
         response = JsonResponse(dict(msg=msg, needcode=needcode), safe=False)
-        response.status_code = code
+        response.status_code = code.value
         return response
 
     def _check_skip_all(self, request):
