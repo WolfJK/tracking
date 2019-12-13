@@ -202,15 +202,8 @@ def whole_net_analysis(brand_id, date_range):
     vcBrand.update(area_voice=area_voice)
     vcBrand.update(net_keywords=net_keywords)
     vcBrand.update(data_radar_classify=data_radar_classify)
-    # todo 环比
-    sov_previous = get_all_sov(self_voice_previous, compete_voice_previous)
-    try:
-        link_relative = round((float(self_voice)-float(self_voice_previous) )/ float(self_voice_previous) * 100, 2)
-        link_relative_sov = round((float(sov)-float(sov_previous) )/ float(sov_previous) * 100, 2)
-    except Exception:
-        link_relative = 0
-        link_relative_sov = 0
-    vcBrand.update(link_relative={"link_relative": link_relative, "link_relative_sov": link_relative_sov})
+    # 环比
+    link_relative(vcBrand, self_voice, sov, self_voice_previous, compete_voice_previous)
     return vcBrand
 
 
@@ -535,11 +528,7 @@ def get_bbv_analysis(brand_id, date_range, platform):
     vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
-    if platform:
-        self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range, type=platform)
-    else:  # 全网
-        self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous =get_card_voice_sov(vcBrand, category, date_range, type='all')
-
+    self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range, type=platform)
     data_assert, data_voice_histogram, vioce_platform, area_voice, net_keywords, data_radar_classify = get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform)
 
     sov = get_all_sov(self_voice, compete_voice)
@@ -555,15 +544,8 @@ def get_bbv_analysis(brand_id, date_range, platform):
     vcBrand.update(area_voice=area_voice)
     vcBrand.update(net_keywords=net_keywords)
     vcBrand.update(data_radar_classify=data_radar_classify)
-    # todo 环比
-    sov_previous = get_all_sov(self_voice_previous, compete_voice_previous)
-    try:
-        link_relative = round((float(self_voice) - float(self_voice_previous)) / float(self_voice_previous) * 100, 2)
-        link_relative_sov = round((float(sov) - float(sov_previous)) / float(sov_previous) * 100, 2)
-    except Exception:
-        link_relative = 0
-        link_relative_sov = 0
-    vcBrand.update(link_relative={"link_relative": link_relative, "link_relative_sov": link_relative_sov})
+    # 环比
+    link_relative(vcBrand, self_voice, sov, self_voice_previous, compete_voice_previous)
     return vcBrand
 
 
@@ -596,13 +578,11 @@ def get_dsm_milk_analysis(brand_id, date_range, platform):
     vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
-    self_voice, competitors, compete_voice, \
-    self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range, platform)
+    self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range, platform)
     data_assert, data_voice_histogram, data_voice_area_classify, net_keywords, data_radar_classify = get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform)
-    # todo 需要增加官方发帖 用户发帖
-
-    offcial_posts = get_top_20_offical_posts(vcBrand, platform, date_range, category) #官方发帖
-    user_posts = get_top_20_user_posts(vcBrand, platform, date_range, category) # 用户发帖
+    #  需要增加官方发帖 用户发帖
+    offcial_posts = get_top_20_offical_posts(vcBrand, platform, date_range, category)  # 官方发帖
+    user_posts = get_top_20_user_posts(vcBrand, platform, date_range, category)  # 用户发帖
 
     sov = get_all_sov(self_voice, compete_voice)
     vcBrand.update(competitor=competitors)
@@ -618,7 +598,18 @@ def get_dsm_milk_analysis(brand_id, date_range, platform):
     vcBrand.update(data_radar_classify=data_radar_classify)
     vcBrand.update(offcial_posts=offcial_posts)
     vcBrand.update(user_posts=user_posts)
-    # todo 环比
+    # 环比
+    link_relative(vcBrand, self_voice, sov, self_voice_previous, compete_voice_previous)
+    # top5 玉珏图
+    if category.name == "咖啡":
+        top5, top3 = randar_patter_map(vcBrand, platform, date_range, category)
+        vcBrand.update(top5=top5)
+        vcBrand.update(top3=top3)
+
+    return vcBrand
+
+
+def link_relative(vcBrand, self_voice, sov, self_voice_previous, compete_voice_previous):
     sov_previous = get_all_sov(self_voice_previous, compete_voice_previous)
     try:
         link_relative = round((float(self_voice) - float(self_voice_previous)) / float(self_voice_previous) * 100, 2)
@@ -627,12 +618,6 @@ def get_dsm_milk_analysis(brand_id, date_range, platform):
         link_relative = 0
         link_relative_sov = 0
     vcBrand.update(link_relative={"link_relative": link_relative, "link_relative_sov": link_relative_sov})
-
-    # top5 玉珏图
-    if category.name == "咖啡":
-        top5, top3 = randar_patter_map(vcBrand, platform, date_range, category)
-        vcBrand.update(top5=top5)
-        vcBrand.update(top3=top3)
 
     return vcBrand
 
