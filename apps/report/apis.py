@@ -887,7 +887,7 @@ def read_url_excle(file_url):
         raise Exception("请按照模板抬头填写注意抬头是否和模板对应,帐号类型(必填), 帖子链接(必填), 子活动名称(选填)")
     df1 = df1[["帐号类型(必填)", "帖子链接(必填)", "子活动名称(选填)"]]
     df1.fillna("", inplace=True)
-    df1["帐号类型(必填)"].apply(verify_account)
+    df1["帐号类型(必填)"].apply(verify_is_null)
     df1["帖子链接(必填)"].apply(verify_is_null)
 
     dict_dfs = df1.to_dict("records")
