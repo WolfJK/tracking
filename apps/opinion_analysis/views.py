@@ -95,7 +95,13 @@ def coffee_media_analysis(request):
     :param request:
     :return:
     '''
-    return JsonResponse(data={"result": "success"}, safe=False)
+
+    brand_id = request.POST.get("brand_id")
+    date_range = request.POST.get("date_range")  # list格式
+    platform = request.POST.get("platform")  # 默认全部
+    data = apis.get_dsm_milk_analysis(brand_id, date_range, platform)
+
+    return JsonResponse(data=data, safe=False)
 
 
 def milk_media_analysis(request):

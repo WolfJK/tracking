@@ -12,6 +12,8 @@ from django.db.models import Q, F, Sum, Value
 from django.db import models
 import copy
 from dateutil.relativedelta import relativedelta
+from itertools import groupby
+from operator import itemgetter
 
 
 def add_monitor_brand(monitor_id, category, brand, time_slot, competitor):
@@ -625,6 +627,13 @@ def get_dsm_milk_analysis(brand_id, date_range, platform):
         link_relative = 0
         link_relative_sov = 0
     vcBrand.update(link_relative={"link_relative": link_relative, "link_relative_sov": link_relative_sov})
+
+    # top5 玉珏图
+    if category.name == "咖啡":
+        top5, top3 = randar_patter_map(vcBrand, platform, date_range, category)
+        vcBrand.update(top5=top5)
+        vcBrand.update(top3=top3)
+
     return vcBrand
 
 
@@ -780,6 +789,51 @@ def get_top_20_user_posts(vcBrand, platform, date_range, category):
 
     return users_posts
 
+
+def randar_patter_map(vcBrand, platform, date_range, category):
+    """
+     雷达组合图 获取条形加玉珏图 页面展示咖啡的微博加小红书
+    品牌 购买行为 感官 取出top5 没有玉珏图
+    使用场景 产品属性 取出top3 加上玉珏图
+    top5和top3分别计算返回
+    :return:
+    """
+    dict_data = dict()
+    dict_scene_property = {}
+    if platform in ["微博", '小红书']:
+        range_time = " and date between '{}' and '{}' ".format(date_range[0], date_range[1])
+        # range_time = " and date between '{}' and '{}' ".format('2018-01-01', '2019-12-30')
+        brand_name = vcBrand.get("brand_name")
+        sql_second_top5 = sqls.randar_patter_map%(range_time)
+        data_second_top5 = DB.search(sql_second_top5, {"brand_name": brand_name, "category_name": category.name, "platform": platform})
+        # data_second_top5 = DB.search(sql_second_top5, {"brand_name": brand_name, "category_name": '奶粉', "platform": platform})
+        level2 = []
+        data_second_top5.sort(key=itemgetter('level1'))
+        for level1, items in groupby(data_second_top5, key=itemgetter('level1')):
+            if level1 in ['使用场景', '产品属性']:
+                list_level2 = [i.get('level2') for i in items][:3]
+                level2.extend(list_level2)
+            else:  # 取出top3
+                dict_data.update({level1: [i.get('level2') for i in items]})
+        if level2:  # # 获取使用场景 产品属性的3级认知的全部的言论数计算玉珏图
+            level2_bracket = join_sql_bracket(level2)
+            sql = sqls.region_three_for_randar%(level2_bracket, range_time)
+            data_three_region = DB.search(sql, {"brand_name": brand_name, "category_name": category.name, "platform": platform})
+            # data_three_region = DB.search(sql, {"brand_name": brand_name, "category_name": "奶粉", "platform": platform})
+            data_three_region.sort(key=itemgetter('level1'))
+            for level1, items in groupby(data_three_region, key=itemgetter('level1')):
+                for i in items:
+                    if level1 not in dict_scene_property:
+                        dict_scene_property.update({level1: {i.get('level2'): [[i.get('level3'), i.get('count')]]}})
+                    else:
+                        two_region = dict_scene_property.get(level1)
+                        level2 = i.get('level2')
+                        if level2 not in two_region:
+                            two_region.update({level2: [[i.get('level3'), i.get('count')]]})
+                        else:
+                            two_region.get(level2).append([i.get('level3'), i.get('count')])
+
+    return dict_data, dict_scene_property
 
 
 

@@ -607,3 +607,41 @@ with e as (
     limit 20
 ) select b.*,e.count from vc_mp_consensus_content b join e on b.id=e.id order by e.count desc;
 """
+
+
+# 玉珏图统一取出的二级认知的top5
+randar_patter_map = """
+with t as (
+    select level1, 
+           level2, 
+           count, 
+           ROW_NUMBER() OVER(PARTITION BY level1 ORDER BY count DESC) as rn
+    from (select level1, level2,
+          sum(count) count
+          from vc_mp_cognition
+          where brand = {brand_name}
+          and category = {category_name}
+          and platform = {platform} %s
+          group by level1, level2) e
+) select * from t where rn<=5;
+"""
+
+# 三级认知的计算玉珏图
+region_three_for_randar = """
+with e as (
+select
+       level1,
+       level2,
+       level3,
+       sum(sum(count)) over(partition by level1, level2) count1,
+       sum(sum(count)) over(partition by level1, level2, level3) count2
+from vc_mp_cognition
+where brand = {brand_name}
+and category = {category_name}
+and platform = {platform}
+and level1 in ('产品属性', '使用场景')
+and level2 in %s %s
+group by level1, level2, level3) select level1, level2, level3, count2/count1*100 as count from e 
+"""
+
+
