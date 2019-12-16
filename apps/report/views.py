@@ -60,11 +60,11 @@ def report_config_create(request):
         ("tag", "", "list"),
         ("monitor_start_date", "请选择活动检测周期", "str"),
         ("monitor_end_date", "请选择活动检测周期", "str"),
-        ("platform", "请选择投放渠道", "list"),
+        ("platform", "", "list"),
         ("accounts", "", "dict"),
         ("sales_points", "", "list"),
         ("remark", "", "str"),
-        ("type", "使用帐号类型", "list"),
+        ("type", "", "list"),
     ]
 
     if request.user.is_admin:
@@ -72,9 +72,11 @@ def report_config_create(request):
 
     ip = apps_apis.get_ip(request)
     param = apps_apis.get_parameter(request.POST, params)
-    # 这里判断标签
+    # 这里判断标签  请选择投放渠道
     if not param['accounts'].get("url") and not param['tag']:
         raise Exception("请输入标签")
+    if not param['accounts'].get("url") and not param['platform']:
+        raise Exception("请选择投放渠道")
     diff_date = (apps_apis.str2date(param["monitor_end_date"]) - apps_apis.str2date(param["monitor_start_date"])).days + 1
     if diff_date < 1 or diff_date > 90:
         raise Exception("请选择正确的检测周期")
