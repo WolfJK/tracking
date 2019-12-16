@@ -107,6 +107,7 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
 
     competitors = json.loads(vcBrand.get("competitor"))
     list_compete = list()
+    bracket_platform = join_sql_bracket([type, ])
     if competitors:  # 有竞品
         for competitor in competitors:
             list_compete.append(competitor.get("name"))
@@ -120,13 +121,11 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
             sql = sqls.monitor_data_bbv_all_compete_voice % (bracket, range_time)  # 获取当前
             sql_previous = sqls.monitor_data_bbv_all_compete_voice % (bracket, range_time_previous)  # 获取上个阶段
         elif type in ["微博", "微信"]:  # 微博微信的平台声量是从sass取出来
-            bracket_platform = join_sql_bracket([type, ])
             sql = sqls.milk_dw_all_compete_voice % (bracket, bracket_platform, range_time)  # 获取当前
             sql_previous = sqls.milk_dw_all_compete_voice % (bracket, bracket_platform, range_time_previous)  # 获取上个阶段
 
         else:
             # 各个平台的, 包括深度社煤和深度bbv的所有子集
-            bracket_platform = join_sql_bracket([type, ])
             sql = sqls.monitor_data_classify_compete_voice % (bracket, bracket_platform,  range_time)  # 获取当前
             sql_previous = sqls.monitor_data_classify_compete_voice % (bracket, bracket_platform, range_time_previous)  # 获取上个阶段
         voice = DB.get(sql, {"category_name": category.name})  # 获取竞品声量
@@ -339,20 +338,37 @@ def get_data(bracket, competitors, range_time, category, platform='net'):
 
 def get_data_voice_histogram(bracket, range_time, category, competitors, platform='net'):
     """
-    获取声量柱形图和sov环形图的总数
+    获取声量柱形图和sov环形图的总数和每个平台的声量
     """
+    bracket_platform = join_sql_bracket([platform, ])
     if platform == 'net':
         sql_his = sqls.brand_voice_histogram % (bracket, range_time,)
     elif platform == 'all':
         sql_his = sqls.bbv_brand_voice_histogram % (bracket, range_time,)
-        pass
+    elif platform in ["微博", "微信"]:
+        sql_his = sqls.brand_ww_voice_histogram % (bracket, bracket_platform, range_time,)
+    else:
+        sql_his = sqls.bbv_platform_brand_voice_histogram % (bracket, bracket_platform, range_time,)
     # 有竞争产品的时候(环形图的总数是竞争产品的全部声量 全品类的时候环形图的总数是全部的声量其余的剩下的用其他来表示)
     if competitors:
         if platform == 'net':
             sql_round = sqls.round_sum_sov % (bracket, range_time)  # 声量总和计算sov环形图
+        elif platform == 'all':
+            sql_round = sqls.bbv_round_sum_sov % (bracket, range_time)  # 柱形图数据和声量总和计算sov环形图合并在一起
+        elif platform in ["微博", "微信"]:
+            sql_round = sqls.round_ww_sum_sov % (bracket, bracket_platform, range_time)
+        else:
+            sql_round = sqls.bbv_platform_round_sum_sov % (bracket, bracket_platform, range_time)
     else:
         if platform == 'net':
             sql_round = sqls.round_all_brand_sum_sov % (range_time)  # 声量总和计算sov环形图
+        elif platform == 'all':
+            sql_round = sqls.bbv_all_brand_round_sum_sov % (range_time)
+        elif platform in ["微博", "微信"]:
+            sql_round = sqls.ww_round_sum_sov % (bracket_platform, range_time)
+        else:
+            sql_round = sqls.bbv_platform_all_brand_round_sum_sov % (bracket_platform, range_time)
+
     data_voice_histogram = DB.search(sql_his, {"category_name": category.name})
     data_voice_round = DB.get(sql_round, {"category_name": category.name})
 
@@ -471,21 +487,7 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
     dict_data, dict_sov_classify = get_data(bracket, competitors, range_time, category, platform)
     # 获取声量助柱形图
     bracket_platform = join_sql_bracket([platform, ])
-    if platform == 'all':
-        sql_his = sqls.bbv_brand_voice_histogram%(bracket, range_time,)
-        if competitors:
-            sql_round = sqls.bbv_round_sum_sov % (bracket, range_time)  # 柱形图数据和声量总和计算sov环形图合并在一起
-        else:
-            sql_round = sqls.bbv_all_brand_round_sum_sov % (range_time)  # 柱形图数据和声量总和计算sov环形图合并在一起
-    else:
-        sql_his = sqls.bbv_platform_brand_voice_histogram % (bracket, bracket_platform, range_time,)
-        if competitors:
-            sql_round = sqls.bbv_platform_round_sum_sov % (bracket, bracket_platform, range_time)  # 柱形图数据和声量总和计算sov环形图合并在一起
-        else:
-            sql_round = sqls.bbv_platform_all_brand_round_sum_sov % (bracket_platform, range_time)
-
-    data_voice_histogram = DB.search(sql_his, {"category_name": category.name})
-    data_voice_round = DB.get(sql_round, {"category_name": category.name})
+    data_voice_histogram, data_voice_round = get_data_voice_histogram(bracket, range_time, category, competitors, platform)
     get_round_sov(data_voice_histogram, data_voice_round)
 
     # 获取平台声量的条形图
@@ -633,27 +635,15 @@ def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform
 
     brand_name = vcBrand.get("brand_name")
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
-    # 获取品牌声量助柱形图和sov
+
     bracket_platform = join_sql_bracket([platform, ])
+    # 获取日周月数据
     dict_data, dict_sov_classify = get_data(bracket, competitors, range_time, category, platform)
-    if platform in ["微博", "微信"]:
-        sql_his = sqls.brand_voice_histogram % (bracket, range_time,)
-        if competitors:
-            sql_round = sqls.round_sum_sov % (bracket, range_time)  # 声量总和计算sov环形图
-        else:
-            sql_round = sqls.ww_round_sum_sov % (bracket_platform, range_time)  # 声量总和计算全品类是全品牌的总数sov环形图
-    else:
-        sql_his = sqls.bbv_platform_brand_voice_histogram % (bracket, bracket_platform, range_time,)
-        if competitors:
-            sql_round = sqls.bbv_platform_round_sum_sov % (bracket, bracket_platform, range_time)  # 柱形图数据和声量总和计算sov环形图合并在一起
-        else:
-            sql_round = sqls.bbv_platform_all_brand_round_sum_sov % (bracket_platform, range_time)
-    data_voice_histogram = DB.search(sql_his, {"category_name": category.name})
-    data_voice_round = DB.get(sql_round, {"category_name": category.name})
-    # sov环形
+    # sov环形 和 品牌声量的条形图
+    data_voice_histogram, data_voice_round = get_data_voice_histogram(bracket, range_time, category, competitors, platform)
     get_round_sov(data_voice_histogram, data_voice_round)
 
-    # 获取平台声量的条形图  子类是没有声量平台来源的条形图的
+    # 获取声量平台的条形图  子类是没有声量平台来源的条形图的
 
     # 获取地域的声量 地域声量微薄微信和小红书还有知乎的来源是一样的
     sql_area_classify = sqls.bbv_platform_area_voice_classify % (bracket, bracket_platform, range_time)  # 各个地域的分类声量

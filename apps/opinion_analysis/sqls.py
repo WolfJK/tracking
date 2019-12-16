@@ -96,6 +96,20 @@ with e as (
 )select brand, sum(count) as count from e  group by brand order by count desc;
 """
 
+brand_ww_voice_histogram = """
+with e as (
+    select a.brand,
+           a.category,
+           a.count,
+           a.date
+    from vc_saas_platform_volume a
+    where a.brand in %s
+    and a.platform in %s 
+    and a.category = {category_name}  %s
+)select brand, sum(count) as count from e  group by brand order by count desc;
+"""
+
+
 # 单前所选时间段的各品牌的总和用于计算环形图sov
 round_sum_sov = """
 with e as (
@@ -105,6 +119,17 @@ with e as (
     and a.category = {category_name}  %s
 )select sum(count) as count from e;
 """
+
+round_ww_sum_sov = """
+with e as (
+    select a.count
+    from vc_saas_platform_volume a
+    where a.brand in %s
+    and a.platform in %s 
+    and a.category = {category_name}  %s
+)select sum(count) as count from e;
+"""
+
 
 round_all_brand_sum_sov = """
 with e as (
