@@ -45,8 +45,10 @@ select IFNULL(sum(count), 0) as voice_all from vc_saas_platform_volume where cat
 
 # 声量的趋势数据
 all_data_card_voice_assert = """
-select count, date from vc_saas_platform_volume where brand={brand_name} and category={category_name}
-order by date limit %s;
+select brand, date, sum(count) count from vc_saas_platform_volume 
+where brand={brand_name} and category={category_name} %s
+group by date, brand
+order by date;
 """
 
 # 按照id获取某一个品牌的name

@@ -70,20 +70,25 @@ def get_all_monitor_card_data(category_id):
         date2 = (datetime.now() - relativedelta(days=time_slot)).strftime("%Y-%m-%d")
         date_range = [date2, date1]
         vcBrand.update(date_range=date_range)
+        range_time = " and date between '{}' and '{}' ".format(date_range[0], date_range[1])
+
         self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range)
         brand_name = vcBrand.get("brand_name")
-        data_sql = sqls.all_data_card_voice_assert %(time_slot)
+        data_sql = sqls.all_data_card_voice_assert %(range_time)
         data_assert = DB.search(data_sql, {"brand_name": brand_name, "category_name": category.name})  # 所有当前品牌的日期数据
-        vcBrand.update(competitor=competitors)
-        vcBrand.update(data_assert=data_assert)
-        vcBrand.update(self_voice=self_voice)
-        vcBrand.update(category_name=category.name)
-        vcBrand.update(industry_name=industry.name)
-        vcBrand.update(compete_voice=compete_voice)
         sov = get_all_sov(self_voice, compete_voice)
-        vcBrand.update(sov=sov)
-
+        append_vc_brand(vcBrand, competitors, data_assert, self_voice, category, industry, compete_voice, sov)
     return vcBrands
+
+
+def append_vc_brand(vcBrand, competitors, data_assert, self_voice, category, industry, compete_voice, sov):
+    vcBrand.update(competitor=competitors)
+    vcBrand.update(data_assert=data_assert)
+    vcBrand.update(self_voice=self_voice)
+    vcBrand.update(category_name=category.name)
+    vcBrand.update(industry_name=industry.name)
+    vcBrand.update(compete_voice=compete_voice)
+    vcBrand.update(sov=sov)
 
 
 def get_card_voice_sov(vcBrand, category, date_range, type="net"):
@@ -123,7 +128,6 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
         elif type in ["微博", "微信"]:  # 微博微信的平台声量是从sass取出来
             sql = sqls.milk_dw_all_compete_voice % (bracket, bracket_platform, range_time)  # 获取当前
             sql_previous = sqls.milk_dw_all_compete_voice % (bracket, bracket_platform, range_time_previous)  # 获取上个阶段
-
         else:
             # 各个平台的, 包括深度社煤和深度bbv的所有子集
             sql = sqls.monitor_data_classify_compete_voice % (bracket, bracket_platform,  range_time)  # 获取当前
@@ -188,13 +192,7 @@ def whole_net_analysis(brand_id, date_range):
     self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range)
     data_assert, data_voice_histogram, vioce_platform, area_voice, net_keywords, data_radar_classify = get_net_day_month_week_analysis(vcBrand, category, date_range)
     sov = get_all_sov(self_voice, compete_voice)
-    vcBrand.update(competitor=competitors)
-    vcBrand.update(self_voice=self_voice)
-    vcBrand.update(category_name=category.name)
-    vcBrand.update(industry_name=industry.name)
-    vcBrand.update(compete_voice=compete_voice)
-    vcBrand.update(data_assert=data_assert)
-    vcBrand.update(sov=sov)
+    append_vc_brand(vcBrand, competitors, data_assert, self_voice, category, industry, compete_voice, sov)
     vcBrand.update(data_voice_histogram=data_voice_histogram)
     vcBrand.update(vioce_platform=vioce_platform)
     vcBrand.update(area_voice=area_voice)
@@ -383,14 +381,6 @@ def get_net_day_month_week_analysis(vcBrand, category, date_range):
 
     # 获取声量助柱形图
     data_voice_histogram, data_voice_round = get_data_voice_histogram(bracket, range_time, category, competitors)
-    # sql_his = sqls.brand_voice_histogram%(bracket, range_time,)
-    # # 有竞争产品的时候(环形图的总数是竞争产品的全部声量 全品类的时候环形图的总数是全部的声量其余的剩下的用其他来表示)
-    # if competitors:
-    #     sql_round = sqls.round_sum_sov%(bracket, range_time)  # 声量总和计算sov环形图
-    # else:
-    #     sql_round = sqls.round_all_brand_sum_sov % (range_time)  # 声量总和计算sov环形图
-    # data_voice_histogram = DB.search(sql_his, {"category_name": category.name})
-    # data_voice_round = DB.get(sql_round, {"category_name": category.name})
 
     sql_platform_sum = sqls.platform_voice_sum%(bracket, range_time) # 平台的声量sum
     sql_platform_classify = sqls.platfom_classify_count%(bracket, range_time)  # 各个平台的分类声量
@@ -539,15 +529,8 @@ def get_bbv_analysis(brand_id, date_range, platform):
     industry = DimIndustry.objects.get(id=category.industry_id)
     self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range, type=platform)
     data_assert, data_voice_histogram, vioce_platform, area_voice, net_keywords, data_radar_classify = get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform)
-
     sov = get_all_sov(self_voice, compete_voice)
-    vcBrand.update(competitor=competitors)
-    vcBrand.update(self_voice=self_voice)
-    vcBrand.update(category_name=category.name)
-    vcBrand.update(industry_name=industry.name)
-    vcBrand.update(compete_voice=compete_voice)
-    vcBrand.update(data_assert=data_assert)
-    vcBrand.update(sov=sov)
+    append_vc_brand(vcBrand, competitors, data_assert, self_voice, category, industry, compete_voice, sov)
     vcBrand.update(data_voice_histogram=data_voice_histogram)
     vcBrand.update(vioce_platform=vioce_platform)
     vcBrand.update(area_voice=area_voice)
@@ -594,13 +577,7 @@ def get_dsm_milk_analysis(brand_id, date_range, platform):
     user_posts = get_top_20_user_posts(vcBrand, platform, date_range, category)  # 用户发帖
 
     sov = get_all_sov(self_voice, compete_voice)
-    vcBrand.update(competitor=competitors)
-    vcBrand.update(self_voice=self_voice)
-    vcBrand.update(category_name=category.name)
-    vcBrand.update(industry_name=industry.name)
-    vcBrand.update(compete_voice=compete_voice)
-    vcBrand.update(data_assert=data_assert)
-    vcBrand.update(sov=sov)
+    append_vc_brand(vcBrand, competitors, data_assert, self_voice, category, industry, compete_voice, sov)
     vcBrand.update(data_voice_histogram=data_voice_histogram)
     vcBrand.update(area_voice=data_voice_area_classify)
     vcBrand.update(net_keywords=net_keywords)
