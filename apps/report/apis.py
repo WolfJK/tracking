@@ -143,9 +143,10 @@ def formatted_report(reports):
         report.update(tag=json.loads(report.get("tag")))
         report.update(accounts=json.loads(report.get("accounts")))
         report.update(competitors=json.loads(report.get("competitors")))
-        report.update(brand_id=json.loads(report.get("brand_id")))
-
-        brand_name = report["brand_id"][-1]["name"]
+        brand_list = json.loads(report.get("brand_id"))
+        brand_id = brand_list[-1].split("_")[0]
+        brand_name = brand_list[-1].split("_")[1]
+        report.update(brand_id=brand_id)
         report.update(brand_name=brand_name)
         report.update(industry_name=DimIndustry.objects.get(id=report.get("industry_id")).name)
         report.update(category_name=DimCategory.objects.get(id=report.get("category_id")).name)
