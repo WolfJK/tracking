@@ -55,7 +55,7 @@ class DimBrand(models.Model):
     name = models.CharField(max_length=32, help_text="品牌名称")
     keyword = models.CharField(max_length=512, help_text="抓取关键词")
     parent = models.ForeignKey("DimBrand", help_text="父品牌", on_delete=models.DO_NOTHING, null=True)
-    saas = models.CharField(max_length=32, help_text="saas 品牌名", null=True)
+    saas = models.CharField(max_length=128, help_text="saas 品牌名", null=True)
 
     class Meta:
         db_table = "dim_brand"
@@ -269,7 +269,7 @@ class VcMonitorBrand(models.Model):
 
 class VcSaasPlatformVolume(models.Model):
     category = models.CharField(max_length=32, help_text="品类名称")
-    brand = models.CharField(max_length=32, help_text="品牌名称")
+    brand = models.CharField(max_length=64, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台  包括 saas 指定的平台、 其他、全部")
 
     count = models.IntegerField(help_text="声量")
@@ -284,7 +284,7 @@ class VcSaasPlatformVolume(models.Model):
 
 class VcSaasAreaVolume(models.Model):
     category = models.CharField(max_length=32, help_text="品类名称")
-    brand = models.CharField(max_length=32, help_text="品牌名称")
+    brand = models.CharField(max_length=64, help_text="品牌名称")
     area = models.CharField(max_length=32, help_text="地域[仅全网]")
 
     count = models.IntegerField(help_text="声量")
@@ -299,7 +299,7 @@ class VcSaasAreaVolume(models.Model):
 
 class VcMpPlatformAreaVolume(models.Model):
     category = models.CharField(max_length=32, help_text="品类名称")
-    brand = models.CharField(max_length=32, help_text="品牌名称")
+    brand = models.CharField(max_length=64, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台[bbv+dsm]")
     area = models.CharField(max_length=32, help_text="地域[仅全网]")
 
@@ -316,7 +316,7 @@ class VcMpPlatformAreaVolume(models.Model):
 
 class VcMpKeywordsCloud(models.Model):
     category = models.CharField(max_length=32, help_text="品类名称")
-    brand = models.CharField(max_length=32, help_text="品牌名称")
+    brand = models.CharField(max_length=64, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台[bbv+dsm]")
     activity_tag = models.CharField(max_length=64, help_text="活动名称", null=True)
     keywords = models.CharField(max_length=64, help_text="关键词")
@@ -334,7 +334,7 @@ class VcMpKeywordsCloud(models.Model):
 
 class VcMpFirstLevelCognition(models.Model):
     category = models.CharField(max_length=32, help_text="品类名称")
-    brand = models.CharField(max_length=32, help_text="品牌名称")
+    brand = models.CharField(max_length=64, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台[bbv+dsm]")
     cognition = models.CharField(max_length=64, help_text="认知[认知为一级认知]")
     count = models.IntegerField(help_text="词个数")
@@ -351,7 +351,7 @@ class VcMpFirstLevelCognition(models.Model):
 
 class VcMpCognition(models.Model):
     category = models.CharField(max_length=32, help_text="品类名称")
-    brand = models.CharField(max_length=32, help_text="品牌名称")
+    brand = models.CharField(max_length=64, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台[bbv+dsm]")
     level1 = models.CharField(max_length=64, help_text="一级认知")
     level2 = models.CharField(max_length=64, help_text="二级认知")
@@ -369,7 +369,7 @@ class VcMpCognition(models.Model):
 
 class VcMpConsensusContent(models.Model):
     category = models.CharField(max_length=32, help_text="品类名称")
-    brand = models.CharField(max_length=32, help_text="品牌名称")
+    brand = models.CharField(max_length=64, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台[深度社媒]")
 
     account = models.CharField(max_length=64, help_text="账号", null=True)
@@ -394,7 +394,7 @@ class VcMpConsensusContent(models.Model):
 
 class VcMpActivityContent(models.Model):
     category = models.CharField(max_length=32, help_text="品类名称")
-    brand = models.CharField(max_length=32, help_text="品牌名称")
+    brand = models.CharField(max_length=64, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台")
     activity_tag = models.CharField(max_length=128, help_text="活动标签[不包含 null]")
 
@@ -420,7 +420,7 @@ class VcMpActivityContent(models.Model):
 
 class VcMpActivityTags(models.Model):
     category = models.CharField(max_length=32, help_text="品类名称")
-    brand = models.CharField(max_length=32, help_text="品牌名称")
+    brand = models.CharField(max_length=64, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台")
     activity_tag = models.CharField(max_length=128, help_text="活动标签")
 
@@ -437,7 +437,7 @@ class VcMpActivityTags(models.Model):
 
 class VcMpRecommendActivatePeriod(models.Model):
     category = models.CharField(max_length=32, help_text="品类名称")
-    brand = models.CharField(max_length=32, help_text="品牌名称")
+    brand = models.CharField(max_length=64, help_text="品牌名称")
     platform = models.CharField(max_length=32, help_text="平台")
 
     date = models.DateField(help_text="活动日期")

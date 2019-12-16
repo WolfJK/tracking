@@ -1,0 +1,3278 @@
+{
+  "modules": [
+    {
+      "name": "volume_consensus",
+      "chnname": "声量舆情",
+      "entities": [
+        {
+          "title": "sm_user",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "username",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "用户名",
+              "notNull": true
+            },
+            {
+              "name": "password",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "密码",
+              "notNull": true
+            },
+            {
+              "name": "corporation",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "所属企业",
+              "notNull": true
+            },
+            {
+              "name": "brand_id",
+              "type": "int",
+              "remark": "",
+              "chnname": "默认品牌"
+            },
+            {
+              "name": "category_id",
+              "type": "int",
+              "remark": "",
+              "chnname": "默认品类"
+            },
+            {
+              "name": "industry_id",
+              "type": "int",
+              "remark": "",
+              "chnname": "默认行业"
+            },
+            {
+              "name": "role_id",
+              "type": "int",
+              "remark": "",
+              "chnname": "所属角色"
+            },
+            {
+              "name": "is_active",
+              "type": "YesNo",
+              "remark": "",
+              "chnname": "是否激活",
+              "notNull": true,
+              "defaultValue": "false"
+            },
+            {
+              "name": "is_admin",
+              "type": "YesNo",
+              "remark": "",
+              "chnname": "是否管理员",
+              "notNull": true,
+              "defaultValue": "false"
+            },
+            {
+              "name": "user_type",
+              "type": "Char",
+              "remark": "",
+              "chnname": "用户类型"
+            },
+            {
+              "name": "last_login",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "登录时间"
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "用户表",
+          "remark": "系统用户表"
+        },
+        {
+          "title": "sm_competitor",
+          "fields": [
+            {
+              "name": "id",
+              "type": "Integer",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category_id",
+              "type": "Integer",
+              "remark": "",
+              "chnname": "品类",
+              "notNull": true
+            },
+            {
+              "name": "brand",
+              "type": "MiddleString",
+              "remark": "",
+              "chnname": "品牌[list json 串]",
+              "notNull": true
+            },
+            {
+              "name": "competitors",
+              "type": "MiddleString",
+              "remark": "",
+              "chnname": "竞品品牌[json list字符串]",
+              "notNull": true
+            },
+            {
+              "name": "user_id",
+              "type": "Integer",
+              "remark": "",
+              "chnname": "用户 id",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "竞品",
+          "remark": "主要竞品，"
+        },
+        {
+          "title": "dim_industry",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "name",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "名称",
+              "notNull": true
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "行业",
+          "remark": "行业字典表"
+        },
+        {
+          "title": "dim_brand",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "name",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "名称",
+              "notNull": true
+            },
+            {
+              "name": "keyword",
+              "type": "Intro",
+              "remark": "",
+              "chnname": "品牌过滤词"
+            },
+            {
+              "name": "parent",
+              "type": "int",
+              "remark": "",
+              "chnname": "父品牌"
+            },
+            {
+              "name": "saas",
+              "type": "ShortString",
+              "remark": "",
+              "chnname": "saas品牌名"
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "品牌",
+          "remark": "品牌字典表"
+        },
+        {
+          "title": "dim_category",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "name",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "名称",
+              "notNull": true
+            },
+            {
+              "name": "industry_id",
+              "type": "int",
+              "remark": "",
+              "chnname": "所属行业",
+              "notNull": true
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "品类",
+          "remark": "品类字典表"
+        },
+        {
+          "title": "dim_brand_category",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "brand_id",
+              "type": "int",
+              "remark": "",
+              "chnname": "品牌 id",
+              "notNull": true
+            },
+            {
+              "name": "category_id",
+              "type": "int",
+              "remark": "",
+              "chnname": "品类 id",
+              "notNull": true
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "品牌品类表",
+          "remark": "品牌 品类字典表"
+        },
+        {
+          "title": "dim_platform",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "name",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "名称",
+              "notNull": true
+            },
+            {
+              "name": "visible",
+              "type": "YesNo",
+              "remark": "",
+              "chnname": "是否可见",
+              "notNull": true,
+              "defaultValue": "true"
+            },
+            {
+              "name": "parent",
+              "type": "int",
+              "remark": "",
+              "chnname": "父平台"
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "平台",
+          "remark": "平台字典表"
+        },
+        {
+          "title": "dim_sales_point",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "name",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "名称",
+              "notNull": true
+            },
+            {
+              "name": "category_id",
+              "type": "int",
+              "remark": "",
+              "chnname": "所属品类",
+              "notNull": true
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "宣传卖点",
+          "remark": "宣传卖点字典表"
+        },
+        {
+          "title": "ac_report",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "name",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "名称",
+              "notNull": true
+            },
+            {
+              "name": "title",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "标题",
+              "notNull": true
+            },
+            {
+              "name": "tag",
+              "type": "Intro",
+              "remark": "",
+              "chnname": "活动关键词",
+              "notNull": true
+            },
+            {
+              "name": "monitor_start_date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "监控开始时间",
+              "notNull": true
+            },
+            {
+              "name": "monitor_end_date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "监控结束时间",
+              "notNull": true
+            },
+            {
+              "name": "platform",
+              "type": "LongText",
+              "remark": "平台名称 的 逗号 隔开的字符串",
+              "chnname": "平台",
+              "notNull": true
+            },
+            {
+              "name": "product_line",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "产品线",
+              "notNull": false
+            },
+            {
+              "name": "kol_accounts",
+              "type": "LongText",
+              "remark": "json",
+              "chnname": "kol账号"
+            },
+            {
+              "name": "bgc_accounts",
+              "type": "LongText",
+              "remark": "json",
+              "chnname": "bgc账号"
+            },
+            {
+              "name": "topic_links",
+              "type": "LongText",
+              "remark": "json, 如果为空 或 null， 则选择的为关键字",
+              "chnname": "帖子链接"
+            },
+            {
+              "name": "sales_point_id",
+              "type": "DefaultString",
+              "remark": "值为 逗号隔开的 宣传卖点的 id",
+              "chnname": "宣传卖点",
+              "notNull": false
+            },
+            {
+              "name": "remark",
+              "type": "MiddleString",
+              "remark": "",
+              "chnname": "备注"
+            },
+            {
+              "name": "status",
+              "type": "TINYINT",
+              "remark": "",
+              "chnname": "报告状态",
+              "notNull": true,
+              "defaultValue": "0"
+            },
+            {
+              "name": "error_info",
+              "type": "LongText",
+              "remark": "",
+              "chnname": "错误信息"
+            },
+            {
+              "name": "brand_id",
+              "type": "int",
+              "remark": "",
+              "chnname": "品牌 id",
+              "notNull": true
+            },
+            {
+              "name": "category_id",
+              "type": "int",
+              "remark": "",
+              "chnname": "品类 id",
+              "notNull": true
+            },
+            {
+              "name": "competitors",
+              "type": "MiddleString",
+              "remark": "主要竞品， 值为 逗号隔开的 品牌 id， 如果为空 或 null， 则选择的为 全品牌",
+              "chnname": "主要竞品"
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "创建时间",
+              "notNull": true
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "",
+              "chnname": "更新时间"
+            },
+            {
+              "name": "user_id",
+              "type": "int",
+              "remark": "",
+              "chnname": "用户 id",
+              "notNull": true
+            },
+            {
+              "name": "delete",
+              "type": "YesNo",
+              "remark": "",
+              "chnname": "是否删除",
+              "notNull": true,
+              "defaultValue": "0"
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "报告",
+          "remark": "活动对比，Activity comparison"
+        },
+        {
+          "title": "vc_monitor_brand",
+          "fields": [
+            {
+              "name": "id",
+              "type": "Integer",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category_id",
+              "type": "int unsigned",
+              "remark": "",
+              "chnname": "品类id",
+              "notNull": true,
+              "pk": false
+            },
+            {
+              "name": "brand",
+              "type": "MiddleString",
+              "remark": "所属品牌, 以 json 字符串, 多级",
+              "chnname": "品牌[所属品牌, 以 json 字符串, 多级]",
+              "notNull": true,
+              "pk": false
+            },
+            {
+              "name": "competitor",
+              "type": "MiddleString",
+              "remark": "主要竞品[以 json 字符串, 单级,多个]",
+              "chnname": "主要竞品[以 json 字符串, 单级,多个]",
+              "notNull": true
+            },
+            {
+              "name": "time_slot",
+              "type": "TINYINT",
+              "remark": "为天数， 7 、30、90",
+              "chnname": "展示时段[为天数， 7 、30、90]",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "检测品牌",
+          "remark": "监测品牌"
+        },
+        {
+          "title": "saas_platform_volume",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "品类名称",
+              "notNull": true
+            },
+            {
+              "name": "brand",
+              "type": "ShortString",
+              "remark": "",
+              "chnname": "品牌名称",
+              "notNull": true
+            },
+            {
+              "name": "platform",
+              "type": "DefaultString",
+              "remark": "平台  包括 saas 指定的平台、 其他、全部",
+              "chnname": "平台名称[平台  包括 saas 指定的平台、 其他、全部]",
+              "notNull": true
+            },
+            {
+              "name": "count",
+              "type": "int",
+              "remark": "",
+              "chnname": "声量",
+              "notNull": true
+            },
+            {
+              "name": "date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "日期",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [
+            {
+              "name": "unique_index",
+              "isUnique": true,
+              "fields": [
+                "brand",
+                "platform",
+                "date"
+              ]
+            },
+            {
+              "name": "table_index",
+              "isUnique": false,
+              "fields": [
+                "brand",
+                "date",
+                "platform"
+              ]
+            }
+          ],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "平台声量",
+          "remark": "平台声量 ， 数据来源自 saas ,声量舆情  volume consensus"
+        },
+        {
+          "title": "saas_area_volume",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "品类名称",
+              "notNull": true
+            },
+            {
+              "name": "brand",
+              "type": "ShortString",
+              "remark": "",
+              "chnname": "品牌名称",
+              "notNull": true
+            },
+            {
+              "name": "area",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "地域[仅全网]",
+              "notNull": true
+            },
+            {
+              "name": "count",
+              "type": "int",
+              "remark": "",
+              "chnname": "声量",
+              "notNull": true
+            },
+            {
+              "name": "date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "日期",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [
+            {
+              "name": "unique_index",
+              "isUnique": true,
+              "fields": [
+                "brand",
+                "area",
+                "date"
+              ]
+            },
+            {
+              "name": "table_index",
+              "isUnique": false,
+              "fields": [
+                "brand",
+                "date",
+                "area"
+              ]
+            }
+          ],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "地域声量",
+          "remark": "地域声量， 数据来源自 saas ,声量舆情  volume consensus"
+        },
+        {
+          "title": "vc_saas_platform_volume",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "品类名称",
+              "notNull": true
+            },
+            {
+              "name": "brand",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "品牌名称",
+              "notNull": true
+            },
+            {
+              "name": "platform",
+              "type": "DefaultString",
+              "remark": "平台  包括 saas 指定的平台、 其他、全部",
+              "chnname": "平台名称[平台  包括 saas 指定的平台、 其他、全部]",
+              "notNull": true
+            },
+            {
+              "name": "count",
+              "type": "int",
+              "remark": "",
+              "chnname": "声量",
+              "notNull": true
+            },
+            {
+              "name": "date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "日期",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [
+            {
+              "name": "unique_index",
+              "isUnique": true,
+              "fields": [
+                "brand",
+                "platform",
+                "date"
+              ]
+            },
+            {
+              "name": "table_index",
+              "isUnique": false,
+              "fields": [
+                "brand",
+                "date",
+                "platform"
+              ]
+            }
+          ],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "平台声量",
+          "remark": "平台声量 ， 数据来源自 saas ,声量舆情  volume consensus"
+        },
+        {
+          "title": "vc_saas_area_volume",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "品类名称",
+              "notNull": true
+            },
+            {
+              "name": "brand",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "品牌名称",
+              "notNull": true
+            },
+            {
+              "name": "area",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "地域[仅全网]",
+              "notNull": true
+            },
+            {
+              "name": "count",
+              "type": "int",
+              "remark": "",
+              "chnname": "声量",
+              "notNull": true
+            },
+            {
+              "name": "date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "日期",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [
+            {
+              "name": "unique_index",
+              "isUnique": true,
+              "fields": [
+                "brand",
+                "area",
+                "date"
+              ]
+            },
+            {
+              "name": "table_index",
+              "isUnique": false,
+              "fields": [
+                "brand",
+                "date",
+                "area"
+              ]
+            }
+          ],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "地域声量",
+          "remark": "地域声量， 数据来源自 saas ,声量舆情  volume consensus"
+        },
+        {
+          "title": "vc_mp_platform_area_volume",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "品类名称",
+              "notNull": true
+            },
+            {
+              "name": "brand",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "品牌名称",
+              "notNull": true
+            },
+            {
+              "name": "platform",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "平台[bbv+dsm]",
+              "notNull": true
+            },
+            {
+              "name": "area",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "地域",
+              "notNull": true
+            },
+            {
+              "name": "count",
+              "type": "int",
+              "remark": "",
+              "chnname": "声量",
+              "notNull": true
+            },
+            {
+              "name": "type",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "类型[bbv 或 dsm]",
+              "notNull": true
+            },
+            {
+              "name": "date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "日期",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [
+            {
+              "name": "unique_index",
+              "isUnique": true,
+              "fields": [
+                "brand",
+                "platform",
+                "area",
+                "type",
+                "date"
+              ]
+            },
+            {
+              "name": "table_index",
+              "isUnique": false,
+              "fields": [
+                "brand",
+                "date",
+                "type",
+                "platform",
+                "area"
+              ]
+            }
+          ],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "平台地域声量",
+          "remark": "地域 声量， 声量舆情  volume consensus"
+        },
+        {
+          "title": "vc_mp_keywords_cloud",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "品类名称",
+              "notNull": true
+            },
+            {
+              "name": "brand",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "品牌名称",
+              "notNull": true
+            },
+            {
+              "name": "platform",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "平台[bbv + dsm]",
+              "notNull": true
+            },
+            {
+              "name": "activity_tag",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "活动标签[包含标签为 null]",
+              "notNull": true,
+              "defaultValue": "''"
+            },
+            {
+              "name": "keywords",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "关键词",
+              "notNull": true
+            },
+            {
+              "name": "count",
+              "type": "int",
+              "remark": "",
+              "chnname": "词个数",
+              "notNull": true
+            },
+            {
+              "name": "type",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "类型[bbv 或 dsm]",
+              "notNull": true
+            },
+            {
+              "name": "date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "日期",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [
+            {
+              "name": "unique_index",
+              "isUnique": true,
+              "fields": [
+                "brand",
+                "platform",
+                "keywords",
+                "type",
+                "date"
+              ]
+            },
+            {
+              "name": "table_index",
+              "isUnique": false,
+              "fields": [
+                "brand",
+                "date",
+                "platform",
+                "keywords",
+                "type"
+              ]
+            }
+          ],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "关键词云",
+          "remark": "关键词云， 声量舆情  volume consensus"
+        },
+        {
+          "title": "vc_mp_first_level_cognition",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "品类名称",
+              "notNull": true
+            },
+            {
+              "name": "brand",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "品牌名称",
+              "notNull": true
+            },
+            {
+              "name": "platform",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "平台[bbv  和 dsm]",
+              "notNull": true
+            },
+            {
+              "name": "cognition",
+              "type": "LongKey",
+              "remark": "这里的认知我一级认知",
+              "chnname": "认知[认知为一级认知]",
+              "notNull": true
+            },
+            {
+              "name": "count",
+              "type": "int",
+              "remark": "",
+              "chnname": "个数",
+              "notNull": true
+            },
+            {
+              "name": "type",
+              "type": "DefaultString",
+              "remark": "数据类型， bbv  或者 dsm[深度社媒]",
+              "chnname": "类型[bbv 或 dsm]",
+              "notNull": true
+            },
+            {
+              "name": "date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "日期",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [
+            {
+              "name": "unique_index",
+              "isUnique": true,
+              "fields": [
+                "brand",
+                "platform",
+                "cognition",
+                "type",
+                "date"
+              ]
+            },
+            {
+              "name": "table_inde",
+              "isUnique": false,
+              "fields": [
+                "brand",
+                "date",
+                "platform",
+                "type",
+                "cognition"
+              ]
+            }
+          ],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "第一级认知",
+          "remark": "认知， 声量舆情  volume consensus"
+        },
+        {
+          "title": "vc_mp_cognition",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "品类名称",
+              "notNull": true
+            },
+            {
+              "name": "brand",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "品牌名称",
+              "notNull": true
+            },
+            {
+              "name": "platform",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "平台[咖啡->深度社媒]",
+              "notNull": true
+            },
+            {
+              "name": "level1",
+              "type": "LongKey",
+              "remark": "这里的认知我一级认知",
+              "chnname": "一级认知",
+              "notNull": true
+            },
+            {
+              "name": "level2",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "二级认知",
+              "notNull": true
+            },
+            {
+              "name": "level3",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "三级认知",
+              "notNull": true
+            },
+            {
+              "name": "count",
+              "type": "int",
+              "remark": "",
+              "chnname": "认知数",
+              "notNull": true
+            },
+            {
+              "name": "date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "日期",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [
+            {
+              "name": "unique_index",
+              "isUnique": true,
+              "fields": [
+                "brand",
+                "platform",
+                "level1",
+                "level2",
+                "level3",
+                "date"
+              ]
+            },
+            {
+              "name": "table_index",
+              "isUnique": false,
+              "fields": [
+                "brand",
+                "date",
+                "platform",
+                "level1",
+                "level2"
+              ]
+            }
+          ],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "认知",
+          "remark": "认知， 声量舆情  volume consensus"
+        },
+        {
+          "title": "vc_mp_consensus_content",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "品类名称",
+              "notNull": true
+            },
+            {
+              "name": "brand",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "品牌名称",
+              "notNull": true
+            },
+            {
+              "name": "platform",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "平台[深度社媒]",
+              "notNull": true
+            },
+            {
+              "name": "account",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "账号",
+              "notNull": false
+            },
+            {
+              "name": "title",
+              "type": "ShortString",
+              "remark": "",
+              "chnname": "标题",
+              "notNull": false
+            },
+            {
+              "name": "url",
+              "type": "Intro",
+              "remark": "",
+              "chnname": "帖子 url"
+            },
+            {
+              "name": "reading",
+              "type": "int",
+              "remark": "",
+              "chnname": "阅读数"
+            },
+            {
+              "name": "reviews",
+              "type": "int",
+              "remark": "",
+              "chnname": "评论数"
+            },
+            {
+              "name": "retweets",
+              "type": "int",
+              "remark": "",
+              "chnname": "转发数"
+            },
+            {
+              "name": "praise_points",
+              "type": "int",
+              "remark": "",
+              "chnname": "点赞数"
+            },
+            {
+              "name": "favorite",
+              "type": "int",
+              "remark": "",
+              "chnname": "收藏数"
+            },
+            {
+              "name": "type",
+              "type": "TINYINT",
+              "remark": "类型[官方发帖 或 用户发帖, 1:官方发帖, 2: 用户发帖]",
+              "chnname": "类型[官方发帖 或 用户发帖, 1:官方发帖, 2: 用户发帖]",
+              "notNull": true
+            },
+            {
+              "name": "date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "发帖日期[每日 top20]",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [
+            {
+              "name": "table_index",
+              "isUnique": false,
+              "fields": [
+                "brand",
+                "date",
+                "platform",
+                "type"
+              ]
+            }
+          ],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "声量舆情文本",
+          "remark": "声量舆情的文本， 声量舆情  volume consensus"
+        },
+        {
+          "title": "vc_mp_activity_content",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "品类名称",
+              "notNull": true
+            },
+            {
+              "name": "brand",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "品牌名称",
+              "notNull": true
+            },
+            {
+              "name": "platform",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "平台",
+              "notNull": true
+            },
+            {
+              "name": "activity_tag",
+              "type": "ShortString",
+              "remark": "",
+              "chnname": "活动标签[不包含 null]",
+              "notNull": true
+            },
+            {
+              "name": "account",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "账号"
+            },
+            {
+              "name": "title",
+              "type": "ShortString",
+              "remark": "",
+              "chnname": "标题"
+            },
+            {
+              "name": "url",
+              "type": "Intro",
+              "remark": "",
+              "chnname": "帖子 url"
+            },
+            {
+              "name": "reading",
+              "type": "int",
+              "remark": "这里的认知我一级认知",
+              "chnname": "阅读数"
+            },
+            {
+              "name": "reviews",
+              "type": "int",
+              "remark": "",
+              "chnname": "评论数"
+            },
+            {
+              "name": "retweets",
+              "type": "int",
+              "remark": "",
+              "chnname": "转发数"
+            },
+            {
+              "name": "praise_points",
+              "type": "int",
+              "remark": "",
+              "chnname": "点赞数"
+            },
+            {
+              "name": "favorite",
+              "type": "int",
+              "remark": "",
+              "chnname": "收藏数"
+            },
+            {
+              "name": "type",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "类型[bbv 或 dsm]",
+              "notNull": true
+            },
+            {
+              "name": "date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "发帖日期[每周  top30]",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [
+            {
+              "name": "table_index",
+              "isUnique": false,
+              "fields": [
+                "brand",
+                "date",
+                "platform",
+                "activity_tag",
+                "type"
+              ]
+            }
+          ],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "活动定位文本",
+          "remark": "活动定位文本， 声量舆情  volume consensus"
+        },
+        {
+          "title": "vc_mp_activity_tags",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "品类名称",
+              "notNull": true
+            },
+            {
+              "name": "brand",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "品牌名称",
+              "notNull": true
+            },
+            {
+              "name": "platform",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "平台",
+              "notNull": true
+            },
+            {
+              "name": "activity_tag",
+              "type": "ShortString",
+              "remark": "",
+              "chnname": "活动标签",
+              "notNull": true
+            },
+            {
+              "name": "count",
+              "type": "int",
+              "remark": "",
+              "chnname": "言论数",
+              "notNull": true
+            },
+            {
+              "name": "type",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "类型[bbv 或 dsm]",
+              "notNull": true
+            },
+            {
+              "name": "date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "发帖日期",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [
+            {
+              "name": "unique_index",
+              "isUnique": true,
+              "fields": [
+                "brand",
+                "platform",
+                "activity_tag",
+                "type",
+                "date"
+              ]
+            },
+            {
+              "name": "table_index",
+              "isUnique": false,
+              "fields": [
+                "brand",
+                "date",
+                "platform",
+                "activity_tag",
+                "type"
+              ]
+            }
+          ],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "活动标签",
+          "remark": "活动标签表， 声量舆情  volume consensus"
+        },
+        {
+          "title": "vc_mp_recommend_activity_period",
+          "fields": [
+            {
+              "name": "id",
+              "type": "int",
+              "remark": "",
+              "chnname": "主键",
+              "pk": true,
+              "notNull": true,
+              "autoIncrement": true
+            },
+            {
+              "name": "category",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "品类名称",
+              "notNull": true
+            },
+            {
+              "name": "brand",
+              "type": "LongKey",
+              "remark": "",
+              "chnname": "品牌名称",
+              "notNull": true
+            },
+            {
+              "name": "platform",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "平台",
+              "notNull": true
+            },
+            {
+              "name": "date",
+              "type": "Date",
+              "remark": "",
+              "chnname": "活动日期",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "type": "DateTime",
+              "remark": "修改时间",
+              "chnname": "创建时间",
+              "notNull": true,
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "type": "DateTime",
+              "remark": "创建时间",
+              "chnname": "修改时间",
+              "notNull": false,
+              "defaultValue": "NULL  ON UPDATE CURRENT_TIMESTAMP"
+            }
+          ],
+          "indexs": [
+            {
+              "name": "unique_index",
+              "isUnique": true,
+              "fields": [
+                "brand",
+                "platform",
+                "date"
+              ]
+            },
+            {
+              "name": "table_index",
+              "isUnique": false,
+              "fields": [
+                "brand",
+                "date",
+                "platform"
+              ]
+            }
+          ],
+          "headers": [
+            {
+              "fieldName": "chnname",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "name",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "type",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "dataType",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "pk",
+              "relationNoShow": false
+            },
+            {
+              "fieldName": "notNull",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "autoIncrement",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "defaultValue",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "remark",
+              "relationNoShow": true
+            },
+            {
+              "fieldName": "relationNoShow",
+              "relationNoShow": true
+            }
+          ],
+          "chnname": "系统推荐活动期",
+          "remark": "系统推荐活动期， 声量舆情  volume consensus"
+        }
+      ],
+      "graphCanvas": {
+        "nodes": [
+          {
+            "shape": "table",
+            "title": "vc_mp_platform_area_volume",
+            "moduleName": false,
+            "x": 330,
+            "y": -440,
+            "id": "db8f3c9c"
+          },
+          {
+            "shape": "table",
+            "title": "vc_mp_first_level_cognition",
+            "moduleName": false,
+            "x": 1060,
+            "y": -440,
+            "id": "e8a10f4c"
+          },
+          {
+            "shape": "table",
+            "title": "vc_monitor_brand",
+            "moduleName": false,
+            "x": -40,
+            "y": -520,
+            "id": "e1750db5"
+          },
+          {
+            "shape": "table",
+            "title": "vc_saas_platform_volume",
+            "moduleName": false,
+            "x": 420,
+            "y": -690,
+            "id": "606b0f38"
+          },
+          {
+            "shape": "table",
+            "title": "vc_saas_area_volume",
+            "moduleName": false,
+            "x": 870,
+            "y": -690,
+            "id": "14a34d5e"
+          },
+          {
+            "shape": "table",
+            "title": "vc_mp_cognition",
+            "moduleName": false,
+            "x": 680,
+            "y": -430,
+            "id": "03fde9a8"
+          },
+          {
+            "shape": "table",
+            "title": "vc_mp_keywords_cloud",
+            "moduleName": false,
+            "x": 430,
+            "y": 200,
+            "id": "1d3f9931"
+          },
+          {
+            "shape": "table",
+            "title": "vc_mp_activity_tags",
+            "moduleName": false,
+            "x": 40,
+            "y": 300,
+            "id": "a7f1d8ec"
+          },
+          {
+            "shape": "table",
+            "title": "vc_mp_consensus_content",
+            "moduleName": false,
+            "x": 380,
+            "y": -120,
+            "id": "85880fb1"
+          },
+          {
+            "shape": "table",
+            "title": "vc_mp_recommend_activity_period",
+            "moduleName": false,
+            "x": 750,
+            "y": 450,
+            "id": "298baa69"
+          },
+          {
+            "shape": "table",
+            "title": "vc_mp_activity_content",
+            "moduleName": false,
+            "x": 400,
+            "y": 530,
+            "id": "0e674511"
+          }
+        ],
+        "edges": []
+      },
+      "associations": []
+    }
+  ],
+  "dataTypeDomains": {
+    "datatype": [
+      {
+        "name": "正整数",
+        "code": "int",
+        "apply": {
+          "MYSQL": {
+            "type": "int"
+          }
+        }
+      },
+      {
+        "name": "是否",
+        "code": "YesNo",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "boolean"
+          },
+          "ORACLE": {
+            "type": "VARCHAR2(1)"
+          },
+          "SQLServer": {
+            "type": "VARCHAR(1)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(1)"
+          }
+        }
+      },
+      {
+        "name": "字串-32",
+        "code": "DefaultString",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(32)"
+          },
+          "ORACLE": {
+            "type": "NVARCHAR2(32)"
+          },
+          "SQLServer": {
+            "type": "NVARCHAR(32)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(32)"
+          }
+        }
+      },
+      {
+        "name": "字串-64",
+        "code": "LongKey",
+        "apply": {
+          "MYSQL": {
+            "type": "VARCHAR(64)"
+          },
+          "ORACLE": {
+            "type": "VARCHAR2(64)"
+          },
+          "JAVA": {
+            "type": "String"
+          },
+          "SQLServer": {
+            "type": "VARCHAR(64)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(64)"
+          }
+        }
+      },
+      {
+        "name": "字串-128",
+        "code": "ShortString",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(128)"
+          },
+          "ORACLE": {
+            "type": "NVARCHAR2(128)"
+          },
+          "SQLServer": {
+            "type": "NVARCHAR(128)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(128)"
+          }
+        }
+      },
+      {
+        "name": "字串-512",
+        "code": "Intro",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(512)"
+          },
+          "ORACLE": {
+            "type": "NVARCHAR2(512)"
+          },
+          "SQLServer": {
+            "type": "NVARCHAR(512)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(512)"
+          }
+        }
+      },
+      {
+        "name": "单字符",
+        "code": "Char",
+        "apply": {
+          "MYSQL": {
+            "type": "CHAR(1)"
+          },
+          "ORACLE": {
+            "type": "CHAR(1)"
+          },
+          "JAVA": {
+            "type": "String"
+          },
+          "SQLServer": {
+            "type": "CHAR(1)"
+          },
+          "PostgreSQL": {
+            "type": "CHAR(1)"
+          }
+        }
+      },
+      {
+        "name": "字串-1024",
+        "code": "MiddleString",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(1024)"
+          },
+          "ORACLE": {
+            "type": "NVARCHAR2(1024)"
+          },
+          "SQLServer": {
+            "type": "NVARCHAR(1024)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(1024)"
+          }
+        }
+      },
+      {
+        "name": "字串-3072",
+        "code": "LongString",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "ORACLE": {
+            "type": "NVARCHAR2(3072)"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(3072)"
+          },
+          "SQLServer": {
+            "type": "NVARCHAR(3072)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(3072)"
+          }
+        }
+      },
+      {
+        "name": "大文本",
+        "code": "LongText",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "TEXT"
+          },
+          "ORACLE": {
+            "type": "CLOB"
+          },
+          "SQLServer": {
+            "type": "NTEXT"
+          },
+          "PostgreSQL": {
+            "type": "TEXT"
+          }
+        }
+      },
+      {
+        "name": "整数",
+        "code": "Integer",
+        "apply": {
+          "JAVA": {
+            "type": "Integer"
+          },
+          "MYSQL": {
+            "type": "INT"
+          },
+          "ORACLE": {
+            "type": "INT"
+          },
+          "SQLServer": {
+            "type": "INT"
+          },
+          "PostgreSQL": {
+            "type": "INT"
+          }
+        }
+      },
+      {
+        "name": "小整数",
+        "code": "TINYINT",
+        "apply": {
+          "MYSQL": {
+            "type": "TINYINT"
+          }
+        }
+      },
+      {
+        "name": "大整数",
+        "code": "BigInt",
+        "apply": {
+          "MYSQL": {
+            "type": "BIGINT"
+          },
+          "JAVA": {
+            "type": "Long"
+          },
+          "ORACLE": {
+            "type": "NUMBER"
+          },
+          "SQLServer": {
+            "type": "BIGINT"
+          },
+          "PostgreSQL": {
+            "type": "BIGINT"
+          }
+        }
+      },
+      {
+        "name": "小数",
+        "code": "Double",
+        "apply": {
+          "JAVA": {
+            "type": "Double"
+          },
+          "MYSQL": {
+            "type": "DECIMAL(32,10)"
+          },
+          "ORACLE": {
+            "type": "NUMBER(32,10)"
+          },
+          "SQLServer": {
+            "type": "DECIMAL(32,10)"
+          },
+          "PostgreSQL": {
+            "type": "DECIMAL(32,10)"
+          }
+        }
+      },
+      {
+        "name": "比例",
+        "code": "Ratio",
+        "apply": {
+          "MYSQL": {
+            "type": "DECIMAL(4,2)"
+          },
+          "JAVA": {
+            "type": "Double"
+          },
+          "ORACLE": {
+            "type": "NUMBER(4,2)"
+          },
+          "SQLServer": {
+            "type": "DECIMAL(4,2)"
+          },
+          "PostgreSQL": {
+            "type": "DECIMAL(4,2)"
+          }
+        }
+      },
+      {
+        "name": "金额",
+        "code": "Money",
+        "apply": {
+          "JAVA": {
+            "type": "Double"
+          },
+          "MYSQL": {
+            "type": "DECIMAL(32,8)"
+          },
+          "ORACLE": {
+            "type": "NUMBER(32,8)"
+          },
+          "SQLServer": {
+            "type": "DECIMAL(32,8)"
+          },
+          "PostgreSQL": {
+            "type": "DECIMAL(32,8)"
+          }
+        }
+      },
+      {
+        "name": "数据字典",
+        "code": "Dict",
+        "apply": {
+          "JAVA": {
+            "type": "String"
+          },
+          "MYSQL": {
+            "type": "VARCHAR(32)"
+          },
+          "ORACLE": {
+            "type": "VARCHAR2(32)"
+          },
+          "SQLServer": {
+            "type": "VARCHAR(32)"
+          },
+          "PostgreSQL": {
+            "type": "VARCHAR(32)"
+          }
+        }
+      },
+      {
+        "name": "日期",
+        "code": "Date",
+        "apply": {
+          "JAVA": {
+            "type": "Date"
+          },
+          "MYSQL": {
+            "type": "DATE"
+          },
+          "ORACLE": {
+            "type": "DATE"
+          },
+          "SQLServer": {
+            "type": "DATE"
+          },
+          "PostgreSQL": {
+            "type": "DATE"
+          }
+        }
+      },
+      {
+        "name": "日期时间",
+        "code": "DateTime",
+        "apply": {
+          "JAVA": {
+            "type": "Date"
+          },
+          "MYSQL": {
+            "type": "DATETIME"
+          },
+          "ORACLE": {
+            "type": "DATE"
+          },
+          "SQLServer": {
+            "type": "DATE"
+          },
+          "PostgreSQL": {
+            "type": "DATETIME"
+          }
+        }
+      }
+    ],
+    "database": [
+      {
+        "code": "MYSQL",
+        "template": "DROP TABLE {{=it.entity.title}};\n$blankline\nCREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}} {{= field.pk ? 'NOT NULL' : '' }} COMMENT '{{=it.func.join(field.chnname,field.remark,';')}}' {{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n) COMMENT = '{{=it.func.join(it.entity.chnname,it.entity.remark,';') }}'",
+        "fileShow": true,
+        "defaultDatabase": true,
+        "createTableTemplate": "CREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}} {{= field.notNull ? 'NOT NULL' : '' }} {{= field.autoIncrement ? 'AUTO_INCREMENT' : '' }} {{= field.defaultValue ? it.func.join('DEFAULT',field.defaultValue,' ') : '' }} COMMENT '{{=it.func.join(field.chnname,field.remark,' ')}}' {{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n) COMMENT = '{{=it.func.join(it.entity.chnname,it.entity.remark,' ') }}';{{=it.separator}}",
+        "deleteTableTemplate": "DROP TABLE {{=it.entity.title}};{{=it.separator}}/*SkipError*/",
+        "rebuildTableTemplate": "create table PDMAN_UP_{{=it.oldEntity.title}}\nas select * from {{=it.oldEntity.title}};{{=it.separator}}\n$blankline\n\ndrop table {{=it.oldEntity.title}};{{=it.separator}}\n$blankline\n\nCREATE TABLE {{=it.newEntity.title}}(\n{{ pkList = [] ; }}\n{{~it.newEntity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}} {{= field.notNull ? 'NOT NULL' : '' }} COMMENT '{{=it.func.join(field.chnname,field.remark,';')}}' {{= index < it.newEntity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n) COMMENT = '{{=it.func.join(it.newEntity.chnname,it.newEntity.remark,';') }}';{{=it.separator}}\n$blankline\n\n{{ sameCols = it.func.intersect(it.newEntity.fields,it.oldEntity.fields) ;}}\ninsert into {{=it.newEntity.title}}(\n{{~sameCols:field:index}}\n    {{=field.name}}{{? index<sameCols.length-1}},{{?}}\n{{~}}\n) \nselect \n{{~sameCols:field:index}}\n    {{=field.name}}{{? index<sameCols.length-1}},{{?}}\n{{~}}\nfrom PDMAN_UP_{{=it.oldEntity.title}};{{=it.separator}}\n$blankline\n\ndrop table PDMAN_UP_{{=it.oldEntity.title}};{{=it.separator}}",
+        "createFieldTemplate": "ALTER TABLE {{=it.entity.title}} ADD COLUMN {{=it.field.name}} {{=it.field.type}} {{? it.field.notNull}}NOT NULL{{?}} {{? ''!=it.field.defaultValue}}DEFAULT {{? null==it.field.defaultValue}}NULL{{??}}'{{=it.field.defaultValue}}'{{?}}{{?}} {{? it.field.autoIncrement}}AUTO_INCREMENT{{?}} {{? it.field.pk}}PRIMARY KEY{{?}} {{? it.field.chnname}}COMMENT '{{=it.field.chnname}}'{{?}} {{? it.field.addAfter}}AFTER {{=it.field.addAfter}}{{?}};{{=it.separator}}",
+        "updateFieldTemplate": "ALTER TABLE {{=it.entity.title}} MODIFY COLUMN {{=it.field.name}} {{=it.field.type}} {{? it.field.notNull}}NOT NULL{{?}} {{? ''!=it.field.defaultValue}}DEFAULT {{? null==it.field.defaultValue}}NULL{{??}}'{{=it.field.defaultValue}}'{{?}}{{?}} {{? it.field.autoIncrement}}AUTO_INCREMENT{{?}} {{? it.field.chnname}}COMMENT '{{=it.field.chnname}}'{{?}};{{=it.separator}}",
+        "deleteFieldTemplate": "ALTER TABLE {{=it.entity.title}} DROP {{=it.field.name}};{{=it.separator}}",
+        "deleteIndexTemplate": "ALTER TABLE {{=it.entity.title}} DROP INDEX {{=it.index.name}};{{=it.separator}}",
+        "createIndexTemplate": "ALTER TABLE {{=it.entity.title}} ADD {{? it.index.isUnique}}UNIQUE{{??}}INDEX{{?}} {{=it.index.name}}({{=it.func.join(...it.index.fields,',')}});{{=it.separator}}",
+        "updateTableComment": "ALTER TABLE {{=it.entity.title}} COMMENT '{{=it.entity.chnname}}';{{=it.separator}}"
+      },
+      {
+        "code": "ORACLE",
+        "template": "DROP TABLE {{=it.entity.title}};{{=it.separator}}\n$blankline\nCREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}}  {{= field.pk ? 'NOT NULL' : '' }} {{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n);{{=it.separator}}\n$blankline\nCOMMENT ON TABLE {{=it.entity.title}} IS '{{=it.func.join(it.entity.chnname,it.entity.remark,';') }}';{{=it.separator}}\n{{~it.entity.fields:field:index}}\nCOMMENT ON COLUMN {{=it.entity.title}}.{{=field.name}} IS '{{=it.func.join(field.chnname,field.remark,';')}}';{{=it.separator}}\n{{~}}",
+        "createTableTemplate": "CREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}}{{? field.defaultValue}} DEFAULT {{=field.defaultValue}}{{?}}{{= field.notNull ? ' NOT NULL' : '' }}{{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n);{{=it.separator}}\n$blankline\n{{? it.entity.chnname || it.entity.remark}}COMMENT ON TABLE {{=it.entity.title}} IS {{? it.entity.remark}}'{{=it.entity.remark}}'{{??}}'{{=it.entity.chnname}}'{{?}};{{=it.separator}}{{?}}\n{{~it.entity.fields:field:index}}\n{{? field.chnname || field.remark}}COMMENT ON COLUMN {{=it.entity.title}}.{{=field.name}} IS {{? field.remark}}'{{=field.remark}}'{{??}}'{{=field.chnname}}'{{?}};{{=it.separator}}{{?}}\n{{~}}",
+        "deleteTableTemplate": "DROP TABLE {{=it.entity.title}};{{=it.separator}}/*SkipError*/\r\n$blankline",
+        "rebuildTableTemplate": "CREATE TABLE PDMAN_UP_{{=it.oldEntity.title}}\nAS SELECT * FROM {{=it.oldEntity.title}};{{=it.separator}}\n$blankline\nDROP TABLE {{=it.oldEntity.title}};{{=it.separator}}\n$blankline\nCREATE TABLE {{=it.newEntity.title}}(\n{{ pkList = [] ; }}{{~it.newEntity.fields:field:index}}{{? field.pk }}{{ pkList.push(field.name) }}{{?}}    {{=field.name}} {{=field.type}}{{? field.defaultValue}} DEFAULT {{=field.defaultValue}}{{?}}{{= field.notNull ? ' NOT NULL' : '' }}{{= index < it.newEntity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}{{? pkList.length >0 }}    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}}){{?}}\n);{{=it.separator}}\n$blankline\n{{? it.newEntity.chnname || it.newEntity.remark}}COMMENT ON TABLE {{=it.newEntity.title}} IS {{? it.newEntity.remark}}'{{=it.entity.remark}}'{{??}}'{{=it.newEntity.chnname}}'{{?}};{{?}}{{=it.separator}}\n{{~it.newEntity.fields:field:index}}\n{{? field.chnname || field.remark}}COMMENT ON COLUMN {{=it.newEntity.title}}.{{=field.name}} IS {{? field.remark}}'{{=field.remark}}'{{??}}'{{=field.chnname}}'{{?}};{{?}}{{=it.separator}}\n{{~}}\n{{ sameCols = it.func.intersect(it.newEntity.fields,it.oldEntity.fields) ;}}\n$blankline\nINSERT INTO {{=it.newEntity.title}}(\n{{~sameCols:field:index}}   {{=field.name}}{{? index<sameCols.length-1}},{{?}}\n{{~}}) \nSELECT\n{{~sameCols:field:index}}   {{=field.name}}{{? index<sameCols.length-1}},{{?}}\n{{~}}FROM PDMAN_UP_{{=it.oldEntity.title}};{{=it.separator}}\n\nDROP TABLE PDMAN_UP_{{=it.oldEntity.title}};{{=it.separator}}",
+        "createFieldTemplate": "ALTER TABLE {{=it.entity.title}} ADD({{=it.field.name}} {{=it.field.type}}{{? it.field.defaultValue}} DEFAULT {{=it.field.defaultValue}}{{?}}{{? it.field.notNull}} NOT NULL{{?}});{{=it.separator}}\r\n{{? it.field.chnname || it.field.remark}}COMMENT ON COLUMN {{=it.entity.title}}.{{=it.field.name}} IS {{? it.field.remark}}'{{=it.field.remark}}'{{??}}'{{=it.field.chnname}}'{{?}};{{=it.separator}}{{?}}\r\n$blankline",
+        "updateFieldTemplate": "ALTER TABLE {{=it.entity.title}} MODIFY({{=it.field.name}} {{=it.field.type}}{{? it.field.defaultValue}} DEFAULT {{=it.field.defaultValue}}{{?}}{{? it.field.notNull}} NOT NULL{{?}});{{=it.separator}}\r\n{{? it.field.chnname || it.field.remark}}COMMENT ON COLUMN {{=it.entity.title}}.{{=it.field.name}} IS {{? it.field.remark}}'{{=it.field.remark}}'{{??}}'{{=it.field.chnname}}'{{?}};{{=it.separator}}{{=it.separator}}{{?}}\r\n$blankline",
+        "deleteFieldTemplate": "ALTER TABLE {{=it.entity.title}} DROP({{=it.field.name}});{{=it.separator}}\r\n$blankline",
+        "deleteIndexTemplate": "DROP INDEX {{=it.entity.title}}.{{=it.index.name}};{{=it.separator}}\r\n$blankline",
+        "createIndexTemplate": "CREATE{{? it.index.isUnique}} UNIQUE{{?}} INDEX {{=it.index.name}} ON {{=it.entity.title}}({{=it.func.join(it.index.fields,',')}});{{=it.separator}}\r\n$blankline",
+        "updateTableComment": "{{? it.entity.chnname || it.entity.remark}}COMMENT ON TABLE {{=it.entity.title}} IS {{? it.entity.remark}}'{{=it.entity.remark}}'{{??}}'{{=it.entity.chnname}}'{{?}};{{=it.separator}}{{?}}\r\n$blankline"
+      },
+      {
+        "code": "SQLServer",
+        "createTableTemplate": "CREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}} {{= field.notNull ? 'NOT NULL' : '' }} {{= field.autoIncrement ? 'INDENTITY(1,1)' : '' }} {{= field.defaultValue ? it.func.join('DEFAULT',field.defaultValue,' ') : '' }}  {{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    CONSTRAINT PK_{{=it.entity.title}} PRIMARY KEY CLUSTERED ({{~pkList:pkName:i}}{{= pkName }} ASC {{= i<pkList.length-1 ? ',' : '' }}{{~}}) ON [PRIMARY] \n{{?}}\n) ;{{=it.separator}}\n\n$blankline\n--{{? it.entity.chnname || it.entity.remark}}COMMENT ON TABLE {{=it.entity.title}} IS {{? it.entity.remark}}'{{=it.entity.remark}}'{{??}}'{{=it.entity.chnname}}'{{?}};{{?}}\n{{~it.entity.fields:field:index}}\n{{? field.chnname || field.remark}}COMMENT ON COLUMN {{=it.entity.title}}.{{=field.name}} IS {{? field.remark}}'{{=field.remark}}'{{??}}'{{=field.chnname}}'{{?}};{{=it.separator}}{{?}}\n{{~}}\n",
+        "deleteTableTemplate": "",
+        "rebuildTableTemplate": "",
+        "createFieldTemplate": "",
+        "updateFieldTemplate": "",
+        "deleteFieldTemplate": "",
+        "deleteIndexTemplate": "",
+        "createIndexTemplate": "",
+        "updateTableComment": ""
+      },
+      {
+        "code": "PostgreSQL",
+        "template": "DROP TABLE {{=it.entity.title}};\n$blankline\nCREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}} {{= field.pk ? 'NOT NULL' : '' }} COMMENT '{{=it.func.join(field.chnname,field.remark,';')}}' {{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n) COMMENT = '{{=it.func.join(it.entity.chnname,it.entity.remark,';') }}'",
+        "createTableTemplate": "CREATE TABLE {{=it.entity.title}}(\n{{ pkList = [] ; }}\n{{~it.entity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}} {{= field.notNull ? 'NOT NULL' : '' }} {{= field.autoIncrement ? 'AUTO_INCREMENT' : '' }} {{= field.defaultValue ? it.func.join('DEFAULT',field.defaultValue,' ') : '' }} COMMENT '{{=it.func.join(field.chnname,field.remark,' ')}}' {{= index < it.entity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n) COMMENT = '{{=it.func.join(it.entity.chnname,it.entity.remark,' ') }}';",
+        "deleteTableTemplate": "DROP TABLE {{=it.entity.title}};/*SkipError*/",
+        "rebuildTableTemplate": "create table PDMAN_UP_{{=it.oldEntity.title}}\nas select * from {{=it.oldEntity.title}};{{=it.separator}}\n$blankline\n\ndrop table {{=it.oldEntity.title}};{{=it.separator}}\n$blankline\n\nCREATE TABLE {{=it.newEntity.title}}(\n{{ pkList = [] ; }}\n{{~it.newEntity.fields:field:index}}\n    {{? field.pk }}{{ pkList.push(field.name) }}{{?}}\n    {{=field.name}} {{=field.type}} {{= field.notNull ? 'NOT NULL' : '' }} COMMENT '{{=it.func.join(field.chnname,field.remark,';')}}' {{= index < it.newEntity.fields.length-1 ? ',' : ( pkList.length>0 ? ',' :'' ) }}\n{{~}}\n{{? pkList.length >0 }}\n    PRIMARY KEY ({{~pkList:pkName:i}}{{= pkName }}{{= i<pkList.length-1 ? ',' : '' }}{{~}})\n{{?}}\n) COMMENT = '{{=it.func.join(it.newEntity.chnname,it.newEntity.remark,';') }}';{{=it.separator}}\n$blankline\n\n{{ sameCols = it.func.intersect(it.newEntity.fields,it.newEntity.fields) ;}}\ninsert into {{=it.newEntity.title}}(\n{{~sameCols:field:index}}\n    {{=field.name}}{{? index<it.newEntity.fields.length-1}},{{?}}\n{{~}}\n) \nvalues\nselect \n{{~sameCols:field:index}}\n    {{=field.name}}{{? index<it.oldEntity.fields.length-1}},{{?}}\n{{~}}\nfrom PDMAN_UP_{{=it.oldEntity.title}};{{=it.separator}}\n$blankline\n\ndrop table PDMAN_UP_{{=it.oldEntity.title}};{{=it.separator}}",
+        "createFieldTemplate": "ALTER TABLE {{=it.entity.title}} ADD COLUMN {{=it.field.name}} {{=it.field.type}} {{? it.field.notNull}}NOT NULL{{?}} {{? ''!=it.field.defaultValue}}DEFAULT {{? null==it.field.defaultValue}}NULL{{??}}'{{=it.field.defaultValue}}'{{?}}{{?}} {{? it.field.autoIncrement}}AUTO_INCREMENT{{?}} {{? it.field.pk}}PRIMARY KEY{{?}} {{? it.field.chnname}}COMMENT '{{=it.field.chnname}}'{{?}} {{? it.field.addAfter}}AFTER {{=it.field.addAfter}}{{?}};",
+        "updateFieldTemplate": "ALTER TABLE {{=it.entity.title}} MODIFY COLUMN {{=it.field.name}} {{=it.field.type}} {{? it.field.notNull}}NOT NULL{{?}} {{? ''!=it.field.defaultValue}}DEFAULT {{? null==it.field.defaultValue}}NULL{{??}}'{{=it.field.defaultValue}}'{{?}}{{?}} {{? it.field.autoIncrement}}AUTO_INCREMENT{{?}} {{? it.field.chnname}}COMMENT '{{=it.field.chnname}}'{{?}};",
+        "deleteFieldTemplate": "ALTER TABLE {{=it.entity.title}} DROP {{=it.field.name}};",
+        "deleteIndexTemplate": "ALTER TABLE {{=it.entity.title}} DROP INDEX {{=it.index.name}};",
+        "createIndexTemplate": "ALTER TABLE {{=it.entity.title}} ADD {{? it.index.isUnique}}UNIQUE{{?}} {{=it.index.name}}({{=it.func.join(...it.index.fields,',')}});",
+        "updateTableComment": "ALTER TABLE {{=it.entity.title}} COMMENT '{{=it.entity.chnname}}';"
+      },
+      {
+        "code": "JAVA",
+        "template": "package group.rober.pdman.{{=it.module.name}}.entity;\n$blankline\nimport javax.persistence.*;\nimport java.io.Serializable;\nimport java.util.Date;\n$blankline\n$blankline\n\n/** {{=it.entity.chnname}} */\n@Table(name=\"{{=it.entity.title}}\")\npublic class {{=it.func.camel(it.entity.title,true) }} implements Serializable,Cloneable{\n{{~it.entity.fields:field:index}}\n    /** {{=it.func.join(field.chnname,field.remark,';')}} */\n    {{? field.pk }}\n    @Id\n    @GeneratedValue\n    {{?}}\n    private {{=field.type}} {{=it.func.camel(field.name,false)}} ;\n{{~}}\n$blankline\n{{~it.entity.fields:field:index}}\n    /** {{=it.func.join(field.chnname,field.remark,';')}} */\n    public {{=field.type}} get{{=it.func.camel(field.name,true)}}(){\n        return this.{{=it.func.camel(field.name,false)}};\n    }\n    /** {{=it.func.join(field.chnname,field.remark,';')}} */\n    public void set{{=it.func.camel(field.name,true)}}({{=field.type}} {{= it.func.camel(field.name,false) }}){\n        this.{{=it.func.camel(field.name,false)}} = {{= it.func.camel(field.name,false) }};\n    }\n{{~}}\n}",
+        "createTableTemplate": "package group.rober.pdman.{{=it.module.name}}.entity;\n$blankline\nimport javax.persistence.*;\nimport java.io.Serializable;\nimport java.util.Date;\n$blankline\n$blankline\n@Table(name=\"{{=it.entity.title}}\")\npublic class {{=it.func.camel(it.entity.title,true) }} implements Serializable,Cloneable{\n{{~it.entity.fields:field:index}}\n    /** {{=it.func.join(field.chnname,field.remark,';')}} */\n    {{? field.pk }}\n    @Id\n    @GeneratedValue\n    {{?}}\n    private {{=field.type}} {{=it.func.camel(field.name,false)}} ;\n{{~}}\n$blankline\n{{~it.entity.fields:field:index}}\n    /** {{=it.func.join(field.chnname,field.remark,';')}} */\n    public {{=field.type}} get{{=it.func.camel(field.name,true)}}(){\n        return this.{{=it.func.camel(field.name,false)}};\n    }\n    /** {{=it.func.join(field.chnname,field.remark,';')}} */\n    public void set{{=it.func.camel(field.name,true)}}({{=field.type}} {{= it.func.camel(field.name,false) }}){\n        this.{{=it.func.camel(field.name,false)}} = {{= it.func.camel(field.name,false) }};\n    }\n{{~}}\n}",
+        "deleteTableTemplate": "",
+        "rebuildTableTemplate": "",
+        "createFieldTemplate": "",
+        "updateFieldTemplate": "",
+        "deleteFieldTemplate": "",
+        "deleteIndexTemplate": "",
+        "createIndexTemplate": "",
+        "updateTableComment": ""
+      }
+    ]
+  }
+}
