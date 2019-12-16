@@ -206,7 +206,7 @@ group by area;
 
 # 各个地域的分类的声量
 area_voice_classify = """
-select area, sum(count) count from vc_saas_area_volume a where brand in %s
+select area, sum(count) count from vc_saas_area_volume a where brand={brand_name}
  and category = {category_name}  %s
 group by area order by count desc ;
 """
@@ -214,8 +214,7 @@ group by area order by count desc ;
 # 全网关键词获取
 net_keywords = """
 select keywords, sum(count) as count from vc_mp_keywords_cloud a where
-    brand in %s and
-    a.category= {category_name} %s
+    brand={brand_name} and a.category= {category_name} %s
 group by keywords
 order by count desc limit 20;
 """
@@ -470,13 +469,13 @@ group by brand;
 
 # bbv各个地域的分类的声量
 bbv_area_voice_classify = """
-select area, sum(count) count from vc_mp_platform_area_volume a where brand in %s
+select area, sum(count) count from vc_mp_platform_area_volume a where brand={brand_name}
 and category = {category_name} and a.type='bbv'  %s
 group by area  order by count desc ;
 """
 
 bbv_platform_area_voice_classify = """
-select area, sum(count) count from vc_mp_platform_area_volume a where brand in %s
+select area, sum(count) count from vc_mp_platform_area_volume a where brand={brand_name}
 and category = {category_name} and a.platform in %s  %s
 group by area  order by count desc ;
 """
@@ -484,7 +483,7 @@ group by area  order by count desc ;
 # bbv全网关键词获取
 bbv_all_keywords = """
 select keywords, sum(count) as count from vc_mp_keywords_cloud a where
-    brand in %s and
+    brand={brand_name} and
     a.category= {category_name} and a.type='bbv' %s
 group by keywords
 order by count desc limit 20;
@@ -492,7 +491,7 @@ order by count desc limit 20;
 
 bbv_platform_keywords_classify = """
 select keywords, sum(count) as count from vc_mp_keywords_cloud a where
-    brand in %s and
+    brand={brand_name} and
     a.category= {category_name} and a.platform in %s %s
 group by keywords
 order by count desc limit 20;
