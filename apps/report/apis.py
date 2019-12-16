@@ -182,12 +182,14 @@ def report_details(report_id, user, need_unscramble=True):
     if not data.get("unscramble"):
         data["unscramble"] = get_unscramble(data, sales_points)
 
+    for i in range(len(data["tags_concern"])):
+        data["tags_concern"][i]["name"] = sales_points[i]["name"]
+
     data["report_config"] = dict(
         start_date=report.monitor_start_date,
         end_date=report.monitor_end_date,
         name=report.name,
-        brand=json.loads(report.brand_id)[-1]["name"],
-        sales_points=sales_points,
+        brand=".".join([b.split("_")[1] for b in json.loads(report.brand_id)]),
         period=(report.monitor_end_date - report.monitor_start_date).days + 1,
         status_value=report.get_status_display(),
         status=report.status,
