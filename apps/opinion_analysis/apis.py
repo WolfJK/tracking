@@ -8,8 +8,7 @@ from apps.opinion_analysis import sqls
 from common.db_helper import DB
 from datetime import datetime
 from apps import apis as apps_apis
-from django.db.models import Q, F, Sum, Value
-from django.db import models
+from django.db.models import Q, F, Sum, Value, IntegerField
 import copy
 from dateutil.relativedelta import relativedelta
 from itertools import groupby
@@ -874,7 +873,7 @@ def ao_activity_date(params):
     :return:
     '''
     activity_tags = list(VcMpActivityTags.objects.filter(**params).values("date")
-                         .annotate(is_activity=Value(1, output_field=models.IntegerField())).values("date", "is_activity"))
+                         .annotate(is_activity=Value(1, output_field=IntegerField())).values("date", "is_activity"))
 
     return activity_tags
 
@@ -888,7 +887,7 @@ def ao_recommend_activate_period(params):
     params.pop("type")
     params.pop("activity_tag")
     data = list(VcMpRecommendActivatePeriod.objects.filter(**params).values("date")
-                .annotate(is_activity=Value(1, output_field=models.IntegerField())).values("date", "is_activity"))
+                .annotate(is_activity=Value(1, output_field=IntegerField())).values("date", "is_activity"))
 
     return data
 
