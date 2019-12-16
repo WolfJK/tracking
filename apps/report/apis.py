@@ -179,7 +179,7 @@ def report_details(report_id, user, need_unscramble=True):
     sales_points = json.loads(report.sales_points)
     data = data_transform(json.loads(report.data), sales_points)
 
-    if not data.get("unscramble"):
+    if not data.get("unscramble") and need_unscramble:
         data["unscramble"] = get_unscramble(data, sales_points)
 
     for i in range(len(data["tags_concern"])):
