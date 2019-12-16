@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 
 from common.models import DimIndustry, DimBrand, DimBrandCategory, DimSalesPoint, Report, DimCategory, \
     DimPlatform, SmCompetitor
-from django.db.models import F, Q
+from django.db.models import F, Q, Value, CharField
+from django.db.models.functions import Concat
 from itertools import groupby
 from operator import itemgetter
 import apps.apis as apps_apis
@@ -46,11 +47,11 @@ def brand_list(category_id):
     :param category_id: 品类 id
     :return:
     '''
-
+    # , Value("_", output_field=models.CharField())
     brands = DimBrandCategory.objects.filter(category_id=category_id, brand__parent__isnull=True)\
         .values("brand", "brand__name", "brand__parent")\
         .annotate(
-        id=F("brand"),
+        id=Concat(F("brand__id"), Value("_", output_field=CharField()), F("brand__name"), output_field=CharField()),
         name=F("brand__name"),
         parent=F("brand__parent")
     ).values("id", "name", "parent")
