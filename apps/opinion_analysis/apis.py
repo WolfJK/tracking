@@ -242,6 +242,17 @@ def get_round_sov(data_voice_histogram, data_voice_round):
     return data_voice_histogram
 
 
+def assemble_data(assert_data, type, dict_data):
+    for day in assert_data:
+        brand_name = day.get("brand")
+        if brand_name not in dict_data:
+            dict_data.update({brand_name: {"day": [], "month": [], "week": []}})
+            dict_data.get(brand_name).get(type).append(day)
+        else:
+            dict_data.get(brand_name).get(type).append(day)
+    return dict_data
+
+
 def get_net_day_month_week_analysis(vcBrand, category, date_range):
     """
     # 全品类的时候声量top5+本品 有竞品的时候本品+竞品
@@ -255,15 +266,6 @@ def get_net_day_month_week_analysis(vcBrand, category, date_range):
     """
     dict_data = dict()
     dict_sov_classify = dict()  # 分类的声量之和
-
-    def assemble_data(assert_data, type):
-        for day in assert_data:
-            brand_name = day.get("brand")
-            if brand_name not in dict_data:
-                dict_data.update({brand_name: {"day": [], "month": [], "week": []}})
-                dict_data.get(brand_name).get(type).append(day)
-            else:
-                dict_data.get(brand_name).get(type).append(day)
 
     def get_data():
         sql_day = sqls.compete_day_month_week_voice%(bracket, range_time,  "date", "date", "date")
@@ -290,12 +292,11 @@ def get_net_day_month_week_analysis(vcBrand, category, date_range):
         dict_sov_classify.update(day=day_sov_assert)
         dict_sov_classify.update(month=month_sov_assert)
         dict_sov_classify.update(week=week_sov_assert)
-        assemble_data(day_assert, "day")
-        assemble_data(month_assert, "month")
-        assemble_data(week_assert, "week")
+        assemble_data(day_assert, "day", dict_data)
+        assemble_data(month_assert, "month", dict_data)
+        assemble_data(week_assert, "week", dict_data)
 
     brand_name = vcBrand.get("brand_name")
-
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
     get_data()
 
@@ -406,16 +407,7 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
     """
     dict_data = dict()
     dict_sov_classify = dict()  # 分类的声量之和
-
-    def assemble_data(assert_data, type):
-        for day in assert_data:
-            brand_name = day.get("brand")
-            if brand_name not in dict_data:
-                dict_data.update({brand_name: {"day": [], "month": [], "week": []}})
-                dict_data.get(brand_name).get(type).append(day)
-            else:
-                dict_data.get(brand_name).get(type).append(day)
-
+    #
     def get_data():
         if platform == 'all':  # 全部
             sql_day = sqls.bbv_compete_day_month_week_voice%(bracket, range_time,  "date", "date", "date")
@@ -455,9 +447,9 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
         dict_sov_classify.update(day=day_sov_assert)
         dict_sov_classify.update(month=month_sov_assert)
         dict_sov_classify.update(week=week_sov_assert)
-        assemble_data(day_assert, "day")
-        assemble_data(month_assert, "month")
-        assemble_data(week_assert, "week")
+        assemble_data(day_assert, "day", dict_data)
+        assemble_data(month_assert, "month", dict_data)
+        assemble_data(week_assert, "week", dict_data)
 
     brand_name = vcBrand.get("brand_name")
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
@@ -626,15 +618,6 @@ def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform
     dict_data = dict()
     dict_sov_classify = dict()  # 分类的声量之和
 
-    def assemble_data(assert_data, type):
-        for day in assert_data:
-            brand_name = day.get("brand")
-            if brand_name not in dict_data:
-                dict_data.update({brand_name: {"day": [], "month": [], "week": []}})
-                dict_data.get(brand_name).get(type).append(day)
-            else:
-                dict_data.get(brand_name).get(type).append(day)
-
     def get_data():
         if platform in ["微博", "微信"]:
             sql_day = sqls.ww_compete_day_month_week_voice % (bracket, bracket_platform, range_time, "date", "date", "date")
@@ -673,9 +656,9 @@ def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform
         dict_sov_classify.update(day=day_sov_assert)
         dict_sov_classify.update(month=month_sov_assert)
         dict_sov_classify.update(week=week_sov_assert)
-        assemble_data(day_assert, "day")
-        assemble_data(month_assert, "month")
-        assemble_data(week_assert, "week")
+        assemble_data(day_assert, "day", dict_data)
+        assemble_data(month_assert, "month", dict_data)
+        assemble_data(week_assert, "week", dict_data)
 
     brand_name = vcBrand.get("brand_name")
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
