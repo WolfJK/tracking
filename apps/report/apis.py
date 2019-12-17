@@ -174,10 +174,12 @@ def report_details(report_id, user, need_unscramble=True):
     :param need_unscramble: 是否需要解读
     :return:
     """
+
     report = get_report(report_id, user, status=(0, ))
+    brand = ".".join([b.split("_")[1] for b in json.loads(report.brand_id)])
 
     sales_points = json.loads(report.sales_points)
-    data = data_transform(json.loads(report.data), sales_points)
+    data = data_transform(json.loads(report.data), sales_points, brand=brand)
 
     if not data.get("unscramble") and need_unscramble:
         data["unscramble"] = get_unscramble(data, sales_points)
@@ -189,7 +191,7 @@ def report_details(report_id, user, need_unscramble=True):
         start_date=report.monitor_start_date,
         end_date=report.monitor_end_date,
         name=report.name,
-        brand=".".join([b.split("_")[1] for b in json.loads(report.brand_id)]),
+        brand=brand,
         period=(report.monitor_end_date - report.monitor_start_date).days + 1,
         status_value=report.get_status_display(),
         status=report.status,
@@ -199,11 +201,12 @@ def report_details(report_id, user, need_unscramble=True):
     return data
 
 
-def data_transform(data, sales_points):
+def data_transform(data, sales_points, brand):
     """
     将 etl 格式的数据 转换为 web 格式
     :param data: etl 数据
     :param sales_points: 诉求点
+    :param brand: 当前品牌
     :return:
     """
     # 投放渠道分布 转换
@@ -212,13 +215,16 @@ def data_transform(data, sales_points):
     if platform["weibo"] != 0:
         platform_web.append(dict(
             name="微博",
+            brand=brand,
             value=platform["weibo"],
-            children=[dict(name="微博", value=platform["weibo"])]
+            children=[dict(name="微博", value=platform["weibo"], brand=brand)]
         ))
 
     if len(platform["motherbaby"]) > 0:
+        map(lambda x: x.update(brand=brand), platform["motherbaby"])
         platform_web.append(dict(
             name="母垂",
+            brand=brand,
             value=sum([x["value"] for x in platform["motherbaby"]]),
             children=platform["motherbaby"]
         ))
@@ -231,6 +237,7 @@ def data_transform(data, sales_points):
     post_web = account_max_df.groupby(["user_type"], as_index=False).agg({"post_count": pandas.Series.sum})
 
     account_web = pandas.merge(account_web, post_web, how="left", on="user_type")
+    account_web["brand"] = brand
     data["spread_overview"]["account_web"] = account_web.to_dict(orient="records")
 
     #  子活动UGC构成
@@ -279,6 +286,9 @@ def data_transform(data, sales_points):
 
     apps_apis.set_precision(data["brand_concern"]["trend"], keys=("value", "value_year"), precision=1, pct=100.0)
     apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=1, pct=100.0)
+
+    map(lambda x: x.update(brand=brand), data["spread_efficiency"]["activity_composition"])
+    map(lambda x: x.update(brand=brand), data["spread_efficiency"]["user_type_composition"])
 
     apps_apis.ratio(data["spread_efficiency"]["activity_composition"], "value", precision=1)
     apps_apis.ratio(data["spread_efficiency"]["user_type_composition"], "value", precision=1)
@@ -627,7 +637,6 @@ def activity_contrast(param, user):
     # 数据规整
     for report in reports:
         brand = report["report_config"]["brand"]
-
         platforms = chain.from_iterable([platform["children"] for platform in report["spread_overview"]["platform_web"]])
         all_platform.append([m["name"] for m in platforms])
 
@@ -660,7 +669,7 @@ def activity_contrast(param, user):
     all_platform = list(set(chain.from_iterable(all_platform)))
     # 数据处理
     for data in datas:
-        data["platform_overview"] = [data["platform_overview"].get(platform, dict(name=platform, value=0)) for
+        data["platform_overview"] = [data["platform_overview"].get(platform, dict(name=platform, value=0, brand=data["brand"])) for
                                      platform in all_platform]
 
         data["platform_all_efficiency"] = dict(
@@ -691,7 +700,7 @@ def activity_contrast(param, user):
 
     # 进行 传播实况对比 提取
     spread_the_facts = {
-        "platform_overview": [data.pop("platform_overview")  for data in datas],
+        "platform_overview": [data.pop("platform_overview") for data in datas],
         "account_overview": [data.pop("account_overview") for data in datas],
         "activity_composition_efficiency": [data.pop("activity_composition_efficiency") for data in datas],
         "user_type_efficiency": [data.pop("user_type_efficiency") for data in datas],
