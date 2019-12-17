@@ -278,3 +278,18 @@ def activity_contrast(request):
 
     return JsonResponse(data, safe=False)
 
+
+def get_competitor(request):
+    '''
+    根据 品类品牌 获取 品牌竞品列表
+    :param request:
+    :return:
+    '''
+    param = apps_apis.get_parameter(request.POST, [
+        ("category_id", "请输入 品类 id", "int"),
+        ("brand", "请输入品牌信息", "str"),
+    ])
+
+    competitor = apis.get_competitor(param, request.user)
+
+    return JsonResponse(competitor, safe=False)

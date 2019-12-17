@@ -709,28 +709,21 @@ def activity_contrast(param, user):
     return dict(efficiency=efficiency, data=datas, spread_the_facts=spread_the_facts)
 
 
+def get_competitor(param, user):
+    '''
+    根据 品类品牌 获取 品牌竞品列表
+    :param param:
+    :param user:
+    :return:
+    '''
+    competitor = list(SmCompetitor.objects
+                      .filter(category_id=param["category_id"], user=user, brand=json.dumps(param["brand"]))
+                      .values_list("competitors"))
 
+    if len(competitor) > 0:
+        return json.loads(competitor[0])
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return []
 
 
 def delete_report(user, report_id):
