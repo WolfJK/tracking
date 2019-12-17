@@ -1005,7 +1005,7 @@ def make_new_form(report_id):
                         else:
                             dict_all.update({pla_id: val_list})
             # 下载 url 帖子链接
-            if key in ["url", ]:
+            if key in ["url", ] and value:
                 df = pandas.DataFrame.from_records(value)
                 df_download = df[["帖子链接(必填)", "帐号类型(必填)", "子活动名称(选填)"]]
                 df_download.to_excel(writer, sheet_name="链接列表", index=0)
