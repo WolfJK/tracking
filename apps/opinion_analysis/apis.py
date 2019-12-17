@@ -419,6 +419,36 @@ def get_keywords_from(range_time, category, brand_name, platform='net'):
     return keywords
 
 
+def get_content_from(bracket, range_time, competitors, category, brand_name, platform='net'):
+    # 获取内容分布雷达图 竞品为全品类的时候值显示当前品牌， 为主要竞品时是本品+竞品
+    str_brand = join_sql_bracket([brand_name, ])
+    bracket_platform = join_sql_bracket([platform,])
+    if competitors:
+        if platform == 'net':  # 全网的数据和bbv全部的数据时一样的
+            sql_radar = sqls.content_radar%(bracket, range_time)
+            sql_radar_classify = sqls.content_radar_classify%(bracket, range_time)
+        elif platform == 'all':
+            sql_radar = sqls.content_radar_bbv_all % (bracket, range_time)
+            sql_radar_classify = sqls.content_radar_classify_bbv_all % (bracket, range_time)
+        else:
+            sql_radar = sqls.content_radar_other_platform % (bracket,bracket_platform, range_time)
+            sql_radar_classify = sqls.content_radar_classify_other_platform % (bracket,bracket_platform, range_time)
+    else:
+        if platform == 'net':  # 全网的数据和bbv全部的数据时一样的
+            sql_radar = sqls.content_radar%(str_brand, range_time)
+            sql_radar_classify = sqls.content_radar_classify%(str_brand, range_time)
+        elif platform == 'all':
+            sql_radar = sqls.content_radar_bbv_all % (str_brand, range_time)
+            sql_radar_classify = sqls.content_radar_classify_bbv_all % (str_brand, range_time)
+        else:
+            sql_radar = sqls.content_radar_other_platform % (str_brand, bracket_platform,range_time)
+            sql_radar_classify = sqls.content_radar_classify_other_platform % (str_brand, bracket_platform, range_time)
+    data_radar = DB.search(sql_radar, {"category_name": category.name})
+    data_radar_classify = DB.search(sql_radar_classify, {"category_name": category.name})
+    dispose_content_radar(data_radar, data_radar_classify)
+    return data_radar_classify
+
+
 def get_net_day_month_week_analysis(vcBrand, category, date_range):
 
     brand_name = vcBrand.get("brand_name")
@@ -438,16 +468,8 @@ def get_net_day_month_week_analysis(vcBrand, category, date_range):
     net_keywords = get_keywords_from(range_time, category, brand_name)
 
     # 获取内容分布
-    if competitors:
-        sql_radar = sqls.content_radar%(bracket, range_time)
-        sql_radar_classify = sqls.content_radar_classify%(bracket, range_time)
-    else:
-        str_brand = join_sql_bracket([brand_name, ])
-        sql_radar = sqls.content_radar%(str_brand, range_time)
-        sql_radar_classify = sqls.content_radar_classify%(str_brand, range_time)
-    data_radar = DB.search(sql_radar, {"category_name": category.name})
-    data_radar_classify = DB.search(sql_radar_classify, {"category_name": category.name})
-    dispose_content_radar(data_radar, data_radar_classify)
+    data_radar_classify = get_content_from(bracket, range_time, competitors, category, brand_name)
+
     return dict_data, data_voice_histogram, vioce_platform, data_voice_area_classify, net_keywords, data_radar_classify
 
 
@@ -456,8 +478,9 @@ def dispose_content_radar(data_radar, data_radar_classify):
         for platform_classify in data_radar_classify:
             all_count = platform_sum.get("count")
             classify_count = platform_classify.get("count")
-            sov = get_all_sov(classify_count, all_count)
-            platform_classify.update(sov=sov)
+            if platform_sum.get('brand') == platform_classify.get("brand"):
+                sov = get_all_sov(classify_count, all_count)
+                platform_classify.update(sov=sov)
     return data_radar_classify
 
 
@@ -510,7 +533,6 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
     dict_data, dict_sov_classify = get_data(bracket, competitors, range_time, category, platform)
     # 获取声量助柱形图
-    bracket_platform = join_sql_bracket([platform, ])
     data_voice_histogram, data_voice_round = get_data_voice_histogram(bracket, range_time, category, competitors, platform)
 
     # 获取平台声量的条形图
@@ -523,16 +545,8 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
     net_keywords = get_keywords_from(range_time, category, brand_name, platform)
 
     # 获取内容分布
-    if competitors:
-        sql_radar = sqls.bbv_content_radar%(bracket, range_time)
-        sql_radar_classify = sqls.bbv_content_radar_classify%(bracket, range_time)
-    else:
-        str_brand = join_sql_bracket([brand_name, ])
-        sql_radar = sqls.bbv_platform_content_radar%(str_brand, bracket_platform, range_time)
-        sql_radar_classify = sqls.bbv_platform_content_radar_classify%(str_brand, bracket_platform, range_time)
-    data_radar = DB.search(sql_radar, {"category_name": category.name})
-    data_radar_classify = DB.search(sql_radar_classify, {"category_name": category.name})
-    dispose_content_radar(data_radar, data_radar_classify)
+    data_radar_classify = get_content_from(bracket, range_time, competitors, category, brand_name)
+
     return dict_data, data_voice_histogram, vioce_platform, data_voice_area_classify, net_keywords, data_radar_classify
 
 
@@ -628,7 +642,6 @@ def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform
     brand_name = vcBrand.get("brand_name")
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
 
-    bracket_platform = join_sql_bracket([platform, ])
     # 获取日周月数据
     dict_data, dict_sov_classify = get_data(bracket, competitors, range_time, category, platform)
     # sov环形 和 品牌声量的条形图
@@ -643,16 +656,8 @@ def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform
     net_keywords = get_keywords_from(range_time, category, brand_name, platform)
 
     # 获取内容分布
-    if competitors:
-        sql_radar = sqls.bbv_content_radar % (bracket, range_time)
-        sql_radar_classify = sqls.bbv_content_radar_classify % (bracket, range_time)
-    else:
-        str_brand = join_sql_bracket([brand_name, ])
-        sql_radar = sqls.bbv_platform_content_radar % (str_brand, bracket_platform, range_time)
-        sql_radar_classify = sqls.bbv_platform_content_radar_classify % (str_brand, bracket_platform, range_time)
-    data_radar = DB.search(sql_radar, {"category_name": category.name})
-    data_radar_classify = DB.search(sql_radar_classify, {"category_name": category.name})
-    dispose_content_radar(data_radar, data_radar_classify)
+    data_radar_classify = get_content_from(bracket, range_time, competitors, category, brand_name)
+
     return dict_data, data_voice_histogram, data_voice_area_classify, net_keywords, data_radar_classify
 
 

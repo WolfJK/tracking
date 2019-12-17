@@ -222,16 +222,50 @@ order by count desc limit 20;
 
 # 内容分布雷达图总数
 content_radar = """
-select sum(count) count  from vc_mp_first_level_cognition a
-where brand in %s and category= {category_name} %s;
+select brand, sum(count) count  from vc_mp_first_level_cognition a
+where brand in %s 
+and category= {category_name} %s
+group by brand;
+"""
+
+content_radar_bbv_all = """
+select brand, sum(count) count  from vc_mp_first_level_cognition a
+where brand in %s
+and category= {category_name}
+and a.type='bbv' %s
+group by brand;
+"""
+
+content_radar_other_platform = """
+select brand, sum(count) count  from vc_mp_first_level_cognition a
+where brand in %s
+and category= {category_name} 
+and a.platform in %s %s 
+group by brand;
 """
 
 content_radar_classify = """
-select cognition, sum(count) count  from vc_mp_first_level_cognition a
-where brand in %s and category= {category_name} %s
-group by  cognition
+select brand, cognition, sum(count) count  from vc_mp_first_level_cognition a
+where brand in %s 
+and category={category_name} %s
+group by  cognition, brand;
 """
 
+content_radar_classify_bbv_all = """
+select brand, cognition, sum(count) count  from vc_mp_first_level_cognition a
+where brand in %s 
+and a.type ='bbv'
+and category={category_name} %s
+group by  cognition, brand;
+"""
+
+content_radar_classify_other_platform = """
+select brand, cognition, sum(count) count  from vc_mp_first_level_cognition a
+where brand in %s
+and category= {category_name} 
+and a.platform in %s %s 
+group by brand, cognition;
+"""
 
 # bbv竞品所有的声量
 monitor_data_bbv_all_compete_voice = """
