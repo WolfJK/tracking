@@ -689,7 +689,15 @@ def activity_contrast(param, user):
         activity_efficiency=__flat_map(datas, "activity_efficiency"),
     )
 
-    return dict(efficiency=efficiency, data=datas)
+    # 进行 传播实况对比 提取
+    spread_the_facts = {
+        "platform_overview": [data.pop("platform_overview")  for data in datas],
+        "account_overview": [data.pop("account_overview") for data in datas],
+        "activity_composition_efficiency": [data.pop("activity_composition_efficiency") for data in datas],
+        "user_type_efficiency": [data.pop("user_type_efficiency") for data in datas],
+    }
+
+    return dict(efficiency=efficiency, data=datas, spread_the_facts=spread_the_facts)
 
 
 
