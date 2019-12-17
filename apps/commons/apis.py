@@ -159,7 +159,10 @@ def competitor_list(param, user):
     '''
     params = dict(queue_filter=param.get("queue_filter", ''), user_id=user.id)
     data = DB.search(sqls.competitor_list, params)
-    map(lambda x: x.update(competitors=json.loads(x["competitors"])), data)
+    map(lambda x: x.update(
+        competitors=json.loads(x["competitors"]),
+        brand=json.loads(x["brand"]),
+    ), data)
 
     return data
 
