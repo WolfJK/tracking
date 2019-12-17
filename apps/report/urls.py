@@ -13,6 +13,7 @@ urlpatterns = patterns("apps.report.views",
     url(r"^report-details/$", views.report_details),
     url(r"^report-unscramble-save/$", views.report_unscramble_save),
     url(r"^activity-contrast/$", views.activity_contrast),
+    url(r"^get-competitor/$", views.get_competitor),
 
     url(r"^report-common-info/$", views.report_common_info),
     url(r"^report-config-cancel/$", views.report_config_cancel),

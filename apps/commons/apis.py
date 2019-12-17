@@ -11,6 +11,7 @@ from operator import itemgetter
 import apps.apis as apps_apis
 import json
 from common.db_helper import DB
+import copy
 import sqls
 
 
@@ -158,7 +159,10 @@ def competitor_list(param, user):
     '''
     params = dict(queue_filter=param.get("queue_filter", ''), user_id=user.id)
     data = DB.search(sqls.competitor_list, params)
-    map(lambda x: x.update(competitors=json.loads(x["competitors"])), data)
+    map(lambda x: x.update(
+        competitors=json.loads(x["competitors"]),
+        brand=json.loads(x["brand"]),
+    ), data)
 
     return data
 
@@ -170,7 +174,14 @@ def competitor_save(param, user):
     :param user:
     :return:
     '''
+
     param.update(user=user, brand=json.dumps(param["brand"]), competitors=json.dumps(param["competitors"]))
+    param_filter = copy.deepcopy(param)
+    param_filter.pop("competitors")
+
+    if len(SmCompetitor.objects.filter(**param_filter)) > 0:
+        raise Exception("该品牌的 竞品列表已经存在")
+
     SmCompetitor(**param).save()
 
 
