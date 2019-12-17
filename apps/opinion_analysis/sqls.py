@@ -16,7 +16,7 @@ select * from vc_monitor_brand where json_index(brand, -1, '.name') regexp {bran
 """
 
 search_monitor_brand_type = """
-select * from vc_monitor_brand where category_id = {category_id};
+select * from vc_monitor_brand where category_id = {category_id} order by create_time desc;
 """
 
 # 按照品类获取所有监测品牌名称

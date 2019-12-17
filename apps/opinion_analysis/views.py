@@ -59,8 +59,9 @@ def data_monitor_analysis(request):
     '''
 
     # 返回所有的监测的数据
+    brand_name = request.POST.get("brand_name")
     category_id = request.POST.get("category_id")
-    data = apis.get_all_monitor_card_data(category_id)
+    data = apis.get_all_monitor_card_data(brand_name, category_id)
     return JsonResponse(data=data, safe=False)
 
 

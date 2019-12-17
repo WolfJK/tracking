@@ -38,11 +38,48 @@ def delete_monitor_brand(brand_id):
 
 
 def search_monitor_brand(brand_name, category_id):
-    if not brand_name:
-        result = DB.search(sqls.search_monitor_brand_type, {"category_id": category_id})
-    else:
-        result = DB.search(sqls.search_monitor_brand, {"brand_name": brand_name, "category_id": category_id})
-    return result
+    result = DB.search(sqls.search_monitor_brand_type, {"category_id": category_id})
+    for brand in result:
+        brand_list = json.loads(brand.get("brand"))
+        brand_id, brand_name_dian = dispose_brand_name(brand_list)
+        brand.update(brand_name=brand_name_dian)
+        brand.update(brand_id=brand_id)
+    if brand_name:
+        data = list()
+        for brand in result:
+            if brand_name in brand.get('brand_name'):
+                data.append(brand)
+
+    return data if brand_name else result
+
+
+def dispose_brand_name(brand_list):
+    """处理品牌格式
+    ["1_a2奶粉", "3_可瑞康", "8_爱瑞嘉"]
+    """
+    list_data = list()
+    for brand in brand_list:
+        list_data.append(brand.split('_')[1])
+    brand_id = brand_list[-1].split('_')[0]
+    brand_name = ".".join(list_data)
+
+    return brand_id, brand_name
+
+
+def dispose_competers(competers):
+    """处理竞争产品的格式
+    ["15_伴宝乐", "69_御宝-68_御宝优贝源", "37_澳优-43_澳优欧选-42_澳优欧选澳滋"]
+    """
+    competer_data = list()
+    for competer in competers:
+        competer_list = list()
+        split_data = competer.split("-")
+        for _competer in split_data:
+            competer_list.append(_competer.split("_")[1])
+        brand_name = ".".join(competer_list)
+        competer_data.append(brand_name)
+
+    return competer_data
 
 
 def get_compete_brand(vc_monitor):
@@ -56,9 +93,10 @@ def get_compete_brand(vc_monitor):
     return results
 
 
-def get_all_monitor_card_data(category_id):
+def get_all_monitor_card_data(brand_name, category_id):
     # 按照品类查询所有的品牌id, 计算声量信息
-    vcBrands = DB.search(sqls.get_all_brand_id, {"category_id": category_id})
+    # vcBrands = DB.search(sqls.get_all_brand_id, {"category_id": category_id})
+    vcBrands = search_monitor_brand(brand_name, category_id)
     category = DimCategory.objects.get(id=category_id)
     industry = DimIndustry.objects.get(id=category.industry_id)
 
@@ -111,11 +149,11 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
     range_time_previous = " and date between '{}' and '{}' ".format(date_previous2, date_previous1)
 
     competitors = json.loads(vcBrand.get("competitor"))
-    list_compete = list()
+    list_compete = dispose_competers(competitors)
     bracket_platform = join_sql_bracket([type, ])
     if competitors:  # 有竞品
-        for competitor in competitors:
-            list_compete.append(competitor.get("name"))
+        # for competitor in competitors:
+        #     list_compete.append(competitor.get("name"))
         list_compete.append(brand_name)  # 所有的竞品加上本品的总数
         bracket = join_sql_bracket(list_compete)
         if type == "net":
@@ -143,13 +181,10 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
         elif type == 'all':
             sql = sqls.bbv_all_sum_voice % (range_time)
             sql_previous = sqls.bbv_all_sum_voice % (range_time_previous)
-
         elif type in ["微博", "微信"]:
-            bracket_platform = join_sql_bracket([type, ])
             sql = sqls.milk_platform_classify_voice % (bracket_platform, range_time)  # 获取当前
             sql_previous = sqls.milk_platform_classify_voice % (bracket_platform, range_time_previous)  # 获取上个阶段
         else:
-            bracket_platform = join_sql_bracket([type, ])
             sql = sqls.bbv_platform_classify_voice % (bracket_platform, range_time)
             sql_previous = sqls.bbv_platform_classify_voice % (bracket_platform, range_time_previous)
         voice = DB.get(sql, {"category_name": category.name})  # 获取全品类声量
@@ -163,11 +198,11 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
         new_sql = sqls.self_brand_bbv_all % (range_time)
         new_sql_previous = sqls.self_brand_bbv_all % (range_time_previous)
     elif type in ["微博", "微信"]:
-        bracket_platform = join_sql_bracket([type, ])
+
         new_sql = sqls.self_brand_milk_classify % (bracket_platform, range_time)
         new_sql_previous = sqls.self_brand_milk_classify % (bracket_platform, range_time_previous)
     else:
-        bracket_platform = join_sql_bracket([type, ])
+
         new_sql = sqls.self_brand_bbv_classify % (bracket_platform, range_time)
         new_sql_previous = sqls.self_brand_bbv_classify % (bracket_platform, range_time_previous)
 
