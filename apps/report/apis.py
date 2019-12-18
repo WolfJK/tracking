@@ -718,7 +718,7 @@ def get_competitor(param, user):
     '''
     competitor = list(SmCompetitor.objects
                       .filter(category_id=param["category_id"], user=user, brand=json.dumps(param["brand"]))
-                      .values_list("competitors"))
+                      .values_list("competitors", flat=True))
 
     if len(competitor) > 0:
         return json.loads(competitor[0])

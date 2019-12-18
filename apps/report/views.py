@@ -287,7 +287,7 @@ def get_competitor(request):
     '''
     param = apps_apis.get_parameter(request.POST, [
         ("category_id", "请输入 品类 id", "int"),
-        ("brand", "请输入品牌信息", "str"),
+        ("brand", "请输入品牌信息", "list"),
     ])
 
     competitor = apis.get_competitor(param, request.user)
