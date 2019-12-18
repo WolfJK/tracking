@@ -786,7 +786,7 @@ def download_file(parametes, flag):
         for paramete in parametes:
             dimension_df.to_excel(writer, sheet_name=paramete, index=0)
     else:
-        dimension_df = pandas.DataFrame.from_records(list(), columns=["帖子链接(必填)", "帐号类型(必填)", "子活动名称(选填)"])
+        dimension_df = pandas.DataFrame.from_records(list(), columns=["帖子链接(必填)", "帐号类型(必填)", "子活动名称(选填总类型不超过5类)"])
         dimension_df.to_excel(writer, sheet_name="链接列表", index=0)
     writer.save()
     output.seek(0)
@@ -1021,7 +1021,7 @@ def make_new_form(report_id):
             # 下载 url 帖子链接
             if key in ["url", ] and value:
                 df = pandas.DataFrame.from_records(value)
-                df_download = df[["帖子链接(必填)", "帐号类型(必填)", "子活动名称(选填)"]]
+                df_download = df[["帖子链接(必填)", "帐号类型(必填)", "子活动名称(选填总类型不超过5类)"]]
                 df_download.to_excel(writer, sheet_name="链接列表", index=0)
 
         # 下载bgc或者kol
