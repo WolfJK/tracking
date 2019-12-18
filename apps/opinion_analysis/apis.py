@@ -95,8 +95,10 @@ def get_compete_brand(vc_monitor):
 
 def get_all_monitor_card_data(brand_name, category_id):
     # 按照品类查询所有的品牌id, 计算声量信息
-    # vcBrands = DB.search(sqls.get_all_brand_id, {"category_id": category_id})
-    vcBrands = search_monitor_brand(brand_name, category_id)
+    try:
+        vcBrands = search_monitor_brand(brand_name, category_id)
+    except Exception:
+        vcBrands = DB.search(sqls.get_all_brand_id, {"category_id": category_id})
     category = DimCategory.objects.get(id=category_id)
     industry = DimIndustry.objects.get(id=category.industry_id)
 
@@ -149,11 +151,14 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
     range_time_previous = " and date between '{}' and '{}' ".format(date_previous2, date_previous1)
 
     competitors = json.loads(vcBrand.get("competitor"))
-    list_compete = dispose_competers(competitors)
+    try:
+        list_compete = dispose_competers(competitors)
+    except Exception:
+        list_compete = list()
+        for competitor in competitors:
+            list_compete.append(competitor.get("name"))
     bracket_platform = join_sql_bracket([type, ])
     if competitors:  # 有竞品
-        # for competitor in competitors:
-        #     list_compete.append(competitor.get("name"))
         list_compete.append(brand_name)  # 所有的竞品加上本品的总数
         bracket = join_sql_bracket(list_compete)
         if type == "net":

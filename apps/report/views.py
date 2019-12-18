@@ -227,7 +227,7 @@ def download_account(request):
     """
     parametes = request.POST.get("channel")
     flag = request.POST.get("type")
-    if flag in [1, 2]:
+    if flag in ["1", "2"]:
         if not parametes:
             raise Exception("请先传入渠道参数列表")
         try:
