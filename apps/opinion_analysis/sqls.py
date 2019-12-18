@@ -19,6 +19,10 @@ search_monitor_brand_type = """
 select * from vc_monitor_brand where category_id = {category_id} order by create_time desc;
 """
 
+search_one_brand = """
+select * from vc_monitor_brand where id={brand_id};
+"""
+
 # 按照品类获取所有监测品牌名称
 get_all_brand_id = """
 select id, json_index(brand, -1, '.name') as brand_name, competitor, time_slot from vc_monitor_brand where category_id = {category_id};

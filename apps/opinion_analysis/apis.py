@@ -53,6 +53,18 @@ def search_monitor_brand(brand_name, category_id):
     return data if brand_name else result
 
 
+def get_vcbrand_for_name(brand_id):
+    try:
+        result = DB.get(sqls.search_one_brand, {"brand_id": brand_id})
+    except Exception:
+        raise Exception("监测id不存在")
+    brand_list = json.loads(result.get("brand"))
+    brand_id, brand_name_dian = dispose_brand_name(brand_list)
+    result.update(brand_name=brand_name_dian)
+    result.update(brand_id=brand_id)
+    return result
+
+
 def dispose_brand_name(brand_list):
     """处理品牌格式
     ["1_a2奶粉", "3_可瑞康", "8_爱瑞嘉"]
@@ -226,7 +238,10 @@ def whole_net_analysis(brand_id, date_range):
     :return:
     """
     date_range = json.loads(date_range)
-    vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
+    try:
+        vcBrand = get_vcbrand_for_name(brand_id)
+    except Exception:
+        vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
     self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range)
@@ -593,7 +608,11 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
 def get_bbv_analysis(brand_id, date_range, platform):
     # bbv数据分析
     date_range = json.loads(date_range)
-    vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
+    try:
+        vcBrand = get_vcbrand_for_name(brand_id)
+    except Exception:
+        vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
+
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
     self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range, type=platform)
@@ -614,11 +633,17 @@ def get_bracket_datarange(vcBrand, category, date_range):
     brand_name = vcBrand.get("brand_name")
     range_time = " and a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
     competitors = json.loads(vcBrand.get("competitor"))
-    list_compete = list()
-    if competitors:  # 有竞品
+    try:
+        list_compete = dispose_competers(competitors)
+    except Exception:
+        list_compete = list()
         for competitor in competitors:
             list_compete.append(competitor.get("name"))
-        list_compete.append(brand_name)
+    # list_compete = list()
+    if competitors:  # 有竞品
+        # for competitor in competitors:
+        #     list_compete.append(competitor.get("name"))
+        # list_compete.append(brand_name)
         bracket = join_sql_bracket(list_compete)
     else:
         # 获取top5的声量
@@ -636,7 +661,10 @@ def get_dsm_milk_analysis(brand_id, date_range, platform):
     奶粉深度社媒数据分析 其中微博微信的数据的声量数据来源与sass
     """
     date_range = json.loads(date_range)
-    vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
+    try:
+        vcBrand = get_vcbrand_for_name(brand_id)
+    except Exception:
+        vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
     self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range, platform)
