@@ -653,16 +653,22 @@ def activity_contrast(param, user):
             activity_composition_efficiency=report["spread_efficiency"]["activity_composition"],
             user_type_efficiency=report["spread_efficiency"]["user_type_composition"],
 
+            # 传播效果对比 -> 活动期间UGC总计
             ugc_count_effectiveness=report["spread_effectiveness"]["ugc_count"],
+            # 传播效果对比 -> 活动 UGC【活动 ugc 构成】
             ugc_in_activity_composition={
                 "提及品牌": report["spread_effectiveness"]["ugc_count"],
                 "未提及品牌": report["spread_effectiveness"]["ugc_count"]
             },
 
+            # 品牌 UGC -> 活动期品牌 ugc
             ugc_in_activity_count=report["spread_effectiveness"]["ugc_in_activity_count"],
+            # 品牌 UGC -> 活动对品牌 ugc 的贡献度
             delta_absolute=report["spread_effectiveness"]["delta_absolute"],
 
+            # 品牌关注度 -> 活动品牌关注[活动期实际品牌关注度]
             activity_brand_concern=report["brand_concern"]["activity"],
+            # 品牌关注度 -> 活动对品牌关注贡献度
             delta_brand_concern=report["brand_concern"]["delta"],
         ))
 
