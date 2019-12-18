@@ -808,7 +808,7 @@ def read_excle(file):
             platform = DimPlatform.objects.get(name=value)
         except Exception:
             raise Exception("表名称不存在,请按照下载模板填写")
-        df1 = pandas.read_excel(file, encoding="utf-8", sheet_name=sheets[num])
+        df1 = pandas.read_excel(file, encoding="utf-8", sheetname=sheets[num])
         df1["BGC/KOL"].apply(verify_account)
         df1.fillna("", inplace=True)
         if df1.empty:
@@ -916,7 +916,7 @@ def read_url_excle(file_url):
         if not value:
             raise Exception("填写的帐号类型不能为空")
 
-    df1 = pandas.read_excel(xl, encoding="utf-8", sheet_name=sheets[num])
+    df1 = pandas.read_excel(xl, encoding="utf-8", sheetname=sheets[num])
     if df1.empty:
         raise Exception("上传的url不能为空")
     if ("帐号类型(必填)" and "帖子链接(必填)" and "子活动名称(选填)") not in df1.keys():
@@ -949,7 +949,7 @@ def read_bgc_kol_excle(file_kol, file_bgc):
                 platform = DimPlatform.objects.get(name=value)
             except Exception:
                 raise Exception("表名称不存在,请按照下载模板填写")
-            df1 = pandas.read_excel(file, encoding="utf-8", sheet_name=sheets[num])
+            df1 = pandas.read_excel(file, encoding="utf-8", sheetname=value)
             # df1["BGC/KOL"].apply(verify_account)
             if("所在地" and "帐号") not in df1.keys():
                 raise Exception("表名称必须含有列所在地, 帐号")
