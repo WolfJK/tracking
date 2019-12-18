@@ -773,7 +773,7 @@ def download_file(parametes, flag):
     # 创建Excel内存对象，用StringIO填充
     output = BytesIO()
     writer = pandas.ExcelWriter(output, engine="xlsxwriter")
-    if flag in [1, 2]:
+    if flag in ["1", "2"]:
         parametes = DimPlatform.objects.filter(id__in=parametes).values_list('name', flat=True)
         # dimension_df = pandas.DataFrame.from_records(list(), columns=["BGC/KOL", "所在地", "帐号"])
         dimension_df = pandas.DataFrame.from_records(list(), columns=["所在地", "帐号"])
@@ -906,12 +906,18 @@ def read_url_excle(file_url):
         if not value:
             raise Exception("填写的帖子链接不能为空")
 
+    def verify_type_is_null(value):
+        if not value:
+            raise Exception("填写的帐号类型不能为空")
+
     df1 = pandas.read_excel(xl, encoding="utf-8", sheet_name=sheets[num])
+    if df1.empty:
+        raise Exception("上传的url不能为空")
     if ("帐号类型(必填)" and "帖子链接(必填)" and "子活动名称(选填)") not in df1.keys():
         raise Exception("请按照模板抬头填写注意抬头是否和模板对应,帐号类型(必填), 帖子链接(必填), 子活动名称(选填)")
     df1 = df1[["帐号类型(必填)", "帖子链接(必填)", "子活动名称(选填)"]]
     df1.fillna("", inplace=True)
-    df1["帐号类型(必填)"].apply(verify_is_null)
+    df1["帐号类型(必填)"].apply(verify_type_is_null)
     df1["帖子链接(必填)"].apply(verify_is_null)
 
     dict_dfs = df1.to_dict("records")
@@ -951,7 +957,7 @@ def read_bgc_kol_excle(file_kol, file_bgc):
             if flag == 1:
                 df1["type"] = "bgc"
             else:
-                df1["type"] = "koc"
+                df1["type"] = "kol"
             dict_dfs = df1.to_dict("records")
             dict_platform.update({platform.id: dict_dfs})
             list_data.append(dict_platform)
