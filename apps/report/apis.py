@@ -687,6 +687,7 @@ def activity_contrast(param, user):
 
         data["platform_all_efficiency"] = dict(
             name=data["brand"],
+            activity=data["activity"],
             value=sum([s["value"] for s in data["platform_efficiency"]]),
             avg_value=sum([s["avg_value"] for s in data["platform_efficiency"]]),
             breadth=sum([s["breadth"] for s in data["platform_efficiency"]]),
@@ -701,6 +702,7 @@ def activity_contrast(param, user):
         for data in datas:
             array.append([dict(
                 name=data["brand"] + '-' + e["name"],
+                activity=data["activity"],
                 value=e["value"],
                 avg_value=e["avg_value"],
                 interaction=e["interaction"],
