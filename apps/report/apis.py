@@ -681,7 +681,11 @@ def activity_contrast(param, user):
         data["platform_all_efficiency"] = dict(
             name=data["brand"],
             value=sum([s["value"] for s in data["platform_efficiency"]]),
-            avg_value=sum([s["avg_value"] for s in data["platform_efficiency"]])
+            avg_value=sum([s["avg_value"] for s in data["platform_efficiency"]]),
+            breadth=sum([s["breadth"] for s in data["platform_efficiency"]]),
+            avg_breadth=sum([s["avg_breadth"] for s in data["platform_efficiency"]]),
+            interaction=sum([s["interaction"] for s in data["platform_efficiency"]]),
+            avg_interaction=sum([s["avg_interaction"] for s in data["platform_efficiency"]]),
         )
 
     # 提取 efficiency, 并 进行 flat_map
@@ -690,7 +694,12 @@ def activity_contrast(param, user):
         for data in datas:
             array.append([dict(
                 name=data["brand"] + '-' + e["name"],
-                value=e["value"], avg_value=e["avg_value"]
+                value=e["value"],
+                avg_value=e["avg_value"],
+                interaction=e["interaction"],
+                avg_interaction=e["avg_interaction"],
+                breadth=e["breadth"],
+                avg_breadth=e["avg_breadth"],
             ) for e in data.pop(efficiency)]
                          )
 
