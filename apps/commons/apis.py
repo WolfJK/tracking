@@ -52,13 +52,14 @@ def brand_list(category_id):
     brands = DimBrandCategory.objects.filter(category_id=category_id, brand__parent__isnull=True)\
         .values("brand", "brand__name", "brand__parent")\
         .annotate(
+        brand_id=F("brand__id"),
         id=Concat(F("brand__id"), Value("_", output_field=CharField()), F("brand__name"), output_field=CharField()),
         name=F("brand__name"),
         parent=F("brand__parent")
-    ).values("id", "name", "parent")
+    ).values("brand_id", "id", "name", "parent")
     all_brand = [list(brands)]
 
-    get_child_brand_list(brands.values_list("id", flat=True), all_brand)
+    get_child_brand_list(brands.values_list("brand_id", flat=True), all_brand)
 
     return group_brand(all_brand)
 
@@ -70,10 +71,20 @@ def get_child_brand_list(brand_ids, all_brand):
     :param all_brand:
     :return:
     '''
-    childs = DimBrand.objects.filter(parent__in=brand_ids).values("id", "name", "parent")
+    childs = DimBrand.objects.filter(parent__in=brand_ids).values("id", "name", "parent").annotate(
+        brand_id=F("id"),
+        id2=Concat(F("id"), Value("_", output_field=CharField()), F("name"), output_field=CharField()),
+        name2=F("name"),
+        parent2=F("parent")
+    ).values("brand_id", "id2", "name2", "parent2").annotate(
+        id=F("id2"),
+        name=F("name2"),
+        parent=F("parent2"),
+    ).values("brand_id", "id", "name", "parent")
+
     if len(childs) > 0:
         all_brand.append(list(childs))
-        get_child_brand_list(childs.values_list("id", flat=True), all_brand)
+        get_child_brand_list(childs.values_list("brand_id", flat=True), all_brand)
 
 
 def group_brand(all_brand):
@@ -89,8 +100,8 @@ def group_brand(all_brand):
         child_map = {k: list(v) for k, v in groupby(brands, itemgetter("parent"))}
 
         for brand in all_brand[i-1]:
-            if child_map.has_key(brand["id"]):
-                brand.update(child=child_map.pop(brand["id"]))
+            if child_map.has_key(brand["brand_id"]):
+                brand.update(child=child_map.pop(brand["brand_id"]))
 
     return all_brand[0]
 
