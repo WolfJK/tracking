@@ -639,8 +639,9 @@ def activity_contrast(param, user):
     # 1、获取报告
     reports = [report_details(report_id, user) for report_id in param["report_ids"]]
 
-    # 2、处理 活动对比历史记录保存
-    if set(param["report_ids"]) == set(json.load(user.activity_contrast_history)):
+    # 2、处理 活动对比历史记录保存, 注意: 需要获取数据库的 history, 不能走缓存的 history
+    activity_contrast_history = json.loads(SmUser.objects.get(id=user.id).activity_contrast_history)
+    if set(param["report_ids"]) != set(activity_contrast_history):
         user.activity_contrast_history = json.dumps(param["report_ids"])
         user.save()
 
