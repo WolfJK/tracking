@@ -645,8 +645,7 @@ def activity_contrast(param, user):
         user.activity_contrast_history = json.dumps(param["report_ids"])
         user.save()
 
-    datas = []
-    all_platform = []
+    all_platform, datas = [], []
     # 3、数据规整
     for report in reports:
         brand = report["report_config"]["brand"]
