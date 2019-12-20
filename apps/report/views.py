@@ -285,7 +285,9 @@ def activity_contrast_history(request):
     :param request:
     :return:
     '''
-    return json.loads(request.user.activity_contrast_history)
+    data = json.loads(request.user.activity_contrast_history)
+
+    return JsonResponse(data, safe=False)
 
 
 def get_competitor(request):
