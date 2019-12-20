@@ -279,6 +279,15 @@ def activity_contrast(request):
     return JsonResponse(data, safe=False)
 
 
+def activity_contrast_history(request):
+    '''
+    获取活动对比 的历史记录
+    :param request:
+    :return:
+    '''
+    return json.loads(request.user.activity_contrast_history)
+
+
 def get_competitor(request):
     '''
     根据 品类品牌 获取 品牌竞品列表

@@ -636,11 +636,17 @@ def activity_contrast(param, user):
     :param user:
     :return:
     '''
+    # 1、获取报告
     reports = [report_details(report_id, user) for report_id in param["report_ids"]]
+
+    # 2、处理 活动对比历史记录保存
+    if set(param["report_ids"]) == set(json.load(user.activity_contrast_history)):
+        user.activity_contrast_history = json.dumps(param["report_ids"])
+        user.save()
 
     datas = []
     all_platform = []
-    # 数据规整
+    # 3、数据规整
     for report in reports:
         brand = report["report_config"]["brand"]
         platforms = chain.from_iterable([platform["children"] for platform in report["spread_overview"]["platform_web"]])
@@ -680,7 +686,7 @@ def activity_contrast(param, user):
         ))
 
     all_platform = list(set(chain.from_iterable(all_platform)))
-    # 数据处理
+    # 4、数据处理
     for data in datas:
         data["platform_overview"] = [data["platform_overview"].get(platform, dict(name=platform, value=0, brand=data["brand"], activity=data["activity"])) for
                                      platform in all_platform]
@@ -696,7 +702,7 @@ def activity_contrast(param, user):
             avg_interaction=sum([s["avg_interaction"] for s in data["platform_efficiency"]]),
         )
 
-    # 提取 efficiency, 并 进行 flat_map
+    # 5、提取 efficiency, 并 进行 flat_map
     def __flat_map(datas, efficiency):
         array = []
         for data in datas:
@@ -715,7 +721,7 @@ def activity_contrast(param, user):
 
         return list(chain.from_iterable(array))
 
-    # 进行 efficiency 处理
+    # 6、进行 efficiency 处理
     efficiency = dict(
         platform_all=[data.pop("platform_all_efficiency") for data in datas],
         platform_efficiency=__flat_map(datas, "platform_efficiency"),
@@ -723,7 +729,7 @@ def activity_contrast(param, user):
         activity_efficiency=__flat_map(datas, "activity_efficiency"),
     )
 
-    # 进行 传播实况对比 提取
+    # 7、进行 传播实况对比 提取
     spread_the_facts = {
         "platform_overview": [data.pop("platform_overview") for data in datas],
         "account_overview": [data.pop("account_overview") for data in datas],
