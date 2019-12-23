@@ -121,7 +121,9 @@ def sales_point_list(category_id):
     :param category_id: 品类 id
     :return:
     '''
-    return list(DimSalesPoint.objects.filter(category_id=category_id).values("id", "name"))
+    id2 = Concat(F("id"), Value("_", output_field=CharField()), F("name"), output_field=CharField())
+    return list(DimSalesPoint.objects.filter(category_id=category_id)
+                .annotate(id2=id2).values("id2", "name").annotate(id=F("id2")).values("id", "name"))
 
 
 def report_template_list(user):
