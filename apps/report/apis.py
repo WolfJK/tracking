@@ -583,14 +583,18 @@ def report_config_create(param, user, ip):
     # 判断帐号类型 # 判断如果选择的是url则清空关键字和投放平台，不启用bgc，kol库
     # 清楚活动关键字和投放平台 url链接的投放平台是通过链接来判定的
     accounts = param["accounts"]
-    if accounts:
-        if accounts.get('url'):
-            accounts.update(type=list())
-        else:
-            accounts.update(type=param["type"])
-    else:
-        accounts.update(url=list(), bgc=list(), kol=list(), type=param["type"] )
-    param.pop('type')
+    accounts.update(choose_bgc=param['bgc'])
+    accounts.update(choose_kol=param['kol'])
+    # if accounts:
+    #     if accounts.get('url'):
+    #         accounts.update(type=list())
+    #     else:
+    #         accounts.update(type=param["type"])
+    # else:
+    #     accounts.update(url=list(), bgc=list(), kol=list(), type=param["type"] )
+    param.pop('bgc')
+    param.pop('kol')
+
     param.update(accounts=json.dumps(accounts))
 
     report_id = param.pop("report_id")
