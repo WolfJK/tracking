@@ -944,9 +944,9 @@ def read_url_excle(file_url):
     df1 = pandas.read_excel(xl, encoding="utf-8", sheetname=sheets[num])
     if df1.empty:
         raise Exception("上传的url不能为空")
-    if ("帐号类型(必填)" and "帖子链接(必填)" and "子活动名称(选填)") not in df1.keys():
-        raise Exception("请按照模板抬头填写注意抬头是否和模板对应,帐号类型(必填), 帖子链接(必填), 子活动名称(选填)")
-    df1 = df1[["帐号类型(必填)", "帖子链接(必填)", "子活动名称(选填)"]]
+    if ("帐号类型(必填)" and "帖子链接(必填)" and "子活动名称(选填总类型不超过5类)") not in df1.keys():
+        raise Exception("请按照模板抬头填写注意抬头是否和模板对应,帐号类型(必填), 帖子链接(必填), 子活动名称(选填总类型不超过5类)")
+    df1 = df1[["帐号类型(必填)", "帖子链接(必填)", "子活动名称(选填总类型不超过5类)"]]
     df1.fillna("", inplace=True)
     df1["帐号类型(必填)"].apply(verify_type_is_null)
     df1["帖子链接(必填)"].apply(verify_is_null)
