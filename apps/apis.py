@@ -34,7 +34,7 @@ def get_parameter(request_data, parameters):
             parameter_value = int(parameter_value)
 
         if parameter[2] == 'bool':
-            parameter_value = bool(parameter_value)
+            parameter_value = bool(int(parameter_value))
 
         param.update({parameter[0]: parameter_value})
 

@@ -73,7 +73,7 @@ def report_config_create(request):
 
     ip = apps_apis.get_ip(request)
     param = apps_apis.get_parameter(request.POST, params)
-    print "参数 = ", param
+
     # 这里判断标签  请选择投放渠道
     if not param['accounts'].get("url") and not param['tag']:
         raise Exception("请输入标签")
