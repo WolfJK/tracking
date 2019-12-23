@@ -132,6 +132,7 @@ class SmUser(AbstractBaseUser):
     is_admin = models.BooleanField(help_text="是否是管理员", default=False)
     user_type = models.IntegerField(choices=USER_TYPE_CHOICE, help_text="用户类型")
     role = models.ForeignKey(SmRole, help_text="角色", on_delete=models.DO_NOTHING, null=True)
+    activity_contrast_history = models.CharField(max_length=1024, help_text="活动对比的历史记录, json 格式", default=[])
 
     class Meta:
         db_table = "sm_user"

@@ -177,9 +177,10 @@ def report_details(report_id, user, need_unscramble=True):
 
     report = get_report(report_id, user, status=(0, ))
     brand = ".".join([b.split("_")[1] for b in json.loads(report.brand_id)])
-
     sales_points = json.loads(report.sales_points)
-    data = data_transform(json.loads(report.data), sales_points, brand=brand)
+
+    config = dict(sales_points=sales_points, brand=brand, activity=report.title)
+    data = data_transform(json.loads(report.data), config)
 
     if not data.get("unscramble") and need_unscramble:
         data["unscramble"] = get_unscramble(data, sales_points)
@@ -192,6 +193,7 @@ def report_details(report_id, user, need_unscramble=True):
         end_date=report.monitor_end_date,
         name=report.name,
         brand=brand,
+        activity=report.title,
         period=(report.monitor_end_date - report.monitor_start_date).days + 1,
         status_value=report.get_status_display(),
         status=report.status,
@@ -201,14 +203,17 @@ def report_details(report_id, user, need_unscramble=True):
     return data
 
 
-def data_transform(data, sales_points, brand):
+def data_transform(data, config):
     """
     将 etl 格式的数据 转换为 web 格式
     :param data: etl 数据
-    :param sales_points: 诉求点
-    :param brand: 当前品牌
+    :param config: 活动的配置
     :return:
     """
+    sales_points = config["sales_points"]
+    brand = config["brand"]
+    activity = config["activity"]
+
     # 投放渠道分布 转换
     platform = data["spread_overview"]["platform"]
     platform_web = []
@@ -238,6 +243,7 @@ def data_transform(data, sales_points, brand):
 
     account_web = pandas.merge(account_web, post_web, how="left", on="user_type")
     account_web["brand"] = brand
+    account_web["activity"] = activity
     data["spread_overview"]["account_web"] = account_web.to_dict(orient="records")
 
     #  子活动UGC构成
@@ -287,8 +293,8 @@ def data_transform(data, sales_points, brand):
     apps_apis.set_precision(data["brand_concern"]["trend"], keys=("value", "value_year"), precision=1, pct=100.0)
     apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=1, pct=100.0)
 
-    map(lambda x: x.update(brand=brand), data["spread_efficiency"]["activity_composition"])
-    map(lambda x: x.update(brand=brand), data["spread_efficiency"]["user_type_composition"])
+    map(lambda x: x.update(brand=brand, activity=activity), data["spread_efficiency"]["activity_composition"])
+    map(lambda x: x.update(brand=brand, activity=activity), data["spread_efficiency"]["user_type_composition"])
 
     apps_apis.ratio(data["spread_efficiency"]["activity_composition"], "value", precision=1)
     apps_apis.ratio(data["spread_efficiency"]["user_type_composition"], "value", precision=1)
@@ -630,11 +636,17 @@ def activity_contrast(param, user):
     :param user:
     :return:
     '''
+    # 1、获取报告
     reports = [report_details(report_id, user) for report_id in param["report_ids"]]
 
-    datas = []
-    all_platform = []
-    # 数据规整
+    # 2、处理 活动对比历史记录保存, 注意: 需要获取数据库的 history, 不能走缓存的 history
+    activity_contrast_history = json.loads(SmUser.objects.get(id=user.id).activity_contrast_history)
+    if set(param["report_ids"]) != set(activity_contrast_history):
+        user.activity_contrast_history = json.dumps(param["report_ids"])
+        user.save()
+
+    all_platform, datas = [], []
+    # 3、数据规整
     for report in reports:
         brand = report["report_config"]["brand"]
         platforms = chain.from_iterable([platform["children"] for platform in report["spread_overview"]["platform_web"]])
@@ -642,6 +654,7 @@ def activity_contrast(param, user):
 
         datas.append(dict(
             brand=brand,
+            activity=report["report_config"]["activity"],
 
             platform_overview={m["name"]: m for m in platforms},
             account_overview=report["spread_overview"]["account_web"],
@@ -673,30 +686,42 @@ def activity_contrast(param, user):
         ))
 
     all_platform = list(set(chain.from_iterable(all_platform)))
-    # 数据处理
+    # 4、数据处理
     for data in datas:
-        data["platform_overview"] = [data["platform_overview"].get(platform, dict(name=platform, value=0, brand=data["brand"])) for
+        data["platform_overview"] = [data["platform_overview"].get(platform, dict(name=platform, value=0, brand=data["brand"], activity=data["activity"])) for
                                      platform in all_platform]
 
         data["platform_all_efficiency"] = dict(
-            name=data["brand"],
+            brand=data["brand"],
+            activity=data["activity"],
             value=sum([s["value"] for s in data["platform_efficiency"]]),
-            avg_value=sum([s["avg_value"] for s in data["platform_efficiency"]])
+            avg_value=sum([s["avg_value"] for s in data["platform_efficiency"]]),
+            breadth=sum([s["breadth"] for s in data["platform_efficiency"]]),
+            avg_breadth=sum([s["avg_breadth"] for s in data["platform_efficiency"]]),
+            interaction=sum([s["interaction"] for s in data["platform_efficiency"]]),
+            avg_interaction=sum([s["avg_interaction"] for s in data["platform_efficiency"]]),
         )
 
-    # 提取 efficiency, 并 进行 flat_map
+    # 5、提取 efficiency, 并 进行 flat_map
     def __flat_map(datas, efficiency):
         array = []
         for data in datas:
             array.append([dict(
-                name=data["brand"] + '-' + e["name"],
-                value=e["value"], avg_value=e["avg_value"]
+                brand=data["brand"],
+                name=e["name"],
+                activity=data["activity"],
+                value=e["value"],
+                avg_value=e["avg_value"],
+                interaction=e["interaction"],
+                avg_interaction=e["avg_interaction"],
+                breadth=e["breadth"],
+                avg_breadth=e["avg_breadth"],
             ) for e in data.pop(efficiency)]
                          )
 
         return list(chain.from_iterable(array))
 
-    # 进行 efficiency 处理
+    # 6、进行 efficiency 处理
     efficiency = dict(
         platform_all=[data.pop("platform_all_efficiency") for data in datas],
         platform_efficiency=__flat_map(datas, "platform_efficiency"),
@@ -704,7 +729,7 @@ def activity_contrast(param, user):
         activity_efficiency=__flat_map(datas, "activity_efficiency"),
     )
 
-    # 进行 传播实况对比 提取
+    # 7、进行 传播实况对比 提取
     spread_the_facts = {
         "platform_overview": [data.pop("platform_overview") for data in datas],
         "account_overview": [data.pop("account_overview") for data in datas],
