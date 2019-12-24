@@ -16,6 +16,8 @@ ALTER TABLE report ADD competitorss varchar(1024) NULL;
 DROP INDEX report_brand_id_6195e9f82a8a6648_fk_dim_brand_id ON report;
 ALTER TABLE report MODIFY brand_id varchar(1024) NOT NULL;
 
+-- 3、修改 user
+ALTER TABLE sm_user ADD activity_contrast_history varchar(1024) DEFAULT '[]' NOT NULL COMMENT '活动对比的历史记录, json 格式';
 
 
 -- 3、添加 自定义函数
@@ -51,6 +53,7 @@ insert into sm_api(name, url) values ('设置-品牌设置_主要竞品删除', 
 insert into sm_api(name, url) values ('设置-品牌设置-主要竞品列表', '/apps/common/competitor-list/');
 
 insert into sm_api(name, url) values ('活动对比', '/apps/report/activity-contrast/');
+insert into sm_api(name, url) values ('活动对比-获取活动对比 的历史记录', '/apps/report/activity-contrast-history/');
 insert into sm_api(name, url) values ('新建报告-根据品类品牌获取 竞品', '/apps/report/get-competitor/');
 
 insert into sm_api(name, url) values ('活动定位-标签列表', '/apps/opinion-analysis/ao-activity-tag-list/');
@@ -60,6 +63,7 @@ insert into sm_api(name, url) values ('活动定位-热帖一览', '/apps/opinio
 
 select * from sm_menu_apis;
 insert into sm_menu_apis(smmenu_id, smapi_id) values (5, 17);
+insert into sm_menu_apis(smmenu_id, smapi_id) values (5, 23);
 
 insert into sm_menu_apis(smmenu_id, smapi_id) values (6, 18);
 insert into sm_menu_apis(smmenu_id, smapi_id) values (6, 19);
@@ -72,6 +76,8 @@ insert into sm_menu_apis(smmenu_id, smapi_id) values (6, 15);
 insert into sm_menu_apis(smmenu_id, smapi_id) values (6, 16);
 
 insert into sm_menu_apis(smmenu_id, smapi_id) values (2, 22);
+
+
 
 
 
