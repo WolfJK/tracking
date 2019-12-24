@@ -13,6 +13,7 @@ import json
 from common.db_helper import DB
 import copy
 import sqls
+from datetime import datetime
 
 
 def get_user_info(user):
@@ -188,13 +189,18 @@ def competitor_save(param, user):
     :return:
     '''
 
-    param.update(user=user, brand=json.dumps(param["brand"]), competitors=json.dumps(param["competitors"]))
-    param_filter = copy.deepcopy(param)
-    param_filter.pop("competitors")
+    id, competitors = param.pop("id"), json.dumps(param.pop("competitors"))
+    param.update(user_id=user.id, brand=json.dumps(param["brand"]))
 
-    if len(SmCompetitor.objects.filter(**param_filter)) > 0:
-        raise Exception("该品牌的 竞品列表已经存在")
+    sms = SmCompetitor.objects.filter(**param)
+    if len(sms) > 0 and (not id or id != sms[0].id):
+        raise Exception("报告已经存在")
 
+    if id:
+        sm = SmCompetitor.objects.get(id=id)
+        param.update(id=id, update_time=datetime.now(), create_time=sm.create_time)
+
+    param.update(competitors=competitors)
     SmCompetitor(**param).save()
 
 

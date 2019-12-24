@@ -128,6 +128,7 @@ def competitor_save(request):
     :return:
     '''
     param = apps_apis.get_parameter(request.POST, [
+        ("id", "", "int"),
         ("category_id", "请选择品类", "int"),
         ("brand", "请选择品牌", "list"),
         ("competitors", "请选择竞品", "list"),
