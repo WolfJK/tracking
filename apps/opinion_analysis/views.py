@@ -148,7 +148,7 @@ def get_market_pattern(request):
 
 ao_params = [
         ("category", "请选择品牌", "str"),
-        ("brand", "请选择品牌", "str"),
+        ("brand", "请选择品牌", "list", apps_apis.brand_to_brand),
         ("type", "请选择品牌", "str"),
         ("platform", "请选择平台", "str"),
         ("start_date", "请选择开始时间", "str"),

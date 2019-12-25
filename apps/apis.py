@@ -36,6 +36,9 @@ def get_parameter(request_data, parameters):
         if parameter[2] == 'bool':
             parameter_value = bool(int(parameter_value))
 
+        if len(parameter) > 3 and parameter[3]:
+            parameter_value = parameter[3](parameter_value)
+
         param.update({parameter[0]: parameter_value})
 
     return param
@@ -215,4 +218,13 @@ def combine_list_map(lm1, lm2, key, default):
     lm2_map = {lm[key]: lm for lm in lm2}
     map(lambda lm: lm.update(lm2_map.get(lm[key], default)), lm1)
     return lm1
+
+
+def brand_to_brand(brand):
+    '''
+    将数据 brand 转换成 数据 brand
+    :param brand:
+    :return:
+    '''
+    return brand[-1].split("_")[1]
 
