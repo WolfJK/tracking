@@ -190,17 +190,18 @@ def competitor_save(param, user):
     '''
 
     id, competitors = param.pop("id"), json.dumps(param.pop("competitors"))
-    param.update(user_id=user.id, brand=json.dumps(param["brand"]))
+    param.update(user__corporation=user.corporation, brand=json.dumps(param["brand"]))
 
     sms = SmCompetitor.objects.filter(**param)
     if len(sms) > 0 and (not id or id != sms[0].id):
-        raise Exception("报告已经存在")
+        raise Exception("该品牌的主要竞品已经存在")
 
     if id:
         sm = SmCompetitor.objects.get(id=id)
         param.update(id=id, update_time=datetime.now(), create_time=sm.create_time)
 
-    param.update(competitors=competitors)
+    param.update(competitors=competitors, user_id=user.id)
+    param.pop("user__corporation")
     SmCompetitor(**param).save()
 
 
@@ -211,7 +212,7 @@ def competitor_get(param, user):
     :param user:
     :return:
     '''
-    competitor = SmCompetitor.objects.filter(id=param["id"], user=user)
+    competitor = SmCompetitor.objects.filter(id=param["id"], user__corporation=user.corporation)
     if len(competitor) == 0:
         raise Exception("记录不存在")
 
@@ -231,7 +232,7 @@ def competitor_del(param, user):
     :param user:
     :return:
     '''
-    competitor = SmCompetitor.objects.filter(id=param["id"], user=user)
+    competitor = SmCompetitor.objects.filter(id=param["id"], user__corporation=user.corporation)
     if len(competitor) == 0:
         raise Exception("记录不存在 或 无权限删除")
 

@@ -756,7 +756,7 @@ def get_competitor(param, user):
     :return:
     '''
     competitor = list(SmCompetitor.objects
-                      .filter(category_id=param["category_id"], user=user, brand=json.dumps(param["brand"]))
+                      .filter(category_id=param["category_id"], user__corporation=user.corporation, brand=json.dumps(param["brand"]))
                       .values_list("competitors", flat=True))
 
     if len(competitor) > 0:
