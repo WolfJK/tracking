@@ -20,22 +20,30 @@ def get_parameter(request_data, parameters):
     for parameter in parameters:
         default = dict(dict={}, list=[], str='', int=0, bool=False)
         parameter_value = request_data.get(parameter[0], default[parameter[2]])
+        # 处理 json、dict 格式数据, '[]', '{}' 也视为有数据, 但是参数为 false
+        try:
+            if parameter_value and parameter[2] in ('list', 'dict') and not isinstance(parameter_value, (list, dict)):
+                parameter_value = json.loads(parameter_value)
+        except:
+            raise Exception("参数类型错误")
 
-        if parameter_value and parameter[2] in ('list', 'dict') and not isinstance(parameter_value, (list, dict)):
-            parameter_value = json.loads(parameter_value)
-
+        # 如果为必须参数,但是未传入,则抛出异常【必须在 json 处理之后】
         if not parameter_value and parameter[1]:
             raise Exception(parameter[1])
-
+        # 获取 默认参数
         if not parameter_value:
             parameter_value = default[parameter[2]]
 
-        # 如果是 list 类型
-        if parameter[2] == 'int':
-            parameter_value = int(parameter_value)
+        # int、bool 型参数进行格式转化
+        try:
+            # 如果是 list 类型
+            if parameter[2] == 'int':
+                parameter_value = int(parameter_value)
 
-        if parameter[2] == 'bool':
-            parameter_value = bool(int(parameter_value))
+            if parameter[2] == 'bool':
+                parameter_value = bool(int(parameter_value))
+        except:
+            raise Exception("参数类型错误")
 
         # 添加 钩子 函数, 进行参数验证处理
         if len(parameter) > 3 and parameter[3]:
