@@ -872,6 +872,7 @@ def ao_volume_trend(params):
 
     params.pop("activity_tag")
     if platform in ["微信", "微博"]:
+        params.pop("type")
         volume_obj = VcSaasPlatformVolume.objects.filter(**params)
     else:
         volume_obj = VcMpPlatformAreaVolume.objects.filter(**params)
