@@ -653,7 +653,9 @@ def activity_contrast(param, user):
     # 3、数据规整
     for report in reports:
         brand = report["report_config"]["brand"]
-        platforms = chain.from_iterable([platform["children"] for platform in report["spread_overview"]["platform_web"]])
+        platform_web = report["spread_overview"]["platform_web"]
+        platforms = [p for p in chain.from_iterable([platform["children"] for platform in platform_web])]
+
         all_platform.append([m["name"] for m in platforms])
 
         datas.append(dict(
@@ -679,7 +681,7 @@ def activity_contrast(param, user):
             },
 
             # 品牌 UGC -> 活动期品牌 ugc
-            ugc_in_activity_count=report["spread_effectiveness"]["ugc_in_activity_count"],
+            ugc_in_activity_count=report["spread_effectiveness"]["ugc_mentioned_brand_count"],
             # 品牌 UGC -> 活动对品牌 ugc 的贡献度
             delta_absolute=report["spread_effectiveness"]["delta_absolute"],
 
@@ -692,8 +694,10 @@ def activity_contrast(param, user):
     all_platform = list(set(chain.from_iterable(all_platform)))
     # 4、数据处理
     for data in datas:
-        data["platform_overview"] = [data["platform_overview"].get(platform, dict(name=platform, value=0, brand=data["brand"], activity=data["activity"])) for
-                                     platform in all_platform]
+        data["platform_overview"] = [data["platform_overview"].get(
+            platform,
+            dict(name=platform, value=0, brand=data["brand"], activity=data["activity"])
+        ) for platform in all_platform]
 
         data["platform_all_efficiency"] = dict(
             brand=data["brand"],
