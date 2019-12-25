@@ -16,6 +16,7 @@ def get_parameter(request_data, parameters):
     :return:
     '''
     param = dict()
+    hooks = []
     for parameter in parameters:
         default = dict(dict={}, list=[], str='', int=0, bool=False)
         parameter_value = request_data.get(parameter[0], default[parameter[2]])
@@ -36,11 +37,14 @@ def get_parameter(request_data, parameters):
         if parameter[2] == 'bool':
             parameter_value = bool(int(parameter_value))
 
+        # 添加 钩子 函数, 进行参数验证处理
         if len(parameter) > 3 and parameter[3]:
-            parameter_value = parameter[3](parameter_value)
+            hooks.append(parameter[3])
 
         param.update({parameter[0]: parameter_value})
 
+    # 进行额外的验证处理
+    map(lambda hook: hook(param), hooks)
     return param
 
 
@@ -220,11 +224,12 @@ def combine_list_map(lm1, lm2, key, default):
     return lm1
 
 
-def brand_to_brand(brand):
+def brand_to_brand(params):
     '''
     将数据 brand 转换成 数据 brand
-    :param brand:
+    :param params:
     :return:
     '''
-    return brand[-1].split("_")[1]
+    brand = params["brand"][-1].split("_")[1]
+    params.update(brand=brand)
 
