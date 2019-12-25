@@ -658,6 +658,7 @@ def activity_contrast(param, user):
 
         all_platform.append([m["name"] for m in platforms])
 
+        composition = {us["type"]: us["value"] for us in report["spread_effectiveness"]["ugc_in_activity_composition"]}
         datas.append(dict(
             brand=brand,
             activity=report["report_config"]["activity"],
@@ -676,8 +677,8 @@ def activity_contrast(param, user):
             ugc_count_effectiveness=report["spread_effectiveness"]["ugc_count"],
             # 传播效果对比 -> 活动 UGC【活动 ugc 构成】
             ugc_in_activity_composition={
-                "提及品牌": report["spread_effectiveness"]["ugc_count"],
-                "未提及品牌": report["spread_effectiveness"]["ugc_count"]
+                "提及品牌": composition.get("提及品牌", 0),
+                "未提及品牌": composition.get("未提及品牌", 0)
             },
 
             # 品牌 UGC -> 活动期品牌 ugc

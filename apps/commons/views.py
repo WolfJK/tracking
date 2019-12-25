@@ -133,6 +133,10 @@ def competitor_save(request):
         ("brand", "请选择品牌", "list"),
         ("competitors", "请选择竞品", "list"),
     ])
+
+    if len(param["competitors"]) > 10:
+        raise Exception("主要竞品最多只能选择 10 个")
+
     apis.competitor_save(param, request.user)
 
     return HttpResponse("ok")
