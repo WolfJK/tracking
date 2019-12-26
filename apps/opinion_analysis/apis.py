@@ -67,28 +67,25 @@ def get_vcbrand_for_name(brand_id):
 
 def dispose_brand_name(brand_list):
     """处理品牌格式
-    ["1_a2奶粉", "3_可瑞康", "8_爱瑞嘉"]
+    ["478_Wyeth/惠氏", "471_Wyeth/惠氏.illuma/启赋", "474_Wyeth/惠氏.illuma/启赋.启赋蓝钻"]
     """
-    list_data = list()
-    for brand in brand_list:
-        list_data.append(brand.split('_')[1])
-    brand_id = brand_list[-1].split('_')[0]
-    brand_name = ".".join(list_data)
+    try:
+        brand_id = brand_list[-1].split('_')[0]
+        brand_name = brand_list[-1].split('_')[1]
+    except Exception:
+        raise Exception("品牌信息异常")
 
     return brand_id, brand_name
 
 
 def dispose_competers(competers):
     """处理竞争产品的格式
-    ["15_伴宝乐", "69_御宝-68_御宝优贝源", "37_澳优-43_澳优欧选-42_澳优欧选澳滋"]
+    ["412_Abbott/雅培-423_Abbott/雅培.雅培喜康力", "412_Abbott/雅培-422_Abbott/雅培.雅培双贝吸", "412_Abbott/雅培-424_Abbott/雅培.雅培小安素"]
     """
     competer_data = list()
     for competer in competers:
-        competer_list = list()
-        split_data = competer.split("-")
-        for _competer in split_data:
-            competer_list.append(_competer.split("_")[1])
-        brand_name = ".".join(competer_list)
+        split_data = competer.split("-")[-1]
+        brand_name = split_data.split("_")[-1]
         competer_data.append(brand_name)
 
     return competer_data
