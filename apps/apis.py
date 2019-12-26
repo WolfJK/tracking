@@ -232,12 +232,27 @@ def combine_list_map(lm1, lm2, key, default):
     return lm1
 
 
+def brand_to_name(brands):
+    '''
+    将 [id_name, id_name, id_name] 转化为 name.name.name
+    :param brands:
+    :return:
+    '''
+    return ".".join([brand.split("_")[1] for brand in brands])
+
+
 def brand_to_brand(params):
     '''
-    将数据 brand 转换成 数据 brand
+    将 [id_name, id_name, id_name] 转化为 name.name.name
+    将 [id_name-id_name, id_name-id_name-id_name, id_name] 转化为 [name.name, name.name.name, name]
     :param params:
     :return:
     '''
-    brand = params["brand"][-1].split("_")[1]
-    params.update(brand=brand)
+    if params.has_key("brand"):
+        params.update(brand=brand_to_name(params["brand"]))
+
+    if params.has_key("competitor"):
+        params.update(competitor=[brand_to_name(competitor.split("-")) for competitor in params["competitor"]])
+
+    return params
 
