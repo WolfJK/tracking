@@ -24,6 +24,7 @@ where
  or json_index(brand, -1, '') regexp {queue_filter}
  or '' = {queue_filter}
  ) and user_id = {user_id}
+ order by c1.update_time desc, c1.create_time desc
 ;
 
 '''
