@@ -932,7 +932,7 @@ def ao_activity_content(params):
     activity_content = VcMpActivityContent.objects.filter(**params).annotate(
         interaction=F("reading") + F("reviews") + F("retweets") + F("praise_points") + F("favorite"))\
         .order_by("account", "-interaction").values(
-        "account", "title", "url", "reading", "reviews", "retweets", "praise_points", "favorite"
+        "account", "title", "url", "reading", "reviews", "retweets", "praise_points", "favorite", "user_type"
     )[:30]
 
     return list(activity_content)

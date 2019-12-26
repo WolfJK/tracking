@@ -400,6 +400,7 @@ class VcMpActivityContent(models.Model):
     activity_tag = models.CharField(max_length=128, help_text="活动标签[不包含 null]")
 
     account = models.CharField(max_length=64, help_text="账号", null=True)
+    user_type = models.CharField(max_length=32, help_text="用户类型")
     title = models.CharField(max_length=128, help_text="标题", null=True)
     url = models.CharField(max_length=512, help_text="帖子 url", null=True)
 
