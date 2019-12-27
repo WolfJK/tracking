@@ -260,6 +260,7 @@ class VcMonitorBrand(models.Model):
     brand = models.CharField(max_length=1024, help_text="所属品牌, 以 json 字符串, 多级")
     competitor = models.CharField(max_length=1024, help_text="主要竞品[以 json 字符串, 单级,多个]")
     time_slot = models.IntegerField(help_text="展示时段[为天数， 7 、30、90]")
+    user = models.ForeignKey(SmUser, help_text="所属用户", on_delete=models.DO_NOTHING)
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
     update_time = models.DateTimeField(help_text="修改时间", null=True)

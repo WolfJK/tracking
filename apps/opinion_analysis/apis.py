@@ -15,15 +15,17 @@ from itertools import groupby
 from operator import itemgetter
 
 
-def add_monitor_brand(monitor_id, category, brand, time_slot, competitor):
+def add_monitor_brand(request, monitor_id, category, brand, time_slot, competitor):
     """
     全品类是空的字典, 竞品必填
     :return:
     """
     brand = json.loads(brand)
     competitor = json.loads(competitor)
+    if len(competitor) > 10:
+        raise Exception("竞品的数量不能超过10个")
     if not monitor_id:  # 新增
-        VcMonitorBrand(category_id=category, brand=json.dumps(brand),
+        VcMonitorBrand(category_id=category, brand=json.dumps(brand), user_id=request.user.id,
                        competitor=json.dumps(competitor), time_slot=time_slot).save()
     else:  # 更新
         monitor_brand = VcMonitorBrand.objects.get(id=monitor_id)
@@ -37,20 +39,21 @@ def delete_monitor_brand(brand_id):
     VcMonitorBrand.objects.filter(id=brand_id).delete()
 
 
-def search_monitor_brand(brand_name, category_id):
-    result = DB.search(sqls.search_monitor_brand_type, {"category_id": category_id})
+def search_monitor_brand(user, brand_name, category_id):
+    # result = DB.search(sqls.search_monitor_brand_type, {"category_id": category_id})
+    result = list(VcMonitorBrand.objects.filter(category_id=category_id, user__corporation=user.corporation).order_by('-create_time').values())
     for brand in result:
         brand_list = json.loads(brand.get("brand"))
         brand_id, brand_name_dian = dispose_brand_name(brand_list)
         brand.update(brand_name=brand_name_dian)
         brand.update(brand_id=brand_id)
     if brand_name:
-        data = list()
+        result = list()
         for brand in result:
             if brand_name in brand.get('brand_name'):
-                data.append(brand)
+                result.append(brand)
 
-    return data if brand_name else result
+    return result
 
 
 def get_vcbrand_for_name(brand_id):
@@ -110,10 +113,10 @@ def get_compete_brand(vc_monitor):
     return results
 
 
-def get_all_monitor_card_data(brand_name, category_id):
+def get_all_monitor_card_data(request, brand_name, category_id):
     # 按照品类查询所有的品牌id, 计算声量信息
     try:
-        vcBrands = search_monitor_brand(brand_name, category_id)
+        vcBrands = search_monitor_brand(request.user, brand_name, category_id)
     except Exception:
         vcBrands = DB.search(sqls.get_all_brand_id, {"category_id": category_id})
     category = DimCategory.objects.get(id=category_id)

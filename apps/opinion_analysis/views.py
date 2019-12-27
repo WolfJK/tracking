@@ -22,7 +22,7 @@ def add_monitor_brand(request):
     brand = request.POST.get("brand")
     day = request.POST.get("day")
     market_pattern = request.POST.get("market")
-    apis.add_monitor_brand(monitor_id, category, brand, day, market_pattern)
+    apis.add_monitor_brand(request, monitor_id, category, brand, day, market_pattern)
 
     return JsonResponse(data={"result": "success"}, safe=False)
 
@@ -35,7 +35,7 @@ def search_monitor_brand(request):
     '''
     brand_name = request.POST.get("brand_name")
     category_id = request.POST.get("category_id")  # 行业
-    result = apis.search_monitor_brand(brand_name, category_id)
+    result = apis.search_monitor_brand(request.user, brand_name, category_id)
 
     return JsonResponse(data=result, safe=False)
 
@@ -61,7 +61,7 @@ def data_monitor_analysis(request):
     # 返回所有的监测的数据
     brand_name = request.POST.get("brand_name")
     category_id = request.POST.get("category_id")
-    data = apis.get_all_monitor_card_data(brand_name, category_id)
+    data = apis.get_all_monitor_card_data(request, brand_name, category_id)
     return JsonResponse(data=data, safe=False)
 
 
