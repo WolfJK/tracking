@@ -1409,7 +1409,7 @@
             },
             {
               "name": "area",
-              "type": "DefaultString",
+              "type": "ShortString",
               "remark": "",
               "chnname": "地域[仅全网]",
               "notNull": true
@@ -1545,7 +1545,7 @@
             },
             {
               "name": "area",
-              "type": "DefaultString",
+              "type": "ShortString",
               "remark": "",
               "chnname": "地域",
               "notNull": true
@@ -1700,7 +1700,7 @@
             },
             {
               "name": "keywords",
-              "type": "LongKey",
+              "type": "ShortString",
               "remark": "",
               "chnname": "关键词",
               "notNull": true
@@ -2149,14 +2149,14 @@
             },
             {
               "name": "account",
-              "type": "LongKey",
+              "type": "ShortString",
               "remark": "",
               "chnname": "账号",
               "notNull": false
             },
             {
               "name": "title",
-              "type": "ShortString",
+              "type": "Intro",
               "remark": "",
               "chnname": "标题",
               "notNull": false
@@ -2327,13 +2327,20 @@
             },
             {
               "name": "account",
-              "type": "LongKey",
+              "type": "ShortString",
               "remark": "",
               "chnname": "账号"
             },
             {
+              "name": "user_type",
+              "type": "DefaultString",
+              "remark": "",
+              "chnname": "用户类型[bgc、kol 等]",
+              "notNull": true
+            },
+            {
               "name": "title",
-              "type": "ShortString",
+              "type": "Intro",
               "remark": "",
               "chnname": "标题"
             },
