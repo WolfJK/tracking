@@ -92,13 +92,21 @@ def dispose_competers(competers):
 
 
 def get_compete_brand(vc_monitor):
-    if isinstance(vc_monitor, list):
-        brand_id = vc_monitor[-1].get("id")
-        compete = DB.get(sqls.sm_competitor_compete_brand, {"brand_id": brand_id})
-        results = json.loads(compete.get("competitors"))
-    else:
-        compete = DB.get(sqls.vc_monitor_brand_compete, {"brand_id": vc_monitor})
-        results = json.loads(compete.get("competitor"))
+    # if isinstance(vc_monitor, list):
+    #     brand_id = vc_monitor[-1].get("id")
+    #     compete = DB.get(sqls.sm_competitor_compete_brand, {"brand_id": brand_id})
+    #     results = json.loads(compete.get("competitors"))
+    # else:
+    #     compete = DB.get(sqls.vc_monitor_brand_compete, {"brand_id": vc_monitor})
+    #     results = json.loads(compete.get("competitor"))
+    # vc_monitor = json.dumps(vc_monitor)
+    # print vc_monitor, type(vc_monitor)
+    try:
+        results = list(SmCompetitor.objects.filter(brand=vc_monitor).values('competitors'))[0]
+        results.update(competitors=json.loads(results.get('competitors')))
+    except Exception:
+        results = {}
+
     return results
 
 

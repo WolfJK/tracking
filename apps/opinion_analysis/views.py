@@ -128,17 +128,18 @@ def get_market_pattern(request):
     :return:
     '''
 
-    vc_monitor_id = request.POST.get("monitor_brand_id")
+    # vc_monitor_id = request.POST.get("monitor_brand_id")
     brand_list = request.POST.get("brand_list")
-    if brand_list and vc_monitor_id:
-        raise Exception("参数不能同时有效")
-    if vc_monitor_id:
+    # if brand_list and vc_monitor_id:
+    #     raise Exception("参数不能同时有效")
+    # if vc_monitor_id:
         # 从VcMonitorBrand返回主要竞品
-        data = apis.get_compete_brand(vc_monitor_id)
-    else:
-        # 从表SmCompetitor返回数据
-        brand_list = json.loads(brand_list)
-        data = apis.get_compete_brand(brand_list)
+        # data = apis.get_compete_brand(vc_monitor_id)
+    # else:
+    #     从表SmCompetitor返回数据
+        # brand_list = json.loads(brand_list)
+    data = apis.get_compete_brand(brand_list)
+
     return JsonResponse(data=data, safe=False)
 
 
