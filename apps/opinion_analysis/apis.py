@@ -47,13 +47,13 @@ def search_monitor_brand(user, brand_name, category_id):
         brand_id, brand_name_dian = dispose_brand_name(brand_list)
         brand.update(brand_name=brand_name_dian)
         brand.update(brand_id=brand_id)
+    data = list()
     if brand_name:
-        result = list()
         for brand in result:
             if brand_name in brand.get('brand_name'):
                 result.append(brand)
 
-    return result
+    return data if brand_name else result
 
 
 def get_vcbrand_for_name(brand_id):
