@@ -74,7 +74,7 @@ with e as (
     join dim_date b on a.date = b.date
     where a.brand in %s
       and a.category = {category_name} %s
-)select brand, %s, sum(count) as count from e group by %s, brand order by brand, %s asc;
+)select brand, %s as date, sum(count) as count from e group by %s, brand order by brand, %s asc;
 """
 
 # top5声量 不含本品
@@ -167,7 +167,7 @@ with e as (
     join dim_date b on a.date = b.date
     where a.brand in %s
     and a.category = {category_name} %s
-)select %s, sum(count) as count from e group by %s order by %s asc;
+)select %s as date, sum(count) as count from e group by %s order by %s asc;
 """
 
 area_of_all_brand_tend_sov = """
@@ -181,7 +181,7 @@ with e as (
     from vc_saas_platform_volume a
     join dim_date b on a.date = b.date
     where a.category = {category_name} %s
-)select %s, sum(count) as count from e group by %s order by %s asc;
+)select %s date, sum(count) as count from e group by %s order by %s asc;
 """
 
 
@@ -323,7 +323,7 @@ with e as (
     where a.brand in %s
     and a.category = {category_name}
     and a.type = 'bbv' %s 
-)select brand, %s, sum(count) as count from e group by %s, brand order by brand, %s asc;
+)select brand, %s as date, sum(count) as count from e group by %s, brand order by brand, %s asc;
 """
 
 bbv_platform_compete_day_month_week_voice = """
@@ -339,7 +339,7 @@ with e as (
     where a.brand in %s
     and a.category = {category_name}
     and a.platform in %s %s 
-)select brand, %s, sum(count) as count from e group by %s, brand order by brand, %s asc;
+)select brand, %s as date, sum(count) as count from e group by %s, brand order by brand, %s asc;
 """
 
 bbv_area_of_tend_sov = """
@@ -355,7 +355,7 @@ with e as (
     where a.brand in %s
     and a.category = {category_name}
     and a.type = 'bbv' %s
-)select %s, sum(count) as count from e group by %s order by %s asc;
+)select %s as date, sum(count) as count from e group by %s order by %s asc;
 """
 
 
@@ -371,7 +371,7 @@ with e as (
     join dim_date b on a.date = b.date
     where a.category = {category_name}
     and a.type = 'bbv' %s
-)select %s, sum(count) as count from e group by %s order by %s asc;
+)select %s date, sum(count) as count from e group by %s order by %s asc;
 """
 
 
@@ -388,7 +388,7 @@ with e as (
     where a.brand in %s
     and a.category = {category_name}
     and a.platform in %s %s
-)select %s, sum(count) as count from e group by %s order by %s asc;
+)select %s date, sum(count) as count from e group by %s order by %s asc;
 """
 
 bbv_platform_area_all_brand_of_tend_sov = """
@@ -403,7 +403,7 @@ with e as (
     join dim_date b on a.date = b.date
     where  a.category = {category_name}
     and a.platform in %s %s
-)select %s, sum(count) as count from e group by %s order by %s asc;
+)select %s date, sum(count) as count from e group by %s order by %s asc;
 """
 
 
@@ -592,7 +592,7 @@ with e as (
     join dim_date b on a.date = b.date
     where a.brand in %s
       and a.category = {category_name} and a.platform in %s  %s
-)select brand, %s, sum(count) as count from e group by %s, brand order by brand, %s asc;
+)select brand, %s as date, sum(count) as count from e group by %s, brand order by brand, %s asc;
 """
 
 
@@ -608,7 +608,7 @@ with e as (
     join dim_date b on a.date = b.date
     where a.brand in %s
     and a.category = {category_name} and a.platform in %s %s
-)select %s, sum(count) as count from e group by %s order by %s asc;
+)select %s date, sum(count) as count from e group by %s order by %s asc;
 """
 
 ww_area_all_brand_of_tend_sov = """
@@ -622,7 +622,7 @@ with e as (
     from vc_saas_platform_volume a
     join dim_date b on a.date = b.date
     where  a.category = {category_name} and a.platform in %s %s
-)select %s, sum(count) as count from e group by %s order by %s asc;
+)select %s date, sum(count) as count from e group by %s order by %s asc;
 """
 
 # dsmtop20微博发帖

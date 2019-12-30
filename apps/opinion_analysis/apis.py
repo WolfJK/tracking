@@ -15,6 +15,7 @@ from itertools import groupby
 from operator import itemgetter
 from django.forms.models import model_to_dict
 from itertools import chain
+from collections import defaultdict
 
 
 def add_monitor_brand(request, monitor_id, category, brand, time_slot, competitor):
@@ -261,26 +262,21 @@ def whole_net_analysis(brand_id, date_range):
     return vcBrand
 
 
-def get_classify_sov(data_assert, dict_sov_classify):
+def get_classify_sov_new(data_assert, dict_sov_classify, type):
     """
-    获取日周月的sov面积图
-    :param vcBrand:
-    :param data_assert:
-    :return:
-    """
-    for key, value in data_assert.items():
-        for key_type, value_type in value.items():
-            for key_sov, value_sov in dict_sov_classify.items():
-                if key_type == key_sov:
-                    for sov_data in value_sov:
-                        for assert_data in value_type:
-                            if key_type == "day":
-                                key_sov = key_type = "date"
-                            if sov_data.get(key_sov) == assert_data.get(key_type):
-                                count_assert = assert_data.get('count')
-                                count_sov = sov_data.get('count')
-                                sov = get_all_sov(count_assert, count_sov)
-                                assert_data.update(sov=sov)
+        获取日周月的sov面积图
+        :param vcBrand:
+        :param data_assert:
+        :return:
+        """
+    for list_s in data_assert.get(type):
+        for item in list_s:
+            for sov_count in dict_sov_classify:
+                if item.get('date') == sov_count.get("date"):
+                    count_assert = sov_count.get('count')
+                    count_sov = item.get('count')
+                    sov = get_all_sov(count_assert, count_sov)
+                    item.update(sov=sov)
 
 
 def get_round_sov(data_voice_histogram, data_voice_round):
@@ -296,15 +292,11 @@ def get_round_sov(data_voice_histogram, data_voice_round):
     return data_voice_histogram
 
 
-def assemble_data(assert_data, type, dict_data):
-    for day in assert_data:
-        brand_name = day.get("brand")
-        if brand_name not in dict_data:
-            dict_data.update({brand_name: {"day": [], "month": [], "week": []}})
-            dict_data.get(brand_name).get(type).append(day)
-        else:
-            dict_data.get(brand_name).get(type).append(day)
-    return dict_data
+
+def assemble_data_new(day_assert, dict_data,  type):
+    day_assert.sort(key=itemgetter("brand", "date"))
+    for brand, items in groupby(day_assert, key=itemgetter('brand')):
+        dict_data[type].append(list(items))
 
 
 def get_data(bracket, competitors, range_time, category, platform='net'):
@@ -318,8 +310,8 @@ def get_data(bracket, competitors, range_time, category, platform='net'):
         :param brand_id:
         :return:
         """
-    dict_data = dict()
-    dict_sov_classify = dict()  # 分类的声量之和
+
+    dict_data = defaultdict(list)
     bracket_platform = join_sql_bracket([platform, ])
 
     if platform == 'net':
@@ -382,15 +374,14 @@ def get_data(bracket, competitors, range_time, category, platform='net'):
     month_sov_assert = DB.search(sov_month, {"category_name": category.name})
     week_sov_assert = DB.search(sov_week, {"category_name": category.name})
 
-    dict_sov_classify.update(day=day_sov_assert)
-    dict_sov_classify.update(month=month_sov_assert)
-    dict_sov_classify.update(week=week_sov_assert)
-    assemble_data(day_assert, "day", dict_data)
-    assemble_data(month_assert, "month", dict_data)
-    assemble_data(week_assert, "week", dict_data)
+    assemble_data_new(day_assert, dict_data, 'day')
+    assemble_data_new(month_assert, dict_data, "month")
+    assemble_data_new(week_assert, dict_data, "week")
 
-    get_classify_sov(dict_data, dict_sov_classify)
-    return dict_data, dict_sov_classify
+    get_classify_sov_new(dict_data, day_sov_assert, 'day')
+    get_classify_sov_new(dict_data, month_sov_assert, 'month')
+    get_classify_sov_new(dict_data, week_sov_assert, 'week')
+    return dict_data
 
 
 def get_data_voice_histogram(bracket, range_time, category, competitors, platform='net'):
@@ -511,7 +502,7 @@ def get_net_day_month_week_analysis(vcBrand, category, date_range):
 
     brand_name = vcBrand.get("brand_name")
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
-    dict_data, dict_sov_classify = get_data(bracket, competitors, range_time, category)
+    dict_data = get_data(bracket, competitors, range_time, category)
 
     # 获取声量助柱形图
     data_voice_histogram, data_voice_round = get_data_voice_histogram(bracket, range_time, category, competitors)
@@ -589,7 +580,7 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
 
     brand_name = vcBrand.get("brand_name")
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
-    dict_data, dict_sov_classify = get_data(bracket, competitors, range_time, category, platform)
+    dict_data = get_data(bracket, competitors, range_time, category, platform)
     # 获取声量助柱形图
     data_voice_histogram, data_voice_round = get_data_voice_histogram(bracket, range_time, category, competitors, platform)
 
@@ -604,7 +595,7 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
 
     # 获取内容分布
     data_radar_classify = get_content_from(bracket, range_time, competitors, category, brand_name, platform)
-
+    print "结束 = "
     return dict_data, data_voice_histogram, vioce_platform, data_voice_area_classify, net_keywords, data_radar_classify
 
 
@@ -646,7 +637,7 @@ def get_bracket_datarange(vcBrand, category, date_range):
     if competitors:  # 有竞品
         # for competitor in competitors:
         #     list_compete.append(competitor.get("name"))
-        # list_compete.append(brand_name)
+        list_compete.append(brand_name)
         bracket = join_sql_bracket(list_compete)
     else:
         # 获取top5的声量
@@ -714,7 +705,7 @@ def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
 
     # 获取日周月数据
-    dict_data, dict_sov_classify = get_data(bracket, competitors, range_time, category, platform)
+    dict_data = get_data(bracket, competitors, range_time, category, platform)
     # sov环形 和 品牌声量的条形图
     data_voice_histogram, data_voice_round = get_data_voice_histogram(bracket, range_time, category, competitors, platform)
 
