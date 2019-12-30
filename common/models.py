@@ -375,7 +375,7 @@ class VcMpConsensusContent(models.Model):
     platform = models.CharField(max_length=32, help_text="平台[深度社媒]")
 
     account = models.CharField(max_length=64, help_text="账号", null=True)
-    title = models.CharField(max_length=128, help_text="标题", null=True)
+    title = models.CharField(max_length=512, help_text="标题", null=True)
     url = models.CharField(max_length=512, help_text="帖子 url", null=True)
 
     reading = models.IntegerField(help_text="阅读数")
@@ -402,7 +402,7 @@ class VcMpActivityContent(models.Model):
 
     account = models.CharField(max_length=64, help_text="账号", null=True)
     user_type = models.CharField(max_length=32, help_text="用户类型")
-    title = models.CharField(max_length=128, help_text="标题", null=True)
+    title = models.CharField(max_length=512, help_text="标题", null=True)
     url = models.CharField(max_length=512, help_text="帖子 url", null=True)
 
     reading = models.IntegerField(help_text="阅读数")
