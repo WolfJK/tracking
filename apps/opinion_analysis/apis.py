@@ -8,12 +8,13 @@ from apps.opinion_analysis import sqls
 from common.db_helper import DB
 from datetime import datetime
 from apps import apis as apps_apis
-from django.db.models import Q, F, Sum, Value, IntegerField
+from django.db.models import Q, F, Sum, Value, IntegerField, CharField, Case, When
 import copy
 from dateutil.relativedelta import relativedelta
 from itertools import groupby
 from operator import itemgetter
 from django.forms.models import model_to_dict
+from itertools import chain
 
 
 def add_monitor_brand(request, monitor_id, category, brand, time_slot, competitor):
@@ -935,12 +936,41 @@ def ao_activity_content(params):
     '''
     bbv_all_and_date(params)
     activity_content = VcMpActivityContent.objects.filter(**params).annotate(
-        interaction=F("reading") + F("reviews") + F("retweets") + F("praise_points") + F("favorite"))\
-        .order_by("account", "-interaction").values(
-        "account", "title", "url", "reading", "reviews", "retweets", "praise_points", "favorite", "user_type"
+        interaction=F("reading") + F("reviews") + F("retweets") + F("praise_points") + F("favorite"),
+        engagement=Case(
+            When(type='bbv', then=Value("bbv")),
+            default=F("platform"),
+            output_field=CharField()
+        )
+    ).order_by("account", "-interaction").values(
+        "account", "title", "url", "reading", "reviews", "retweets", "praise_points", "favorite", "user_type", "engagement"
     )[:30]
 
-    return list(activity_content)
+    return set_engagement_to_invalid(list(activity_content))
+
+########## 根据 平台不同, 标注 文本中的 指标
+nums = ["reading", "reviews", "retweets", "praise_points", "favorite"]
+engagement = {
+    "微博": ['retweets', 'reviews', 'praise_points'],
+    "微信": ['reading', 'praise_points'],
+    "小红书": ['retweets', 'reviews', 'praise_points', 'favorite'],
+    "知乎": ['reviews', 'praise_points'],
+    "bbv": ['reading', 'reviews']
+}
+
+
+def set_engagement_to_invalid(data):
+    '''
+    按照 engagement, 将 指定平台的非指标设置为 -1【标注为无效】
+    :param data:
+    :return:
+    '''
+    for dt in data:
+        for num in nums:
+            if num not in engagement.get(dt["engagement"]):
+                dt.update({num: -1})
+
+    return data
 
 
 
