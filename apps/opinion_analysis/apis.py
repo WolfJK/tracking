@@ -35,6 +35,14 @@ def add_monitor_brand(request, monitor_id, category, brand, time_slot, competito
         monitor_brand.save()
 
 
+def get_vc_monitor(monitor_id):
+    try:
+        data = VcMonitorBrand.objects.filter(id=monitor_id).values()
+    except Exception:
+        raise Exception("监测品牌不存在！")
+    return list(data)[0]
+
+
 def delete_monitor_brand(brand_id):
     VcMonitorBrand.objects.filter(id=brand_id).delete()
 
@@ -589,7 +597,7 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
     net_keywords = get_keywords_from(range_time, category, brand_name, platform)
 
     # 获取内容分布
-    data_radar_classify = get_content_from(bracket, range_time, competitors, category, brand_name)
+    data_radar_classify = get_content_from(bracket, range_time, competitors, category, brand_name, platform)
 
     return dict_data, data_voice_histogram, vioce_platform, data_voice_area_classify, net_keywords, data_radar_classify
 
@@ -713,7 +721,7 @@ def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform
     net_keywords = get_keywords_from(range_time, category, brand_name, platform)
 
     # 获取内容分布
-    data_radar_classify = get_content_from(bracket, range_time, competitors, category, brand_name)
+    data_radar_classify = get_content_from(bracket, range_time, competitors, category, brand_name, platform)
 
     return dict_data, data_voice_histogram, data_voice_area_classify, net_keywords, data_radar_classify
 

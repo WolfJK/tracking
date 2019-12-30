@@ -13,6 +13,7 @@ urlpatterns = patterns("apps.opinion_analysis.views",
    url(r"^search-monitor-brand/$", views.search_monitor_brand),
    url(r"^delete-monitor-brand/$", views.delete_monitor_brand),
    url(r"^data-monitor-analysis/$", views.data_monitor_analysis),
+   url(r"^get-vc-monitor-brand/$", views.get_vc_monitor_brand),
 
 
    # 舆请分析详情页

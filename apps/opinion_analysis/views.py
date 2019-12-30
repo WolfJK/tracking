@@ -65,6 +65,13 @@ def data_monitor_analysis(request):
     return JsonResponse(data=data, safe=False)
 
 
+def get_vc_monitor_brand(request):
+    # 根据id获取某一个监测品牌的详细信息
+    monitor_id = request.POST.get("monitor_id")
+    data = apis.get_vc_monitor(monitor_id)
+    return JsonResponse(data=data, safe=False)
+
+
 def whole_net_analysis(request):
     '''
     奶粉咖啡 全网数据分析 环比的数据默认和卡片页跳转的数据是一样的，环比是和用户在页面上选择的时间来确定
