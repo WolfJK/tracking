@@ -10,7 +10,7 @@ urlpatterns = patterns("apps.opinion_analysis.views",
    # 舆情分析 卡片页
 
    url(r"^add-monitor-brand/$", views.add_monitor_brand),
-   url(r"^search-monitor-brand/$", views.search_monitor_brand),
+   url(r"^search-monitor-brand/$", views.search_monitor_brand),  # 未使用
    url(r"^delete-monitor-brand/$", views.delete_monitor_brand),
    url(r"^data-monitor-analysis/$", views.data_monitor_analysis),
    url(r"^get-vc-monitor-brand/$", views.get_vc_monitor_brand),

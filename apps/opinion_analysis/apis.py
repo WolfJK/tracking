@@ -13,6 +13,7 @@ import copy
 from dateutil.relativedelta import relativedelta
 from itertools import groupby
 from operator import itemgetter
+from django.forms.models import model_to_dict
 
 
 def add_monitor_brand(request, monitor_id, category, brand, time_slot, competitor):
@@ -37,10 +38,14 @@ def add_monitor_brand(request, monitor_id, category, brand, time_slot, competito
 
 def get_vc_monitor(monitor_id):
     try:
-        data = VcMonitorBrand.objects.filter(id=monitor_id).values()
+        vcobj = VcMonitorBrand.objects.get(id=monitor_id)
+        data = model_to_dict(vcobj)
+        dimcategory = DimCategory.objects.get(id=vcobj.category_id)
+        data.update(industry_id=dimcategory.industry_id)
+        data.update(industry_name=dimcategory.industry.name)
     except Exception:
         raise Exception("监测品牌不存在！")
-    return list(data)[0]
+    return data
 
 
 def delete_monitor_brand(brand_id):
