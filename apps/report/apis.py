@@ -223,11 +223,11 @@ def data_transform(data, config):
             name="微博",
             brand=brand,
             value=platform["weibo"],
-            children=[dict(name="微博", value=platform["weibo"], brand=brand)]
+            children=[dict(name="微博", value=platform["weibo"], brand=brand, activity=activity)]
         ))
 
     if len(platform["motherbaby"]) > 0:
-        map(lambda x: x.update(brand=brand), platform["motherbaby"])
+        map(lambda x: x.update(brand=brand, activity=activity), platform["motherbaby"])
         platform_web.append(dict(
             name="母垂",
             brand=brand,
