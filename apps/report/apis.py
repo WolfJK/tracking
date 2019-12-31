@@ -187,7 +187,7 @@ def report_details(report_id, user, need_unscramble=True):
         data["unscramble"] = get_unscramble(data, sales_points)
 
     for i in range(len(data["tags_concern"])):
-        data["tags_concern"][i]["name"] = sales_points[i]["name"]
+        data["tags_concern"][i]["name"] = sales_points[i].split("_")[1]
 
     data["report_config"] = dict(
         start_date=report.monitor_start_date,
@@ -333,8 +333,7 @@ def tags_concern(data, sales_points):
 
         apps_apis.set_precision(tags_concern["trend"], keys=("value", "value_year"), precision=1, pct=100.0)
         apps_apis.set_precision(tags_concern, keys=("annual", "activity", "delta"), precision=1, pct=100.0)
-
-        tags_concern.update(sales_point=sales_points[i]["name"], index=i)
+        tags_concern.update(sales_point=sales_points[i].split("_")[1], index=i)
 
 
 def merge_spread_efficiency(data, spread_type):
@@ -466,7 +465,7 @@ def get_unscramble(data, sales_points):
             sales_point_cognitive=data["tags_concern"][i]["activity"],
             sales_point_cognitive_year=data["tags_concern"][i]["annual"],
             sales_point_cognitive_ratio=abs(data["tags_concern"][i]["delta"]),
-            sales_point=sales_points[i]["name"],
+            sales_point=sales_points[i].split("_")[1],
         )
         sp_unscramble.append(unscramble("effect_sales_point", sp_param))
 
