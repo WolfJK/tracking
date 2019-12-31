@@ -932,12 +932,20 @@ def ao_activity_content(params):
             When(type='bbv', then=Value("bbv")),
             default=F("platform"),
             output_field=CharField()
+        ),
+        user_type_order=Case(
+            When(user_type='bgc', then=Value(1)),
+            When(user_type='kol', then=Value(2)),
+            default=Value(100),
+            output_field=IntegerField()
         )
-    ).order_by("account", "-interaction").values(
-        "account", "title", "url", "reading", "reviews", "retweets", "praise_points", "favorite", "user_type", "engagement"
-    )[:30]
+    ).values(
+        "account", "title", "url", "reading", "reviews", "retweets",
+        "praise_points", "favorite", "user_type", "engagement", "user_type_order"
+    ).order_by("user_type_order", "-interaction")[:30]
 
     return set_engagement_to_invalid(list(activity_content))
+
 
 ########## 根据 平台不同, 标注 文本中的 指标
 nums = ["reading", "reviews", "retweets", "praise_points", "favorite"]
