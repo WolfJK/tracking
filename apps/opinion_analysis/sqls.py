@@ -361,17 +361,17 @@ with e as (
 
 bbv_area_all_brand_of_tend_sov = """
 with e as (
-    select a.brand,
-           a.category,
-           b.month,
-           a.count,
-           b.week,
-           a.date
-    from vc_mp_platform_area_volume a
-    join dim_date b on a.date = b.date
-    where a.category = {category_name}
-    and a.type = 'bbv' %s
-)select %s date, sum(count) as count from e group by %s order by %s asc;
+    select sum(count) count, date
+    from vc_mp_platform_area_volume
+    where category = {category_name}
+    and type = 'bbv'  group by date
+)
+select %s,
+       ifnull(sum(count), 0) as count
+from  dim_date a left join  e on e.date = a.date
+where  %s
+group by %s
+order by %s asc;
 """
 
 

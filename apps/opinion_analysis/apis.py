@@ -273,8 +273,8 @@ def get_classify_sov_new(data_assert, dict_sov_classify, type):
         for item in list_s:
             for sov_count in dict_sov_classify:
                 if item.get('date') == sov_count.get("date"):
-                    count_assert = sov_count.get('count')
-                    count_sov = item.get('count')
+                    count_sov = sov_count.get('count')
+                    count_assert = item.get('count')
                     sov = get_all_sov(count_assert, count_sov)
                     item.update(sov=sov)
 
@@ -353,9 +353,10 @@ def get_data(bracket, competitors, range_time, category, platform='net'):
             sov_day = sqls.area_of_all_brand_tend_sov % (range_time, "date", "date", "date")
             sov_week = sqls.area_of_all_brand_tend_sov % (range_time, "week", "week", "week")
         elif platform == 'all':
-            sov_month = sqls.bbv_area_all_brand_of_tend_sov % (range_time, "month", "month", "month")
-            sov_day = sqls.bbv_area_all_brand_of_tend_sov % (range_time, "date", "date", "date")
-            sov_week = sqls.bbv_area_all_brand_of_tend_sov % (range_time, "week", "week", "week")
+            range_time = range_time.replace('and', '', 1)
+            sov_month = sqls.bbv_area_all_brand_of_tend_sov % ("a.month", range_time,  "a.month", "a.month")
+            sov_day = sqls.bbv_area_all_brand_of_tend_sov % ("a.date", range_time,  "a.date", "a.date")
+            sov_week = sqls.bbv_area_all_brand_of_tend_sov % ("a.week", range_time,  "a.week", "a.week")
         elif platform in ["微博", "微信"]:
             sov_day = sqls.ww_area_all_brand_of_tend_sov % (bracket_platform, range_time, "date", "date", "date")
             sov_month = sqls.ww_area_all_brand_of_tend_sov % (bracket_platform, range_time, "month", "month", "month")
@@ -436,8 +437,11 @@ def get_platform_voice_from(bracket, range_time, category, platform='net'):
     data_voice_platform_sum = DB.search(sql_platform_sum, {"category_name": category.name})
     data_voice_platform_classify = DB.search(sql_platform_classify, {"category_name": category.name})
     vioce_platform = dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify)
-
-    return vioce_platform
+    list_data = list()
+    vioce_platform.sort(key=itemgetter("brand", "count"))
+    for brand, items in groupby(vioce_platform, key=itemgetter('brand')):
+        list_data.append(list(items))
+    return list_data
 
 
 def get_area_voice_from(range_time, category, brand_name, platform='net'):
@@ -595,7 +599,7 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
 
     # 获取内容分布
     data_radar_classify = get_content_from(bracket, range_time, competitors, category, brand_name, platform)
-    print "结束 = "
+
     return dict_data, data_voice_histogram, vioce_platform, data_voice_area_classify, net_keywords, data_radar_classify
 
 
