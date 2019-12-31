@@ -907,10 +907,7 @@ def get_reports(status=0):
     :return:
     '''
     try:
-        reports = list(Report.objects.filter(status=status, delete=False).values(
-            "id", "name", "industry__name", "category__name", "tag", "monitor_start_date", "monitor_end_date",
-            "platform", "accounts", "sales_points", "brand_id", "competitors"
-        ).annotate(
+        reports = list(Report.objects.filter(status=status, delete=False).annotate(
             category_name=F("category__name"),
             industry_name=F("industry__name"),
         ).values("id", "name", "industry__name", "industry_name", "category_name", "tag", "monitor_start_date",
