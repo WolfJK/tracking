@@ -16,6 +16,7 @@ from common.logger import Logger
 from apps.commons.apis import get_platform_info
 import apps.apis as apps_apis
 from itertools import chain
+from django.db.models import F
 import pdb
 
 
@@ -907,9 +908,15 @@ def get_reports(status=0):
     '''
     try:
         reports = list(Report.objects.filter(status=status, delete=False).values(
-            "id", "name", "industry__name", "tag", "monitor_start_date", "monitor_end_date",
+            "id", "name", "industry__name", "category__name", "tag", "monitor_start_date", "monitor_end_date",
             "platform", "accounts", "sales_points", "brand_id", "competitors"
-        ))
+        ).annotate(
+            category_name=F("category__name"),
+            industry_name=F("industry__name"),
+        ).values("id", "name", "industry__name", "industry_name", "category_name", "tag", "monitor_start_date",
+                 "monitor_end_date", "platform", "accounts", "sales_points", "brand_id", "competitors")
+                       )
+
         map(lambda r: r.update(
             tag=json.loads(r["tag"]),
             accounts=json.loads(r["accounts"]),
