@@ -313,58 +313,58 @@ def get_data(bracket, competitors, range_time, category, platform='net'):
 
     dict_data = defaultdict(list)
     bracket_platform = join_sql_bracket([platform, ])
-
+    range_time_new = range_time.replace('and', '', 1)
     if platform == 'net':
-        sql_day = sqls.compete_day_month_week_voice % (bracket, range_time, "date", "date", "date")
-        sql_month = sqls.compete_day_month_week_voice % (bracket, range_time, "month", "month", "month")
-        sql_week = sqls.compete_day_month_week_voice % (bracket, range_time, "week", "week", "week")
+        sql_day = sqls.compete_day_month_week_voice % (range_time_new, bracket, bracket, range_time_new, "base2.date", "base2.date", "base2.date")
+        sql_month = sqls.compete_day_month_week_voice % (range_time_new, bracket, bracket, range_time_new, "base2.month", "base2.month", "base2.month")
+        sql_week = sqls.compete_day_month_week_voice % (range_time_new, bracket, bracket, range_time_new, "base2.week", "base2.week", "base2.week")
     elif platform == 'all':  # bbv全部
-        sql_day = sqls.bbv_compete_day_month_week_voice % (bracket, range_time, "date", "date", "date")
-        sql_month = sqls.bbv_compete_day_month_week_voice % (bracket, range_time, "month", "month", "month")
-        sql_week = sqls.bbv_compete_day_month_week_voice % (bracket, range_time, "week", "week", "week")
+
+        sql_day = sqls.bbv_compete_day_month_week_voice % (range_time_new, bracket, bracket, range_time_new, "base2.date", "base2.date", "base2.date")
+        sql_month = sqls.bbv_compete_day_month_week_voice % (range_time_new, bracket, bracket, range_time_new, "base2.month", "base2.month", "base2.month")
+        sql_week = sqls.bbv_compete_day_month_week_voice % (range_time_new, bracket, bracket, range_time_new, "base2.week", "base2.week", "base2.week")
     elif platform in ["微博", "微信"]:
-        sql_day = sqls.ww_compete_day_month_week_voice % (bracket, bracket_platform, range_time, "date", "date", "date")
-        sql_month = sqls.ww_compete_day_month_week_voice % (bracket, bracket_platform, range_time, "month", "month", "month")
-        sql_week = sqls.ww_compete_day_month_week_voice % (bracket, bracket_platform, range_time, "week", "week", "week")
+        sql_day = sqls.ww_compete_day_month_week_voice % (range_time_new, bracket, bracket_platform, bracket, range_time_new, "base2.date", "base2.date", "base2.date")
+        sql_month = sqls.ww_compete_day_month_week_voice % (range_time_new, bracket,bracket_platform, bracket, range_time_new, "base2.month", "base2.month", "base2.month")
+        sql_week = sqls.ww_compete_day_month_week_voice % (range_time_new, bracket,bracket_platform, bracket, range_time_new, "base2.week", "base2.week", "base2.week")
     else:  # 其他的各个平台
-        sql_day = sqls.bbv_platform_compete_day_month_week_voice % (bracket, bracket_platform, range_time, "date", "date", "date")
-        sql_month = sqls.bbv_platform_compete_day_month_week_voice % (bracket, bracket_platform, range_time, "month", "month", "month")
-        sql_week = sqls.bbv_platform_compete_day_month_week_voice % (bracket, bracket_platform, range_time, "week", "week", "week")
+        sql_day = sqls.bbv_platform_compete_day_month_week_voice % (range_time_new, bracket, bracket_platform, bracket, range_time_new, "base2.date", "base2.date", "base2.date")
+        sql_month = sqls.bbv_platform_compete_day_month_week_voice % (range_time_new, bracket, bracket_platform, bracket, range_time_new, "base2.month", "base2.month", "base2.month")
+        sql_week = sqls.bbv_platform_compete_day_month_week_voice % (range_time_new, bracket, bracket_platform, bracket, range_time_new, "base2.week", "base2.week", "base2.week")
     if competitors:
         if platform == 'net':
-            sov_month = sqls.area_of_tend_sov % (bracket, range_time, "month", "month", "month")
-            sov_day = sqls.area_of_tend_sov % (bracket, range_time, "date", "date", "date")
-            sov_week = sqls.area_of_tend_sov%(bracket, range_time,  "week", "week", "week")
+            sov_month = sqls.area_of_tend_sov % (range_time_new, bracket, "a.month",range_time_new, "a.month", "a.month")
+            sov_day = sqls.area_of_tend_sov % (range_time_new, bracket, 'a.date', range_time_new, "a.date", "a.date")
+            sov_week = sqls.area_of_tend_sov%(range_time_new, bracket, "a.week", range_time_new,  "a.week",  "a.week")
         elif platform == 'all':
-            sov_month = sqls.bbv_area_of_tend_sov % (bracket, range_time, "month", "month", "month")
-            sov_day = sqls.bbv_area_of_tend_sov % (bracket, range_time, "date", "date", "date")
-            sov_week = sqls.bbv_area_of_tend_sov % (bracket, range_time, "week", "week", "week")
+            sov_month = sqls.bbv_area_of_tend_sov % (range_time_new, bracket, "a.month", range_time_new,  "a.month", "a.month")
+            sov_day = sqls.bbv_area_of_tend_sov % (range_time_new, bracket, "a.date", range_time_new, "a.date", "a.date")
+            sov_week = sqls.bbv_area_of_tend_sov % (range_time_new, bracket, "a.week", range_time_new, "a.week", "week")
         elif platform in ["微博", "微信"]:
-            sov_day = sqls.ww_area_of_tend_sov % (bracket, bracket_platform, range_time, "date", "date", "date")
-            sov_month = sqls.ww_area_of_tend_sov % (bracket, bracket_platform, range_time, "month", "month", "month")
-            sov_week = sqls.ww_area_of_tend_sov % (bracket, bracket_platform, range_time, "week", "week", "week")
+            sov_day = sqls.ww_area_of_tend_sov % (range_time_new, bracket, bracket_platform, "a.month",range_time_new, "a.month", "a.month")
+            sov_month = sqls.ww_area_of_tend_sov % (range_time_new, bracket, bracket_platform, "a.date", range_time_new, "a.date", "a.date")
+            sov_week = sqls.ww_area_of_tend_sov % (range_time_new, bracket, bracket_platform, "a.week", range_time_new,  "a.week",  "a.week")
         else:
-            sov_month = sqls.bbv_platform_area_of_tend_sov % (bracket, bracket_platform, range_time, "month", "month", "month")
-            sov_day = sqls.bbv_platform_area_of_tend_sov % (bracket, bracket_platform, range_time, "date", "date", "date")
-            sov_week = sqls.bbv_platform_area_of_tend_sov % (bracket, bracket_platform, range_time, "week", "week", "week")
+            sov_month = sqls.bbv_platform_area_of_tend_sov % (range_time_new, bracket, bracket_platform, "a.month", range_time_new,  "a.month", "a.month")
+            sov_day = sqls.bbv_platform_area_of_tend_sov % (range_time_new, bracket, bracket_platform, "a.date", range_time_new, "a.date", "a.date")
+            sov_week = sqls.bbv_platform_area_of_tend_sov % (range_time_new, bracket, bracket_platform, "a.week", range_time_new, "a.week", "week")
     else:
         if platform == 'net':
-            sov_month = sqls.area_of_all_brand_tend_sov % (range_time, "month", "month", "month")
-            sov_day = sqls.area_of_all_brand_tend_sov % (range_time, "date", "date", "date")
-            sov_week = sqls.area_of_all_brand_tend_sov % (range_time, "week", "week", "week")
+            sov_month = sqls.area_of_all_brand_tend_sov % (range_time_new, "a.month", range_time_new,  "a.month", "a.month")
+            sov_day = sqls.area_of_all_brand_tend_sov % (range_time_new, "a.date", range_time_new,  "a.date", "a.date")
+            sov_week = sqls.area_of_all_brand_tend_sov % (range_time_new, "a.week", range_time_new,  "a.week", "a.week")
         elif platform == 'all':
-            range_time = range_time.replace('and', '', 1)
-            sov_month = sqls.bbv_area_all_brand_of_tend_sov % ("a.month", range_time,  "a.month", "a.month")
-            sov_day = sqls.bbv_area_all_brand_of_tend_sov % ("a.date", range_time,  "a.date", "a.date")
-            sov_week = sqls.bbv_area_all_brand_of_tend_sov % ("a.week", range_time,  "a.week", "a.week")
+            sov_month = sqls.bbv_area_all_brand_of_tend_sov % (range_time_new, "a.month", range_time_new,  "a.month", "a.month")
+            sov_day = sqls.bbv_area_all_brand_of_tend_sov % (range_time_new, "a.date", range_time_new,  "a.date", "a.date")
+            sov_week = sqls.bbv_area_all_brand_of_tend_sov % (range_time_new, "a.week", range_time_new,  "a.week", "a.week")
         elif platform in ["微博", "微信"]:
-            sov_day = sqls.ww_area_all_brand_of_tend_sov % (bracket_platform, range_time, "date", "date", "date")
-            sov_month = sqls.ww_area_all_brand_of_tend_sov % (bracket_platform, range_time, "month", "month", "month")
-            sov_week = sqls.ww_area_all_brand_of_tend_sov % (bracket_platform, range_time, "week", "week", "week")
+            sov_day = sqls.ww_area_all_brand_of_tend_sov % (range_time_new, bracket_platform, "a.month", range_time_new,  "a.month", "a.month")
+            sov_month = sqls.ww_area_all_brand_of_tend_sov % (range_time_new, bracket_platform, "a.date", range_time_new,  "a.date", "a.date")
+            sov_week = sqls.ww_area_all_brand_of_tend_sov % (range_time_new, bracket_platform, "a.week", range_time_new,  "a.week", "a.week")
         else:
-            sov_month = sqls.bbv_platform_area_all_brand_of_tend_sov % (bracket_platform, range_time, "month", "month", "month")
-            sov_day = sqls.bbv_platform_area_all_brand_of_tend_sov % (bracket_platform, range_time, "date", "date", "date")
-            sov_week = sqls.bbv_platform_area_all_brand_of_tend_sov % (bracket_platform, range_time, "week", "week", "week")
+            sov_month = sqls.bbv_platform_area_all_brand_of_tend_sov % (range_time_new, bracket_platform, "a.month", range_time_new,  "a.month", "a.month")
+            sov_day = sqls.bbv_platform_area_all_brand_of_tend_sov % (range_time_new, bracket_platform, "a.date", range_time_new,  "a.date", "a.date")
+            sov_week = sqls.bbv_platform_area_all_brand_of_tend_sov % (range_time_new, bracket_platform, "a.week", range_time_new,  "a.week", "a.week")
 
     day_assert = DB.search(sql_day, {"category_name": category.name})
     month_assert = DB.search(sql_month, {"category_name": category.name})
@@ -438,8 +438,8 @@ def get_platform_voice_from(bracket, range_time, category, platform='net'):
     data_voice_platform_classify = DB.search(sql_platform_classify, {"category_name": category.name})
     vioce_platform = dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify)
     list_data = list()
-    vioce_platform.sort(key=itemgetter("brand", "count"))
-    for brand, items in groupby(vioce_platform, key=itemgetter('brand')):
+    vioce_platform.sort(key=itemgetter("platform", "count"))
+    for brand, items in groupby(vioce_platform, key=itemgetter('platform')):
         list_data.append(list(items))
     return list_data
 

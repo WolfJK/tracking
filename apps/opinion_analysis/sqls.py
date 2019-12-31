@@ -64,17 +64,22 @@ select category_id, time_slot, competitor,json_index(brand, -1, '.name') brand_n
 # 获取竞品的年月日各个声量
 compete_day_month_week_voice = """
 with e as (
-    select a.brand,
-           a.category,
-           b.month,
-           a.count,
-           b.week,
-           a.date
+    select brand, category, sum(count) count, date
     from vc_saas_platform_volume a
-    join dim_date b on a.date = b.date
-    where a.brand in %s
-      and a.category = {category_name} %s
-)select brand, %s as date, sum(count) as count from e group by %s, brand order by brand, %s asc;
+    where %s and brand in %s
+        and category = {category_name}
+    group by date, brand, category
+),
+base1 as(
+     select b.name, a.date from
+        (select name from dim_brand where name in %s ) b cross join
+        ( select * from dim_date a where %s) a
+    )
+select base1.name brand, %s date, sum(ifnull(e.count, 0)) count
+from base1 left join e on base1.name = e.brand and e.date=base1.date
+join dim_date base2 on base2.date=base1.date
+group by base1.name, %s
+order by base1.name, %s;
 """
 
 # top5声量 不含本品
@@ -157,31 +162,35 @@ with e as (
 # 获取分类的年月周的分类数据总和 用于计算sov的趋势图
 area_of_tend_sov = """
 with e as (
-    select a.brand,
-           a.category,
-           b.month,
-           a.count,
-           b.week,
-           a.date
+    select sum(count) count, a.date
     from vc_saas_platform_volume a
-    join dim_date b on a.date = b.date
-    where a.brand in %s
-    and a.category = {category_name} %s
-)select %s as date, sum(count) as count from e group by %s order by %s asc;
+    where %s 
+    and a.brand in %s 
+    and a.category = {category_name}
+    group by a.date
+)
+select %s date,
+       ifnull(sum(count), 0) as count
+from  dim_date a left join  e on e.date = a.date
+where  %s 
+group by %s
+order by %s asc;
 """
 
 area_of_all_brand_tend_sov = """
 with e as (
-    select a.brand,
-           a.category,
-           b.month,
-           a.count,
-           b.week,
-           a.date
+    select sum(count) count, a.date
     from vc_saas_platform_volume a
-    join dim_date b on a.date = b.date
-    where a.category = {category_name} %s
-)select %s date, sum(count) as count from e group by %s order by %s asc;
+    where %s 
+    and a.category = {category_name}
+    group by a.date
+)
+select %s date, 
+       ifnull(sum(count), 0) as count
+from  dim_date a left join  e on e.date = a.date
+where %s
+group by %s
+order by %s asc;
 """
 
 
@@ -312,61 +321,72 @@ where brand = {brand_name} and category = {category_name}  and type='bbv' %s
 # 获取竞品的年月日各个声量 all
 bbv_compete_day_month_week_voice = """
 with e as (
-    select a.brand,
-           a.category,
-           b.month,
-           a.count,
-           b.week,
-           a.date
+    select brand, category, sum(count) count, date
     from vc_mp_platform_area_volume a
-    join dim_date b on a.date = b.date
-    where a.brand in %s
-    and a.category = {category_name}
-    and a.type = 'bbv' %s 
-)select brand, %s as date, sum(count) as count from e group by %s, brand order by brand, %s asc;
+    where %s and brand in %s 
+        and category = {category_name}
+        and a.type = 'bbv'
+    group by date, brand, category
+),
+base1 as(
+     select b.name, a.date from
+        (select name from dim_brand
+         where name in %s) b cross join
+        ( select * from dim_date a where %s) a
+    )
+select base1.name  brand, %s date, sum(ifnull(e.count, 0)) count
+from base1 left join e on base1.name = e.brand and e.date=base1.date
+join dim_date base2 on base2.date=base1.date
+group by base1.name, %s
+order by base1.name, %s;
 """
 
 bbv_platform_compete_day_month_week_voice = """
 with e as (
-    select a.brand,
-           a.category,
-           b.month,
-           a.count,
-           b.week,
-           a.date
+    select brand, category, sum(count) count, date
     from vc_mp_platform_area_volume a
-    join dim_date b on a.date = b.date
-    where a.brand in %s
-    and a.category = {category_name}
-    and a.platform in %s %s 
-)select brand, %s as date, sum(count) as count from e group by %s, brand order by brand, %s asc;
+    where %s and brand in %s  and a.platform in %s 
+        and category = {category_name}
+    group by date, brand, category
+),
+base1 as(
+     select b.name, a.date from
+        (select name from dim_brand
+         where name in %s) b cross join
+        ( select * from dim_date a where %s) a
+    )
+select base1.name  brand, %s date, sum(ifnull(e.count, 0)) count
+from base1 left join e on base1.name = e.brand and e.date=base1.date
+join dim_date base2 on base2.date=base1.date
+group by base1.name, %s
+order by base1.name, %s;
 """
 
 bbv_area_of_tend_sov = """
 with e as (
-    select a.brand,
-           a.category,
-           b.month,
-           a.count,
-           b.week,
-           a.date
+    select sum(count) count, date
     from vc_mp_platform_area_volume a
-    join dim_date b on a.date = b.date
-    where a.brand in %s
-    and a.category = {category_name}
-    and a.type = 'bbv' %s
-)select %s as date, sum(count) as count from e group by %s order by %s asc;
+    where %s and category = {category_name}
+    and a.brand in %s 
+    and type = 'bbv'  group by date
+)
+select %s date,
+       ifnull(sum(count), 0) as count
+from  dim_date a left join  e on e.date = a.date
+where  %s
+group by %s
+order by %s asc;
 """
 
 
 bbv_area_all_brand_of_tend_sov = """
 with e as (
     select sum(count) count, date
-    from vc_mp_platform_area_volume
-    where category = {category_name}
+    from vc_mp_platform_area_volume a
+    where %s and category = {category_name}
     and type = 'bbv'  group by date
 )
-select %s,
+select %s date,
        ifnull(sum(count), 0) as count
 from  dim_date a left join  e on e.date = a.date
 where  %s
@@ -377,33 +397,32 @@ order by %s asc;
 
 bbv_platform_area_of_tend_sov = """
 with e as (
-    select a.brand,
-           a.category,
-           b.month,
-           a.count,
-           b.week,
-           a.date
+    select sum(count) count, date
     from vc_mp_platform_area_volume a
-    join dim_date b on a.date = b.date
-    where a.brand in %s
-    and a.category = {category_name}
-    and a.platform in %s %s
-)select %s date, sum(count) as count from e group by %s order by %s asc;
+    where %s and category = {category_name}
+    and a.brand in %s  and a.platform in %s  group by date
+)
+select %s date,
+       ifnull(sum(count), 0) as count
+from  dim_date a left join  e on e.date = a.date
+where  %s
+group by %s
+order by %s asc;
 """
 
 bbv_platform_area_all_brand_of_tend_sov = """
 with e as (
-    select a.brand,
-           a.category,
-           b.month,
-           a.count,
-           b.week,
-           a.date
+    select sum(count) count, date
     from vc_mp_platform_area_volume a
-    join dim_date b on a.date = b.date
-    where  a.category = {category_name}
-    and a.platform in %s %s
-)select %s date, sum(count) as count from e group by %s order by %s asc;
+    where %s and category = {category_name} 
+    and a.platform in %s group by date
+)
+select %s date,
+       ifnull(sum(count), 0) as count
+from  dim_date a left join  e on e.date = a.date
+where  %s
+group by %s
+order by %s asc;
 """
 
 
@@ -582,47 +601,56 @@ and platform in %s %s
 
 ww_compete_day_month_week_voice = """
 with e as (
-    select a.brand,
-           a.category,
-           b.month,
-           a.count,
-           b.week,
-           a.date
+    select brand, category, sum(count) count, date
     from vc_saas_platform_volume a
-    join dim_date b on a.date = b.date
-    where a.brand in %s
-      and a.category = {category_name} and a.platform in %s  %s
-)select brand, %s as date, sum(count) as count from e group by %s, brand order by brand, %s asc;
+    where %s and brand in %s and  a.platform in %s 
+        and category = {category_name}
+    group by date, brand, category
+),
+base1 as(
+     select b.name, a.date from
+        (select name from dim_brand where name in %s ) b cross join
+        ( select * from dim_date a where %s) a
+    )
+select base1.name brand, %s date, sum(ifnull(e.count, 0)) count
+from base1 left join e on base1.name = e.brand and e.date=base1.date
+join dim_date base2 on base2.date=base1.date
+group by base1.name, %s
+order by base1.name, %s;
 """
 
 
 ww_area_of_tend_sov = """
 with e as (
-    select a.brand,
-           a.category,
-           b.month,
-           a.count,
-           b.week,
-           a.date
-    from vc_saas_platform_volume a
-    join dim_date b on a.date = b.date
-    where a.brand in %s
-    and a.category = {category_name} and a.platform in %s %s
-)select %s date, sum(count) as count from e group by %s order by %s asc;
+    select sum(count) count, a.date
+    from vc_saas_platform_volume a 
+    where %s 
+    and a.brand in %s  and a.platform in %s
+    and a.category = {category_name}
+    group by a.date
+)
+select %s date,
+       ifnull(sum(count), 0) as count
+from  dim_date a left join  e on e.date = a.date
+where  %s 
+group by %s
+order by %s asc;
 """
 
 ww_area_all_brand_of_tend_sov = """
 with e as (
-    select a.brand,
-           a.category,
-           b.month,
-           a.count,
-           b.week,
-           a.date
+    select sum(count) count, a.date
     from vc_saas_platform_volume a
-    join dim_date b on a.date = b.date
-    where  a.category = {category_name} and a.platform in %s %s
-)select %s date, sum(count) as count from e group by %s order by %s asc;
+    where %s and a.platform in %s
+    and a.category = {category_name}
+    group by a.date
+)
+select %s date, 
+       ifnull(sum(count), 0) as count
+from  dim_date a left join  e on e.date = a.date
+where %s
+group by %s
+order by %s asc;
 """
 
 # dsmtop20微博发帖
