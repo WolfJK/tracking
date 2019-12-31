@@ -391,13 +391,13 @@ def get_data_voice_histogram(bracket, range_time, category, competitors, platfor
     """
     bracket_platform = join_sql_bracket([platform, ])
     if platform == 'net':
-        sql_his = sqls.brand_voice_histogram % (bracket, range_time,)
+        sql_his = sqls.brand_voice_histogram % (bracket, bracket, range_time,)
     elif platform == 'all':
-        sql_his = sqls.bbv_brand_voice_histogram % (bracket, range_time,)
+        sql_his = sqls.bbv_brand_voice_histogram % (bracket, bracket, range_time,)
     elif platform in ["微博", "微信"]:
-        sql_his = sqls.brand_ww_voice_histogram % (bracket, bracket_platform, range_time,)
+        sql_his = sqls.brand_ww_voice_histogram % (bracket, bracket, bracket_platform, range_time,)
     else:
-        sql_his = sqls.bbv_platform_brand_voice_histogram % (bracket, bracket_platform, range_time,)
+        sql_his = sqls.bbv_platform_brand_voice_histogram % (bracket, bracket, bracket_platform, range_time,)
     # 有竞争产品的时候(环形图的总数是竞争产品的全部声量 全品类的时候环形图的总数是全部的声量其余的剩下的用其他来表示)
     if competitors:
         if platform == 'net':

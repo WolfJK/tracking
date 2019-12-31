@@ -96,28 +96,34 @@ with e as (
 
 # 品牌声量柱形图
 brand_voice_histogram = """
-with e as (
-    select a.brand,
-           a.category,
-           a.count,
-           a.date
+select a.name brand, sum(ifnull(count, 0)) count
+from (select name from dim_brand
+  where name in %s 
+  group by name
+)a
+left join (
+    select a.brand, a.count
     from vc_saas_platform_volume a
-    where a.brand in %s
-    and a.category = {category_name}  %s
-)select brand, sum(count) as count from e  group by brand order by count desc;
+    where a.brand in %s 
+    and a.category =  {category_name}  %s
+    ) b on a.name = b.brand
+group by a.name order by count desc ;
 """
 
 brand_ww_voice_histogram = """
-with e as (
-    select a.brand,
-           a.category,
-           a.count,
-           a.date
+select a.name brand, sum(ifnull(count, 0)) count
+from (select name from dim_brand
+  where name in %s 
+  group by name
+)a
+left join (
+    select a.brand, a.count
     from vc_saas_platform_volume a
-    where a.brand in %s
+    where a.brand in %s 
     and a.platform in %s 
-    and a.category = {category_name}  %s
-)select brand, sum(count) as count from e  group by brand order by count desc;
+    and a.category =  {category_name}  %s
+    ) b on a.name = b.brand
+group by a.name order by count desc ;
 """
 
 
@@ -429,29 +435,34 @@ order by %s asc;
 
 # all品牌声量条形图
 bbv_brand_voice_histogram = """
-with e as (
-    select a.brand,
-           a.category,
-           a.count,
-           a.date
+select a.name brand, sum(ifnull(count, 0)) count
+from (select name from dim_brand
+  where name in %s 
+  group by name
+)a
+left join (
+    select a.brand, a.count
     from vc_mp_platform_area_volume a
-    where a.brand in %s
-    and a.category = {category_name}
-    and a.type = 'bbv' %s 
-)select brand, sum(count) as count from e  group by brand order by count desc;
+    where a.brand in %s 
+    and a.category = {category_name}  and a.type = 'bbv' %s 
+    ) b on a.name = b.brand
+group by a.name order by count desc;
 """
 
 bbv_platform_brand_voice_histogram = """
-with e as (
-    select a.brand,
-           a.category,
-           a.count,
-           a.date
+select a.name brand, sum(ifnull(count, 0)) count
+from (select name from dim_brand
+  where name in %s 
+  group by name
+)a
+left join (
+    select a.brand, a.count
     from vc_mp_platform_area_volume a
-    where a.brand in %s
-    and a.category = {category_name}
-    and a.platform in %s %s 
-)select brand, sum(count) as count from e  group by brand order by count desc;
+    where a.brand in %s 
+    and a.category = {category_name} 
+    and a.platform in %s  %s 
+    ) b on a.name = b.brand
+group by a.name order by count desc;
 """
 
 # bbv_声量总数用于计算sov面积图的百分比
