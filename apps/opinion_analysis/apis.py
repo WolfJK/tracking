@@ -797,8 +797,9 @@ def randar_patter_map(vcBrand, platform, date_range, category):
             if level1 in ['使用场景', '产品属性']:
                 list_level2 = [i.get('level2') for i in items][:3]
                 level2.extend(list_level2)
-            else:  # 取出top3
-                dict_data.update({level1: [i.get('level2') for i in items]})
+            else:
+                dict_data.update({level1: [[i.get('level2'), i.get('count')] for i in items]})
+
         if level2:  # # 获取使用场景 产品属性的3级认知的全部的言论数计算玉珏图
             level2_bracket = join_sql_bracket(level2)
             sql = sqls.region_three_for_randar%(level2_bracket, range_time)
