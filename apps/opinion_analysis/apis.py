@@ -28,11 +28,11 @@ def add_monitor_brand(request, monitor_id, category, brand, time_slot, competito
     if len(competitor) > 10:
         raise Exception("竞品的数量不能超过10个")
     if not monitor_id:  # 新增
-        VcMonitorBrand(category_id=category, brand=json.dumps(brand), user_id=request.user.id,
-                       competitor=json.dumps(competitor), time_slot=time_slot).save()
+        VcMonitorBrand(category_id=category, brand=json.dumps(brand, ensure_ascii=False), user_id=request.user.id,
+                       competitor=json.dumps(competitor, ensure_ascii=False), time_slot=time_slot).save()
     else:  # 更新
         monitor_brand = VcMonitorBrand.objects.get(id=monitor_id)
-        monitor_brand.competitor = json.dumps(competitor)
+        monitor_brand.competitor = json.dumps(competitor, ensure_ascii=False)
         monitor_brand.time_slot = time_slot
         monitor_brand.update_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         monitor_brand.save()

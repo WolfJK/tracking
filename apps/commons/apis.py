@@ -189,8 +189,8 @@ def competitor_save(param, user):
     :return:
     '''
 
-    id, competitors = param.pop("id"), json.dumps(param.pop("competitors"))
-    param.update(user__corporation=user.corporation, brand=json.dumps(param["brand"]))
+    id, competitors = param.pop("id"), json.dumps(param.pop("competitors"), ensure_ascii=False)
+    param.update(user__corporation=user.corporation, brand=json.dumps(param["brand"], ensure_ascii=False))
 
     sms = SmCompetitor.objects.filter(**param)
     if len(sms) > 0 and (not id or id != sms[0].id):

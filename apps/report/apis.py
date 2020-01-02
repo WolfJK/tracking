@@ -523,7 +523,7 @@ def report_unscramble_save(param, user):
         if v.pop("state", 0):
             v.update(user=user.username, date=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
-    report.data = json.dumps(data)
+    report.data = json.dumps(data, ensure_ascii=False)
     report.save()
 
     return data
@@ -574,11 +574,11 @@ def report_config_create(param, user, ip):
 
     param.update(
         user=user,
-        tag=json.dumps(param["tag"]),
-        platform=json.dumps(return_list),
-        competitors=json.dumps(param["competitors"]),
-        brand_id=json.dumps(param["brand_id"]),
-        sales_points=json.dumps(param["sales_points"]),
+        tag=json.dumps(param["tag"], ensure_ascii=False),
+        platform=json.dumps(return_list, ensure_ascii=False),
+        competitors=json.dumps(param["competitors"], ensure_ascii=False),
+        brand_id=json.dumps(param["brand_id"], ensure_ascii=False),
+        sales_points=json.dumps(param["sales_points"], ensure_ascii=False),
     )
     # 判断帐号类型 # 判断如果选择的是url则清空关键字和投放平台，不启用bgc，kol库
     # 清楚活动关键字和投放平台 url链接的投放平台是通过链接来判定的
@@ -595,7 +595,7 @@ def report_config_create(param, user, ip):
     param.pop('bgc')
     param.pop('kol')
 
-    param.update(accounts=json.dumps(accounts))
+    param.update(accounts=json.dumps(accounts, ensure_ascii=False))
 
     report_id = param.pop("report_id")
     reports = Report.objects.filter(name=param["name"], user__corporation=user.corporation, delete=False)
@@ -646,7 +646,7 @@ def activity_contrast(param, user):
     # 2、处理 活动对比历史记录保存, 注意: 需要获取数据库的 history, 不能走缓存的 history
     activity_contrast_history = json.loads(SmUser.objects.get(id=user.id).activity_contrast_history)
     if set(param["report_ids"]) != set(activity_contrast_history):
-        user.activity_contrast_history = json.dumps(param["report_ids"])
+        user.activity_contrast_history = json.dumps(param["report_ids"], ensure_ascii=False)
         user.save()
 
     all_platform, datas = [], []
@@ -757,7 +757,7 @@ def get_competitor(param, user):
     :return:
     '''
     competitor = list(SmCompetitor.objects
-                      .filter(category_id=param["category_id"], user__corporation=user.corporation, brand=json.dumps(param["brand"]))
+                      .filter(category_id=param["category_id"], user__corporation=user.corporation, brand=json.dumps(param["brand"], ensure_ascii=False))
                       .values_list("competitors", flat=True))
 
     if len(competitor) > 0:
@@ -888,7 +888,7 @@ def update_report(report_id, status, data, ip):
         report = Report.objects.get(id=report_id)
         report.status = status
         if data:
-            report.data = json.dumps(data)
+            report.data = json.dumps(data, ensure_ascii=False)
         report.save()
 
         ReportStatus(report=report, status=status, ip=ip).save()
