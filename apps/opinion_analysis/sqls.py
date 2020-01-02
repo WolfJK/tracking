@@ -96,7 +96,7 @@ with e as (
            a.count,
            a.date
     from vc_saas_platform_volume a
-    where a.brand != {bran_name} 
+    where a.brand != {brand_name} 
     and a.category = {category_name} %s
 )select brand, sum(count) as count from e  group by brand order by count desc limit 5;
 """

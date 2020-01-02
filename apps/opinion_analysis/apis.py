@@ -55,18 +55,17 @@ def delete_monitor_brand(brand_id):
 
 
 def search_monitor_brand(user, brand_name, category_id):
-    # result = DB.search(sqls.search_monitor_brand_type, {"category_id": category_id})
     result = list(VcMonitorBrand.objects.filter(category_id=category_id, user__corporation=user.corporation).order_by('-create_time').values())
     for brand in result:
-        brand_list = json.loads(brand.get("brand"))
-        brand_id, brand_name_dian = dispose_brand_name(brand_list)
-        brand.update(brand_name=brand_name_dian)
-        brand.update(brand_id=brand_id)
+        brand.update(brand=json.loads(brand.get("brand")))
+        brand.update(brand_name=brand.get("brand"))
+        brand.update(competitor=json.loads(brand.get("competitor")))
+        apps_apis.brand_to_brand(brand)
     data = list()
     if brand_name:
         for brand in result:
-            if brand_name in brand.get('brand_name'):
-                result.append(brand)
+            if brand_name in brand.get('brand'):
+                data.append(brand)
 
     return data if brand_name else result
 
@@ -76,10 +75,9 @@ def get_vcbrand_for_name(brand_id):
         result = DB.get(sqls.search_one_brand, {"brand_id": brand_id})
     except Exception:
         raise Exception("监测id不存在")
-    brand_list = json.loads(result.get("brand"))
-    brand_id, brand_name_dian = dispose_brand_name(brand_list)
-    result.update(brand_name=brand_name_dian)
-    result.update(brand_id=brand_id)
+    result.update(brand=json.loads(result.get("brand")))
+    result.update(competitor=json.loads(result.get("competitor")))
+    apps_apis.brand_to_brand(result)
     return result
 
 
@@ -111,10 +109,8 @@ def dispose_competers(competers):
 
 def get_all_monitor_card_data(request, brand_name, category_id):
     # 按照品类查询所有的品牌id, 计算声量信息
-    try:
-        vcBrands = search_monitor_brand(request.user, brand_name, category_id)
-    except Exception:
-        vcBrands = DB.search(sqls.get_all_brand_id, {"category_id": category_id})
+    vcBrands = search_monitor_brand(request.user, brand_name, category_id)
+
     category = DimCategory.objects.get(id=category_id)
     industry = DimIndustry.objects.get(id=category.industry_id)
 
@@ -129,7 +125,7 @@ def get_all_monitor_card_data(request, brand_name, category_id):
         range_time = " and date between '{}' and '{}' ".format(date_range[0], date_range[1])
 
         self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range)
-        brand_name = vcBrand.get("brand_name")
+        brand_name = vcBrand.get("brand")
         data_sql = sqls.all_data_card_voice_assert %(range_time, range_time)
         data_assert = DB.search(data_sql, {"brand_name": brand_name, "category_name": category.name})  # 所有当前品牌的日期数据
         sov = get_all_sov(self_voice, compete_voice)
@@ -155,7 +151,7 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
     :param date_range:
     :return:
     """
-    brand_name = vcBrand.get("brand_name")
+    brand_name = vcBrand.get("brand")
 
     date1 = datetime.strptime(date_range[0], "%Y-%m-%d")
     date2 = datetime.strptime(date_range[1], "%Y-%m-%d")
@@ -166,17 +162,18 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
     date_previous2 = (date1 - relativedelta(days=time_slot+1)).strftime("%Y-%m-%d")
     range_time_previous = " and date between '{}' and '{}' ".format(date_previous2, date_previous1)
 
-    competitors = json.loads(vcBrand.get("competitor"))
-    try:
-        list_compete = dispose_competers(competitors)
-    except Exception:
-        list_compete = list()
-        for competitor in competitors:
-            list_compete.append(competitor.get("name"))
+    competitors = vcBrand.get("competitor")
+    # try:
+    #     list_compete = dispose_competers(competitors)
+    # except Exception:
+    #     list_compete = list()
+    #     for competitor in competitors:
+    #         list_compete.append(competitor.get("name"))
     bracket_platform = join_sql_bracket([type, ])
     if competitors:  # 有竞品
-        list_compete.append(brand_name)  # 所有的竞品加上本品的总数
-        bracket = join_sql_bracket(list_compete)
+        competitors.append(brand_name)  # 所有的竞品加上本品的总数
+        bracket = join_sql_bracket(competitors)
+
         if type == "net":
             sql = sqls.monitor_data_compete_voice % (bracket, range_time)  # 获取当前
             sql_previous = sqls.monitor_data_compete_voice% (bracket, range_time_previous)  # 获取上个阶段
@@ -242,10 +239,8 @@ def whole_net_analysis(brand_id, date_range):
     :return:
     """
     date_range = json.loads(date_range)
-    try:
-        vcBrand = get_vcbrand_for_name(brand_id)
-    except Exception:
-        vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
+    vcBrand = get_vcbrand_for_name(brand_id)
+
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
     self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range)
@@ -504,7 +499,7 @@ def get_content_from(bracket, range_time, competitors, category, brand_name, pla
 
 def get_net_day_month_week_analysis(vcBrand, category, date_range):
 
-    brand_name = vcBrand.get("brand_name")
+    brand_name = vcBrand.get("brand")
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
     dict_data = get_data(bracket, competitors, range_time, category)
 
@@ -582,7 +577,7 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
     :return:
     """
 
-    brand_name = vcBrand.get("brand_name")
+    brand_name = vcBrand.get("brand")
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
     dict_data = get_data(bracket, competitors, range_time, category, platform)
     # 获取声量助柱形图
@@ -628,25 +623,26 @@ def get_bbv_analysis(brand_id, date_range, platform):
 
 
 def get_bracket_datarange(vcBrand, category, date_range):
-    brand_name = vcBrand.get("brand_name")
+    brand_name = vcBrand.get("brand")
     range_time = " and a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
-    competitors = json.loads(vcBrand.get("competitor"))
-    try:
-        list_compete = dispose_competers(competitors)
-    except Exception:
-        list_compete = list()
-        for competitor in competitors:
-            list_compete.append(competitor.get("name"))
+    competitors = vcBrand.get("competitor")
+    # try:
+    #     list_compete = dispose_competers(competitors)
+    # except Exception:
+    #     list_compete = list()
+    #     for competitor in competitors:
+    #         list_compete.append(competitor.get("name"))
     # list_compete = list()
     if competitors:  # 有竞品
         # for competitor in competitors:
         #     list_compete.append(competitor.get("name"))
-        list_compete.append(brand_name)
-        bracket = join_sql_bracket(list_compete)
+        competitors.append(brand_name)
+        bracket = join_sql_bracket(competitors)
     else:
         # 获取top5的声量
         sql = sqls.all_top5 % (range_time)
-        sql_brand = DB.search(sql, {"bran_name": brand_name, "category_name": category.name})
+        sql_brand = DB.search(sql, {"brand_name": brand_name, "category_name": category.name})
+        list_compete = list()
         for brand in sql_brand:
             list_compete.append(brand.get("brand"))
         list_compete.append(brand_name)
@@ -654,15 +650,40 @@ def get_bracket_datarange(vcBrand, category, date_range):
     return bracket, competitors, range_time
 
 
+# def get_bracket_datarange(vcBrand, category, date_range):
+#     brand_name = vcBrand.get("brand_name")
+#     range_time = " and a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
+#     competitors = json.loads(vcBrand.get("competitor"))
+#     try:
+#         list_compete = dispose_competers(competitors)
+#     except Exception:
+#         list_compete = list()
+#         for competitor in competitors:
+#             list_compete.append(competitor.get("name"))
+#     # list_compete = list()
+#     if competitors:  # 有竞品
+#         # for competitor in competitors:
+#         #     list_compete.append(competitor.get("name"))
+#         list_compete.append(brand_name)
+#         bracket = join_sql_bracket(list_compete)
+#     else:
+#         # 获取top5的声量
+#         sql = sqls.all_top5 % (range_time)
+#         sql_brand = DB.search(sql, {"bran_name": brand_name, "category_name": category.name})
+#         for brand in sql_brand:
+#             list_compete.append(brand.get("brand"))
+#         list_compete.append(brand_name)
+#         bracket = join_sql_bracket(list_compete)
+#     return bracket, competitors, range_time
+
+
 def get_dsm_milk_analysis(brand_id, date_range, platform):
     """
     奶粉深度社媒数据分析 其中微博微信的数据的声量数据来源与sass
     """
     date_range = json.loads(date_range)
-    try:
-        vcBrand = get_vcbrand_for_name(brand_id)
-    except Exception:
-        vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
+    vcBrand = get_vcbrand_for_name(brand_id)
+
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
     self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range, platform)
