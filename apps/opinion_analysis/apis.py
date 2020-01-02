@@ -130,7 +130,7 @@ def get_all_monitor_card_data(request, brand_name, category_id):
 
         self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range)
         brand_name = vcBrand.get("brand_name")
-        data_sql = sqls.all_data_card_voice_assert %(range_time)
+        data_sql = sqls.all_data_card_voice_assert %(range_time, range_time)
         data_assert = DB.search(data_sql, {"brand_name": brand_name, "category_name": category.name})  # 所有当前品牌的日期数据
         sov = get_all_sov(self_voice, compete_voice)
         append_vc_brand(vcBrand, competitors, data_assert, self_voice, category, industry, compete_voice, sov)

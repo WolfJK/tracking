@@ -49,10 +49,17 @@ select IFNULL(sum(count), 0) as voice_all from vc_saas_platform_volume where cat
 
 # 声量的趋势数据
 all_data_card_voice_assert = """
-select brand, date, sum(count) count from vc_saas_platform_volume 
-where brand={brand_name} and category={category_name} %s
-group by date, brand
-order by date;
+with base0 as (
+    select b.name, a.date
+    from (select name from dim_brand where name = {brand_name}) b
+    cross join (select date from dim_date a where 1= 1 %s ) a
+),
+base1 as (
+    select brand, date, sum(count) count
+        from vc_saas_platform_volume a
+        where brand = {brand_name} and category={category_name} %s
+        group by date, brand order by date
+) select base0.name brand, base0.date, ifnull(count, 0) count from base0 left join base1 on base0.date=base1.date;
 """
 
 # 按照id获取某一个品牌的name

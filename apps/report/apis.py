@@ -73,10 +73,10 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
             sql_format.append("datediff({}, {})<={}".format("monitor_end_date", "monitor_start_date", monitor_cycle))
 
     if key_word:
-        # sql = sql_join
         sql_title = "LOWER(report.name) like '%{}%'".format(key_word.lower())
         sql_name = "LOWER(sm_user.username) like '%{}%'".format(key_word.lower())
-        sql_format.append("(" + sql_title + " OR " + sql_name + ")")
+        report_title = "LOWER(report.title) like '%{}%'".format(key_word.lower())
+        sql_format.append("(" + sql_title + " OR " + sql_name + " OR " + report_title + ")")
 
     # 判断是管理员内部用户
     # if user.is_admin and user.user_type == 1:
