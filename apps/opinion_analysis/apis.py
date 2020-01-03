@@ -535,6 +535,7 @@ def dispose_content_radar(data_radar, data_radar_classify):
 def join_sql_bracket(data):
     str_data = ""
     for index, value in enumerate(data):
+        value = value.replace("'", "\\'")  # 特殊品牌
         if index == 0:
             str_data += "( "
         str_data += "'" + value + "'"
@@ -551,7 +552,7 @@ def get_all_sov(self_voice, compete_voice):
     except Exception:
         # raise Exception("竞品声量或者全品声量不能为0")
         sov = 0
-    return sov
+    return str(sov)
 
 
 def dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify):
@@ -637,33 +638,6 @@ def get_bracket_datarange(vcBrand, category, date_range):
         list_compete.append(brand_name)
         bracket = join_sql_bracket(list_compete)
     return bracket, competitors, range_time
-
-
-# def get_bracket_datarange(vcBrand, category, date_range):
-#     brand_name = vcBrand.get("brand_name")
-#     range_time = " and a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
-#     competitors = json.loads(vcBrand.get("competitor"))
-#     try:
-#         list_compete = dispose_competers(competitors)
-#     except Exception:
-#         list_compete = list()
-#         for competitor in competitors:
-#             list_compete.append(competitor.get("name"))
-#     # list_compete = list()
-#     if competitors:  # 有竞品
-#         # for competitor in competitors:
-#         #     list_compete.append(competitor.get("name"))
-#         list_compete.append(brand_name)
-#         bracket = join_sql_bracket(list_compete)
-#     else:
-#         # 获取top5的声量
-#         sql = sqls.all_top5 % (range_time)
-#         sql_brand = DB.search(sql, {"bran_name": brand_name, "category_name": category.name})
-#         for brand in sql_brand:
-#             list_compete.append(brand.get("brand"))
-#         list_compete.append(brand_name)
-#         bracket = join_sql_bracket(list_compete)
-#     return bracket, competitors, range_time
 
 
 def get_dsm_milk_analysis(brand_id, date_range, platform):
@@ -805,12 +779,12 @@ def randar_patter_map(vcBrand, platform, date_range, category):
     top5和top3分别计算返回
     :return:
     """
-    dict_data = dict()
+    list_data = list()
     dict_scene_property = {}
     if platform in ["微博", '小红书']:
         range_time = " and date between '{}' and '{}' ".format(date_range[0], date_range[1])
         # range_time = " and date between '{}' and '{}' ".format('2018-01-01', '2019-12-30')
-        brand_name = vcBrand.get("brand_name")
+        brand_name = vcBrand.get("brand")
         sql_second_top5 = sqls.randar_patter_map%(range_time)
         data_second_top5 = DB.search(sql_second_top5, {"brand_name": brand_name, "category_name": category.name, "platform": platform})
         # data_second_top5 = DB.search(sql_second_top5, {"brand_name": brand_name, "category_name": '奶粉', "platform": platform})
@@ -821,13 +795,12 @@ def randar_patter_map(vcBrand, platform, date_range, category):
                 list_level2 = [i.get('level2') for i in items][:3]
                 level2.extend(list_level2)
             else:
-                dict_data.update({level1: [[i.get('level2'), i.get('count')] for i in items]})
+                list_data.append({"name": level1, "children": [{"name": i.get('level2'), "value": i.get('count')} for i in items]})
 
         if level2:  # # 获取使用场景 产品属性的3级认知的全部的言论数计算玉珏图
             level2_bracket = join_sql_bracket(level2)
             sql = sqls.region_three_for_randar%(level2_bracket, range_time)
             data_three_region = DB.search(sql, {"brand_name": brand_name, "category_name": category.name, "platform": platform})
-            # data_three_region = DB.search(sql, {"brand_name": brand_name, "category_name": "奶粉", "platform": platform})
             data_three_region.sort(key=itemgetter('level1'))
             for level1, items in groupby(data_three_region, key=itemgetter('level1')):
                 for i in items:
@@ -841,7 +814,7 @@ def randar_patter_map(vcBrand, platform, date_range, category):
                         else:
                             two_region.get(level2).append([i.get('level3'), i.get('count')])
 
-    return dict_data, dict_scene_property
+    return list_data, dict_scene_property
 
 
 
