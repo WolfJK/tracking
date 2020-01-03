@@ -221,7 +221,7 @@ delimiter //
 CREATE PROCEDURE saas_loading_saas (IN date_in varchar(32))
 BEGIN
 
-    -- 1、saas 原始数据 + 全网
+    -- 1、saas 原始数据
     insert ignore into vc_saas_platform_volume(category, brand, platform, count, date)
     with base as (
         select
@@ -240,21 +240,10 @@ BEGIN
         inner join
             dim_brand t2
         on t1.brand = t2.saas
-        inner join
-            dim_brand_category t3
-        on t2.id = t3.brand_id
-        inner join
-            dim_category t4
-        on t3.category_id = t4.id and t1.category = t4.name
         where t1.date = date_in
-    ),
-    base1 as (
-        select category, brand, platform, count, date from base where saas_type in ('milk', 'coffee')
-        union all
-        select category, brand, '全网' as platform, sum(count) as count, date from base group by category, brand, date
     )
-      select * from base1
-      ON DUPLICATE KEY UPDATE count = base1.count;
+      select category, brand, platform, count, date from base where saas_type in ('milk', 'coffee')
+      ON DUPLICATE KEY UPDATE count = base.count;
 
 END;
 //
@@ -288,7 +277,7 @@ BEGIN
     ON DUPLICATE KEY UPDATE count = base.count;
 
 
-    -- 2、saas 其他
+    -- 2、saas 其他 + saas 全部;
     insert ignore into vc_saas_platform_volume(category, brand, platform, count, date)
     with base as (
         select
@@ -296,25 +285,28 @@ BEGIN
             brand,
             sum(
                 case
-                    when category = '奶粉' and platform in ('微博', '微信', '新闻', '视频', 'bbv') then count
+                    when category = '奶粉' and platform in ('微博', '微信', '新闻', '视频') then count
                     when category = '咖啡' and platform in ('微博', '微信', '新闻', '视频', '客户端', '论坛') then count
                     else 0
                 end
             ) as count,
             date
         from vc_saas_platform_volume
-        where platform in ('微博', '微信', '新闻', '视频', 'bbv', '客户端', '论坛')
+        where platform in ('微博', '微信', '新闻', '视频', '客户端', '论坛')
         group by category, brand, date
     ),
     base1 as (
         select
-            category,
-            brand,
-            platform,
-            count,
-            date
-        from vc_saas_platform_volume
-        where platform = '全部'
+        t1.category,
+        t2.name as brand,
+        sum(t1.count) as count,
+        t1.date
+        from
+            saas_platform_volume t1
+        inner join
+            dim_brand t2
+        on t1.brand = t2.saas
+        group by t1.category, t2.name, t1.date
     ),
     base2 as (
         select
@@ -328,9 +320,28 @@ BEGIN
         left join
             base
         on base1.category = base.category and base1.brand = base.brand and base1.date = base.date
+    ),
+    base3 as (
+        select
+            base1.category,
+            base1.brand,
+            '全部' as platform,
+            base1.count + b32.count as count,
+            base1.date
+        from
+            base1
+        left join
+            (select * from vc_saas_platform_volume where platform = 'bbv') b32
+        on base1.category = b32.category and base1.brand = b32.brand and base1.date = b32.date
+    ),
+    base4 as (
+        select * from base2
+        union
+        select * from base3
     )
-    select * from base2
-    ON DUPLICATE KEY UPDATE count = base2.count;
+    select * from base4
+    ON DUPLICATE KEY UPDATE count = base4.count;
+
 
     -- 3、母垂其他
     insert ignore into vc_mp_platform_area_volume(category, brand, platform, area, count, type, date)
