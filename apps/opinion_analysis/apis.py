@@ -780,20 +780,21 @@ def randar_patter_map(vcBrand, platform, date_range, category):
     :return:
     """
     list_data = list()
-    dict_scene_property = {}
+    list_top3 = []
     if platform in ["微博", '小红书']:
         range_time = " and date between '{}' and '{}' ".format(date_range[0], date_range[1])
-        # range_time = " and date between '{}' and '{}' ".format('2018-01-01', '2019-12-30')
         brand_name = vcBrand.get("brand")
         sql_second_top5 = sqls.randar_patter_map%(range_time)
         data_second_top5 = DB.search(sql_second_top5, {"brand_name": brand_name, "category_name": category.name, "platform": platform})
-        # data_second_top5 = DB.search(sql_second_top5, {"brand_name": brand_name, "category_name": '奶粉', "platform": platform})
         level2 = []
         data_second_top5.sort(key=itemgetter('level1'))
         for level1, items in groupby(data_second_top5, key=itemgetter('level1')):
             if level1 in ['使用场景', '产品属性']:
-                list_level2 = [i.get('level2') for i in items][:3]
-                level2.extend(list_level2)
+                data = list(items)[:3]
+                for i in data:
+                    i.update(name=i.get('level2'))
+                    level2.append(i.get('level2'))
+                list_top3.append({'name': level1, 'children': data})
             else:
                 list_data.append({"name": level1, "children": [{"name": i.get('level2'), "value": i.get('count')} for i in items]})
 
@@ -801,20 +802,16 @@ def randar_patter_map(vcBrand, platform, date_range, category):
             level2_bracket = join_sql_bracket(level2)
             sql = sqls.region_three_for_randar%(level2_bracket, range_time)
             data_three_region = DB.search(sql, {"brand_name": brand_name, "category_name": category.name, "platform": platform})
-            data_three_region.sort(key=itemgetter('level1'))
-            for level1, items in groupby(data_three_region, key=itemgetter('level1')):
-                for i in items:
-                    if level1 not in dict_scene_property:
-                        dict_scene_property.update({level1: {i.get('level2'): [[i.get('level3'), i.get('count')]]}})
-                    else:
-                        two_region = dict_scene_property.get(level1)
-                        level2 = i.get('level2')
-                        if level2 not in two_region:
-                            two_region.update({level2: [[i.get('level3'), i.get('count')]]})
-                        else:
-                            two_region.get(level2).append([i.get('level3'), i.get('count')])
+            for i in data_three_region:
+                i.update(name=i.get('level3'))
+            data_three_region.sort(key=itemgetter('level2'))
+            for level2, items in groupby(data_three_region, key=itemgetter('level2')):
+                for val in list_top3:
+                    for list_level2 in val.get('children'):
+                        if level2 == list_level2.get('level2'):
+                            list_level2.update(children=list(items))
 
-    return list_data, dict_scene_property
+    return list_data, list_top3
 
 
 
