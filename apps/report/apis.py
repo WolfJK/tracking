@@ -191,6 +191,7 @@ def report_details(report_id, user, need_unscramble=True):
         data["tags_concern"][i]["name"] = sales_points[i].split("_")[1]
 
     data["report_config"] = dict(
+        id=report.id,
         start_date=report.monitor_start_date,
         end_date=report.monitor_end_date,
         name=report.name,
@@ -661,8 +662,12 @@ def activity_contrast(param, user):
 
         composition = {us["type"]: us["value"] for us in report["spread_effectiveness"]["ugc_in_activity_composition"]}
         datas.append(dict(
+            id=report["report_config"]["id"],
             brand=brand,
             activity=report["report_config"]["activity"],
+            name=report["report_config"]["name"],
+            start_date=report["report_config"]["start_date"],
+            end_date=report["report_config"]["end_date"],
 
             platform_overview={m["name"]: m for m in platforms},
             account_overview=report["spread_overview"]["account_web"],
