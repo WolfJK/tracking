@@ -601,10 +601,7 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
 def get_bbv_analysis(brand_id, date_range, platform):
     # bbv数据分析
     date_range = json.loads(date_range)
-    try:
-        vcBrand = get_vcbrand_for_name(brand_id)
-    except Exception:
-        vcBrand = DB.get(sqls.get_brand_by_id, {"brand_id": brand_id})
+    vcBrand = get_vcbrand_for_name(brand_id)
 
     category = DimCategory.objects.get(id=vcBrand.get("category_id"))
     industry = DimIndustry.objects.get(id=category.industry_id)
@@ -626,16 +623,7 @@ def get_bracket_datarange(vcBrand, category, date_range):
     brand_name = vcBrand.get("brand")
     range_time = " and a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
     competitors = vcBrand.get("competitor")
-    # try:
-    #     list_compete = dispose_competers(competitors)
-    # except Exception:
-    #     list_compete = list()
-    #     for competitor in competitors:
-    #         list_compete.append(competitor.get("name"))
-    # list_compete = list()
     if competitors:  # 有竞品
-        # for competitor in competitors:
-        #     list_compete.append(competitor.get("name"))
         competitors.append(brand_name)
         bracket = join_sql_bracket(competitors)
     else:
@@ -726,7 +714,7 @@ def link_relative(vcBrand, self_voice, sov, self_voice_previous, compete_voice_p
 
 def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform):
 
-    brand_name = vcBrand.get("brand_name")
+    brand_name = vcBrand.get("brand")
     bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
 
     # 获取日周月数据
@@ -750,7 +738,7 @@ def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform
 
 def get_top_20_offical_posts(vcBrand, platform, date_range, category):
     """
-    获取官方发帖top20 只有是深度社媒的微博和小红书平台
+    获取官方发帖top20 只有是深度社媒的微博和小红书和微信平台
     按照互动量排序 微博：原创微博的转发+评论+点赞
                  微信： 点赞数
                  小红书： 原创帖子的转发+品论+点赞+收藏
@@ -770,7 +758,7 @@ def get_top_20_offical_posts(vcBrand, platform, date_range, category):
         offcial_posts = DB.search(sql, {'type_from': 1, "platform": platform, "brand_name": brand_name, "category_name": category.name})
     else:
         offcial_posts = []
-
+    show_comment(offcial_posts)
     return offcial_posts
 
 
@@ -781,18 +769,31 @@ def get_top_20_user_posts(vcBrand, platform, date_range, category):
     """
     range_time = " a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
     brand_name = vcBrand.get("brand_name")
-    if platform in ["微博", "微信", "小红书"]:
+    if platform in ["微博", "小红书"]:
         if platform == "微博":
             sql = sqls.dsm_weibo_official_top20 % range_time
-        elif platform == "微信":
-            sql = sqls.dsm_weixin_official_top20 % range_time
+        # elif platform == "微信": 用户发帖没有微信
+        #     sql = sqls.dsm_weixin_official_top20 % range_time
         else:
             sql = sqls.dsm_redbook_official_top20 % range_time
         users_posts = DB.search(sql, {'type_from': 2, "platform": platform, "brand_name": brand_name, "category_name": category.name})
     else:
         users_posts = []
-
+    show_comment(users_posts)
     return users_posts
+
+
+def show_comment(posts):
+    for i in posts:
+        if i.get("platform") == "微博":  # 评论 转发 点赞
+            i.update(reading=-1)
+            i.update(favorite=-1)
+        if i.get('platform') == "微信":  # 阅读数， 点赞数
+            i.update(reviews=-1)
+            i.update(retweets=-1)
+            i.update(favorite=-1)
+        if i.get("platform") == "小红书":  # 评论 转发 点赞 收藏
+            i.update(reading=-1)
 
 
 def randar_patter_map(vcBrand, platform, date_range, category):
