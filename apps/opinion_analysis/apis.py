@@ -747,7 +747,7 @@ def get_top_20_offical_posts(vcBrand, platform, date_range, category):
     """
 
     range_time = " a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
-    brand_name = vcBrand.get("brand_name")
+    brand_name = vcBrand.get("brand")
     if platform in ["微博", "微信", "小红书"]:
         if platform == "微博":
             sql = sqls.dsm_weibo_official_top20 %range_time
@@ -768,7 +768,7 @@ def get_top_20_user_posts(vcBrand, platform, date_range, category):
     :return:
     """
     range_time = " a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
-    brand_name = vcBrand.get("brand_name")
+    brand_name = vcBrand.get("brand")
     if platform in ["微博", "小红书"]:
         if platform == "微博":
             sql = sqls.dsm_weibo_official_top20 % range_time
