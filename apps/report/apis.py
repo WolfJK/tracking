@@ -461,7 +461,7 @@ def get_unscramble(data, sales_points):
 
     # 处理 sales_points
     sp_unscramble = []
-    for i in range(len(sales_points)):
+    for i in range(len(data["tags_concern"])):
         sp_param = dict(
             sales_point_cognitive=data["tags_concern"][i]["activity"],
             sales_point_cognitive_year=data["tags_concern"][i]["annual"],
