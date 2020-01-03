@@ -210,16 +210,34 @@ order by %s asc;
 
 # 获取各个平台总的声量
 platform_voice_sum = """
-select brand, sum(count) as count from vc_saas_platform_volume a where brand in %s
-and category = {category_name} %s
-group by brand;
+select a.name brand, ifnull(b.count, 0) count
+from (select name from dim_brand
+  where name in %s 
+  group by name
+) a
+left join (select brand, sum(count) as count from vc_saas_platform_volume a
+where brand in %s 
+and category = {category_name}  %s 
+group by brand) b on a.name = b.brand
+;
 """
 
 # 各个平台的分类的声量
 platfom_classify_count = """
-select platform, brand, sum(count) as  count from vc_saas_platform_volume a where brand in %s
-and category = {category_name}  %s
-group by platform, brand;
+with base0 as (
+    select a.name, b.platform
+    from
+    (select name from dim_brand
+      where name in %s 
+      group by name) a cross join
+    (select platform from vc_saas_platform_volume group by platform) b
+) select base0.name brand, base0.platform, ifnull(base1.count, 0) count
+    from base0 left join (
+    select platform, brand, sum(count) as  count
+        from vc_saas_platform_volume a where brand in %s 
+        and category = {category_name}  %s 
+        group by platform, brand
+    ) base1 on base0.name=base1.brand and base0.platform=base1.platform;
 """
 
 # 各个地域声量的总计
@@ -515,17 +533,34 @@ with e as (
 
 # bbv获取各个平台总的声量
 bbv_platform_voice_sum_all = """
-select brand, sum(count) as count from vc_mp_platform_area_volume a 
-where brand in %s
-and category = {category_name}  and a.type = 'bbv' %s
-group by brand;
+select a.name brand, ifnull(b.count, 0) count
+from (select name from dim_brand
+  where name in %s 
+  group by name
+) a
+left join (select brand, sum(count) as count from vc_mp_platform_area_volume a
+where brand in %s 
+and category = {category_name}  and a.type = 'bbv'  %s 
+group by brand)b on a.name = b.brand
+;
 """
 
 bbv_platform_voice_all_classify = """
-select platform, brand, sum(count) as count from vc_mp_platform_area_volume a 
-where brand in %s
-and category = {category_name}  and a.type = 'bbv' %s
-group by platform, brand;
+with base0 as (
+    select a.name, b.platform
+    from
+    (select name from dim_brand
+      where name in %s 
+      group by name) a cross join
+    (select platform from vc_mp_platform_area_volume group by platform) b
+) select base0.name brand, base0.platform, ifnull(base1.count, 0) count
+    from base0 left join (
+    select platform, brand, sum(count) as count from vc_mp_platform_area_volume a
+    where brand in %s 
+    and category = {category_name}  and a.type = 'bbv'  %s 
+    group by platform, brand
+    ) base1 on base0.name=base1.brand and base0.platform=base1.platform;
+    
 """
 
 

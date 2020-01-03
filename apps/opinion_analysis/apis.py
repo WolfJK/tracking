@@ -422,18 +422,18 @@ def get_data_voice_histogram(bracket, range_time, category, competitors, platfor
 def get_platform_voice_from(bracket, range_time, category, platform='net'):
     # 获取平台声量来源 只有bbv全部和全网数据有平台来源
     if platform == 'net':
-        sql_platform_sum = sqls.platform_voice_sum % (bracket, range_time)  # 平台的声量sum
-        sql_platform_classify = sqls.platfom_classify_count % (bracket, range_time)  # 各个平台的分类声量
+        sql_platform_sum = sqls.platform_voice_sum % (bracket, bracket, range_time)  # 平台的声量sum
+        sql_platform_classify = sqls.platfom_classify_count % (bracket, bracket, range_time)  # 各个平台的分类声量
     elif platform == 'all':  # 子类下面没有平台的声量数据
-        sql_platform_sum = sqls.bbv_platform_voice_sum_all%(bracket, range_time) # 平台的声量sum
-        sql_platform_classify = sqls.bbv_platform_voice_all_classify%(bracket, range_time)  # 各个平台的分类声量
+        sql_platform_sum = sqls.bbv_platform_voice_sum_all%(bracket, bracket, range_time) # 平台的声量sum
+        sql_platform_classify = sqls.bbv_platform_voice_all_classify%(bracket, bracket, range_time)  # 各个平台的分类声量
     else:
         return list()
     data_voice_platform_sum = DB.search(sql_platform_sum, {"category_name": category.name})
     data_voice_platform_classify = DB.search(sql_platform_classify, {"category_name": category.name})
     vioce_platform = dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify)
     list_data = list()
-    vioce_platform.sort(key=itemgetter("platform", "count"))
+    vioce_platform.sort(key=itemgetter("platform", "brand"))
     for brand, items in groupby(vioce_platform, key=itemgetter('platform')):
         list_data.append(list(items))
     return list_data
@@ -561,6 +561,7 @@ def dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify
     """
     for platform_sum in data_voice_platform_sum:
         for platform_classify in data_voice_platform_classify:
+
             if platform_sum.get("brand") == platform_classify.get("brand"):
                 sum_data = platform_sum.get("count")
                 classify_data = platform_classify.get("count")
