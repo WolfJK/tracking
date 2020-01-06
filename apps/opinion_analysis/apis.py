@@ -163,16 +163,11 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
     range_time_previous = " and date between '{}' and '{}' ".format(date_previous2, date_previous1)
 
     competitors = vcBrand.get("competitor")
-    # try:
-    #     list_compete = dispose_competers(competitors)
-    # except Exception:
-    #     list_compete = list()
-    #     for competitor in competitors:
-    #         list_compete.append(competitor.get("name"))
     bracket_platform = join_sql_bracket([type, ])
+    list_compete = copy.deepcopy(competitors)
     if competitors:  # 有竞品
-        competitors.append(brand_name)  # 所有的竞品加上本品的总数
-        bracket = join_sql_bracket(competitors)
+        list_compete.append(brand_name)  # 所有的竞品加上本品的总数
+        bracket = join_sql_bracket(list_compete)
 
         if type == "net":
             sql = sqls.monitor_data_compete_voice % (bracket, range_time)  # 获取当前
@@ -274,18 +269,29 @@ def get_classify_sov_new(data_assert, dict_sov_classify, type):
                     item.update(sov=sov)
 
 
-def get_round_sov(data_voice_histogram, data_voice_round):
+def get_round_sov(data_voice_histogram, data_voice_round, compitors):
     """
     获取环形图的sov
     :return:
     """
+    other_sov = []
+    other_count = []
     voice_count = data_voice_round.get("count")
     for histogram in data_voice_histogram:
         histogram_count = histogram.get("count")
         sov = get_all_sov(histogram_count, voice_count)
         histogram.update(sov=sov)
-    return data_voice_histogram
+        other_sov.append(sov)
+        other_count.append(histogram_count)
+    if not compitors:  # 百分比不足补上其他
+        data = {
+           'count': voice_count - sum(other_count),
+           "brand": "其他",
+           'sov': 100 - sum(other_sov)
+       }
+        data_voice_histogram.append(data)
 
+    return data_voice_histogram
 
 
 def assemble_data_new(day_assert, dict_data,  type):
@@ -415,7 +421,7 @@ def get_data_voice_histogram(bracket, range_time, category, competitors, platfor
 
     data_voice_histogram = DB.search(sql_his, {"category_name": category.name})
     data_voice_round = DB.get(sql_round, {"category_name": category.name})
-    get_round_sov(data_voice_histogram, data_voice_round)
+    get_round_sov(data_voice_histogram, data_voice_round, competitors)
     return data_voice_histogram, data_voice_round
 
 
@@ -556,7 +562,7 @@ def get_all_sov(self_voice, compete_voice):
     except Exception:
         # raise Exception("竞品声量或者全品声量不能为0")
         sov = 0
-    return str(sov)
+    return sov
 
 
 def dispose_platform_voice(data_voice_platform_sum, data_voice_platform_classify):
@@ -629,15 +635,16 @@ def get_bracket_datarange(vcBrand, category, date_range):
     brand_name = vcBrand.get("brand")
     range_time = " and a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
     competitors = vcBrand.get("competitor")
+    list_compete = copy.deepcopy(competitors)
     if competitors:  # 有竞品
         if brand_name not in competitors:
-            competitors.append(brand_name)
-        bracket = join_sql_bracket(competitors)
+            list_compete.append(brand_name)
+        bracket = join_sql_bracket(list_compete)
     else:
         # 获取top5的声量
         sql = sqls.all_top5 % (range_time)
         sql_brand = DB.search(sql, {"brand_name": brand_name, "category_name": category.name})
-        list_compete = list()
+
         for brand in sql_brand:
             list_compete.append(brand.get("brand"))
         if brand_name not in list_compete:
