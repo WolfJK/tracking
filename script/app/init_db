@@ -378,3 +378,22 @@ BEGIN
 END;
 //
 delimiter ;
+
+
+-- ------ 6、创建 品牌 表视图
+drop view if exists view_dim_brand;
+create view view_dim_brand as
+with recursive parents as (
+    select id, name, cast(id as char) as ids from dim_brand where parent_id is null
+    union all
+    select
+        t2.id,
+        concat(t1.name, '.', t2.name) as name,
+        concat(t1.ids, '.', cast(t2.id as char)) as ids
+    from
+        parents t1
+    inner join
+        dim_brand t2
+    on t1.id = t2.parent_id
+)
+select id, name, ids from parents;
