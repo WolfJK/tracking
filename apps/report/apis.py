@@ -144,7 +144,7 @@ def formatted_report(reports):
         report.update(platform=json.loads(report.get("platform")))
         report.update(tag=json.loads(report.get("tag")))
         report.update(accounts=json.loads(report.get("accounts")))
-        report.update(competitors=json.loads(report.get("competitors")))
+        report.update(competitors=[c.split("-")[-1].split("_")[1] for c in json.loads(report.get("competitors"))])
         brand_list = json.loads(report.get("brand_id"))
         brand_id = brand_list[-1].split("_")[0]
         brand_name = brand_list[-1].split("_")[1]
