@@ -943,6 +943,8 @@ def read_url_excle(file_url):
     """
     xl = pandas.ExcelFile(file_url)
     sheets = xl.sheet_names
+    if "链接列表" not in sheets:
+        raise Exception("缺少表名字链接列表")
     num = sheets.index("链接列表")
     # 验证帐号
     data_dict = dict()

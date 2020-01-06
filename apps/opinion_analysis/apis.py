@@ -134,7 +134,7 @@ def get_all_monitor_card_data(request, brand_name, category_id):
 
 
 def append_vc_brand(vcBrand, competitors, data_assert, self_voice, category, industry, compete_voice, sov):
-    vcBrand.update(competitor=competitors)
+    # vcBrand.update(competitor=competitors)
     vcBrand.update(data_assert=data_assert)
     vcBrand.update(self_voice=self_voice)
     vcBrand.update(category_name=category.name)
