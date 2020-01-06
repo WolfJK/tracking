@@ -336,8 +336,8 @@ def get_data(bracket, competitors, range_time, category, platform='net'):
             sov_day = sqls.bbv_area_of_tend_sov % (range_time_new, bracket, "a.date", range_time_new, "a.date", "a.date")
             sov_week = sqls.bbv_area_of_tend_sov % (range_time_new, bracket, "a.week", range_time_new, "a.week", "week")
         elif platform in ["微博", "微信"]:
-            sov_day = sqls.ww_area_of_tend_sov % (range_time_new, bracket, bracket_platform, "a.month",range_time_new, "a.month", "a.month")
-            sov_month = sqls.ww_area_of_tend_sov % (range_time_new, bracket, bracket_platform, "a.date", range_time_new, "a.date", "a.date")
+            sov_month = sqls.ww_area_of_tend_sov % (range_time_new, bracket, bracket_platform, "a.month", range_time_new, "a.month", "a.month")
+            sov_day = sqls.ww_area_of_tend_sov % (range_time_new, bracket, bracket_platform, "a.date",range_time_new, "a.date", "a.date")
             sov_week = sqls.ww_area_of_tend_sov % (range_time_new, bracket, bracket_platform, "a.week", range_time_new,  "a.week",  "a.week")
         else:
             sov_month = sqls.bbv_platform_area_of_tend_sov % (range_time_new, bracket, bracket_platform, "a.month", range_time_new,  "a.month", "a.month")
@@ -353,8 +353,8 @@ def get_data(bracket, competitors, range_time, category, platform='net'):
             sov_day = sqls.bbv_area_all_brand_of_tend_sov % (range_time_new, "a.date", range_time_new,  "a.date", "a.date")
             sov_week = sqls.bbv_area_all_brand_of_tend_sov % (range_time_new, "a.week", range_time_new,  "a.week", "a.week")
         elif platform in ["微博", "微信"]:
-            sov_day = sqls.ww_area_all_brand_of_tend_sov % (range_time_new, bracket_platform, "a.month", range_time_new,  "a.month", "a.month")
-            sov_month = sqls.ww_area_all_brand_of_tend_sov % (range_time_new, bracket_platform, "a.date", range_time_new,  "a.date", "a.date")
+            sov_month = sqls.ww_area_all_brand_of_tend_sov % (range_time_new, bracket_platform, "a.month", range_time_new,  "a.month", "a.month")
+            sov_day = sqls.ww_area_all_brand_of_tend_sov % (range_time_new, bracket_platform, "a.date", range_time_new, "a.date", "a.date")
             sov_week = sqls.ww_area_all_brand_of_tend_sov % (range_time_new, bracket_platform, "a.week", range_time_new,  "a.week", "a.week")
         else:
             sov_month = sqls.bbv_platform_area_all_brand_of_tend_sov % (range_time_new, bracket_platform, "a.month", range_time_new,  "a.month", "a.month")
@@ -493,8 +493,8 @@ def get_content_from(bracket, range_time, competitors, category, brand_name, pla
             sql_radar_classify = sqls.content_radar_classify_other_platform % (str_brand, bracket_platform, range_time)
     data_radar = DB.search(sql_radar, {"category_name": category.name})
     data_radar_classify = DB.search(sql_radar_classify, {"category_name": category.name})
-    dispose_content_radar(data_radar, data_radar_classify)
-    return data_radar_classify
+    data = dispose_content_radar(data_radar, data_radar_classify)
+    return data
 
 
 def get_net_day_month_week_analysis(vcBrand, category, date_range):
@@ -529,7 +529,11 @@ def dispose_content_radar(data_radar, data_radar_classify):
             if platform_sum.get('brand') == platform_classify.get("brand"):
                 sov = get_all_sov(classify_count, all_count)
                 platform_classify.update(sov=sov)
-    return data_radar_classify
+    data_radar_classify.sort(key=itemgetter("brand", "cognition"))
+    list_data = list()
+    for brand, items in groupby(data_radar_classify, key=itemgetter('brand')):
+        list_data.append(list(items))
+    return list_data
 
 
 def join_sql_bracket(data):
