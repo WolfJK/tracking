@@ -51,7 +51,7 @@ select IFNULL(sum(count), 0) as voice_all from vc_saas_platform_volume where cat
 all_data_card_voice_assert = """
 with base0 as (
     select b.name, a.date
-    from (select name from dim_brand where name = {brand_name}) b
+    from (select name from view_dim_brand where name = {brand_name}) b
     cross join (select date from dim_date a where 1= 1 %s ) a
 ),
 base1 as (
@@ -79,7 +79,7 @@ with e as (
 ),
 base1 as(
      select b.name, a.date from
-        (select name from dim_brand where name in %s ) b cross join
+        (select name from view_dim_brand where name in %s ) b cross join
         ( select * from dim_date a where %s) a
     )
 select base1.name brand, %s date, sum(ifnull(e.count, 0)) count
@@ -104,7 +104,7 @@ with e as (
 # 品牌声量柱形图
 brand_voice_histogram = """
 select a.name brand, sum(ifnull(count, 0)) count
-from (select name from dim_brand
+from (select name from view_dim_brand
   where name in %s 
   group by name
 )a
@@ -119,7 +119,7 @@ group by a.name order by count desc ;
 
 brand_ww_voice_histogram = """
 select a.name brand, sum(ifnull(count, 0)) count
-from (select name from dim_brand
+from (select name from view_dim_brand
   where name in %s 
   group by name
 )a
@@ -211,7 +211,7 @@ order by %s asc;
 # 获取各个平台总的声量
 platform_voice_sum = """
 select a.name brand, ifnull(b.count, 0) count
-from (select name from dim_brand
+from (select name from view_dim_brand
   where name in %s 
   group by name
 ) a
@@ -227,7 +227,7 @@ platfom_classify_count = """
 with base0 as (
     select a.name, b.platform
     from
-    (select name from dim_brand
+    (select name from view_dim_brand
       where name in %s 
       group by name) a cross join
     (select platform from vc_saas_platform_volume group by platform) b
@@ -361,7 +361,7 @@ with e as (
 ),
 base1 as(
      select b.name, a.date from
-        (select name from dim_brand
+        (select name from view_dim_brand
          where name in %s) b cross join
         ( select * from dim_date a where %s) a
     )
@@ -382,7 +382,7 @@ with e as (
 ),
 base1 as(
      select b.name, a.date from
-        (select name from dim_brand
+        (select name from view_dim_brand
          where name in %s) b cross join
         ( select * from dim_date a where %s) a
     )
@@ -461,7 +461,7 @@ order by %s asc;
 # all品牌声量条形图
 bbv_brand_voice_histogram = """
 select a.name brand, sum(ifnull(count, 0)) count
-from (select name from dim_brand
+from (select name from view_dim_brand
   where name in %s 
   group by name
 )a
@@ -476,7 +476,7 @@ group by a.name order by count desc;
 
 bbv_platform_brand_voice_histogram = """
 select a.name brand, sum(ifnull(count, 0)) count
-from (select name from dim_brand
+from (select name from view_dim_brand
   where name in %s 
   group by name
 )a
@@ -534,7 +534,7 @@ with e as (
 # bbv获取各个平台总的声量
 bbv_platform_voice_sum_all = """
 select a.name brand, ifnull(b.count, 0) count
-from (select name from dim_brand
+from (select name from view_dim_brand
   where name in %s 
   group by name
 ) a
@@ -549,7 +549,7 @@ bbv_platform_voice_all_classify = """
 with base0 as (
     select a.name, b.platform
     from
-    (select name from dim_brand
+    (select name from view_dim_brand
       where name in %s 
       group by name) a cross join
     (select platform from vc_mp_platform_area_volume group by platform) b
@@ -662,7 +662,7 @@ with e as (
 ),
 base1 as(
      select b.name, a.date from
-        (select name from dim_brand where name in %s ) b cross join
+        (select name from view_dim_brand where name in %s ) b cross join
         ( select * from dim_date a where %s) a
     )
 select base1.name brand, %s date, sum(ifnull(e.count, 0)) count

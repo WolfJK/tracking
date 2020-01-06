@@ -626,7 +626,8 @@ def get_bracket_datarange(vcBrand, category, date_range):
     range_time = " and a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
     competitors = vcBrand.get("competitor")
     if competitors:  # 有竞品
-        competitors.append(brand_name)
+        if brand_name not in competitors:
+            competitors.append(brand_name)
         bracket = join_sql_bracket(competitors)
     else:
         # 获取top5的声量
@@ -635,7 +636,8 @@ def get_bracket_datarange(vcBrand, category, date_range):
         list_compete = list()
         for brand in sql_brand:
             list_compete.append(brand.get("brand"))
-        list_compete.append(brand_name)
+        if brand_name not in list_compete:
+            list_compete.append(brand_name)
         bracket = join_sql_bracket(list_compete)
     return bracket, competitors, range_time
 
