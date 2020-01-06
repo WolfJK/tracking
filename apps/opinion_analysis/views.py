@@ -129,9 +129,9 @@ def milk_media_analysis(request):
 # ############################# 活动定位: activity orientation #################################
 
 ao_params = [
-        ("category", "请选择品牌", "str"),
+        ("category", "请选择品类", "str"),
         ("brand", "请选择品牌", "list", apps_apis.brand_to_brand),
-        ("type", "请选择品牌", "str"),
+        ("type", "请选择类型", "str"),
         ("platform", "请选择平台", "str"),
         ("start_date", "请选择开始时间", "str"),
         ("end_date", "请选择结束时间", "str"),

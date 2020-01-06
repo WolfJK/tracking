@@ -625,13 +625,6 @@ def get_report_config(report_id, user):
     :return:
     """
     report = get_report(report_id, user, status=(0, 1, 2, 3, 4, 5, 6))
-    report.accounts = json.loads(report.accounts)
-    report.tag = json.loads(report.tag)
-    report.platform = json.loads(report.platform)
-    report.sales_points = json.loads(report.sales_points)
-    report.competitors = json.loads(report.competitors)
-    report.brand_id = json.loads(report.brand_id)
-
     return report
 
 
