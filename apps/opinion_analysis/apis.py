@@ -290,6 +290,7 @@ def get_round_sov(data_voice_histogram, data_voice_round, compitors):
            'sov': 100 - sum(other_sov)
        }
         data_voice_histogram.append(data)
+    data_voice_histogram.sort(key=lambda x: x.get('count'), reverse=True)
 
     return data_voice_histogram
 
