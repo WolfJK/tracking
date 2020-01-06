@@ -678,7 +678,7 @@ def link_relative(vcBrand, self_voice, sov, self_voice_previous, compete_voice_p
     sov_previous = get_all_sov(self_voice_previous, compete_voice_previous)
     try:
         link_relative = round((float(self_voice) - float(self_voice_previous)) / float(self_voice_previous) * 100, 2)
-        link_relative_sov = round((float(sov) - float(sov_previous)) / float(sov_previous) * 100, 2)
+        link_relative_sov = float(sov) - float(sov_previous)
     except Exception:
         link_relative = 0
         link_relative_sov = 0
