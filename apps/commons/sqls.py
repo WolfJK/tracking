@@ -28,3 +28,8 @@ where
 ;
 
 '''
+
+
+navigation = """
+select name from dim_platform where parent={parent} and json_contains(visible, '[1]');
+"""

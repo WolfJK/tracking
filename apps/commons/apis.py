@@ -155,12 +155,7 @@ def get_vc_platform(type):
     :param type: bbv、dsm
     :return:
     '''
-    platforms = DimPlatform.objects.filter(visible__in=[1, 2]).values("id", "name")
-
-    q = Q(parent="母垂")
-    if type == "dsm":
-        q = ~q
-    data = list(platforms.filter(q))
+    data = DB.search(sqls.navigation, {'parent': type})
     if type == 'bbv':  # 添加bbv全部
         data.insert(0, {"id": -1, 'name': '全部'})
     return data
