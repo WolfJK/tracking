@@ -223,14 +223,31 @@ group by brand) b on a.name = b.brand
 """
 
 # 各个平台的分类的声量
-platfom_classify_count = """
+platfom_classify_count_milk = """
 with base0 as (
     select a.name, b.platform
     from
     (select name from view_dim_brand
       where name in %s 
       group by name) a cross join
-    (select platform from vc_saas_platform_volume group by platform) b
+    (select name platform from dim_platform where json_contains(visible, '[3]') group by name) b
+) select base0.name brand, base0.platform, ifnull(base1.count, 0) count
+    from base0 left join (
+    select platform, brand, sum(count) as  count
+        from vc_saas_platform_volume a where brand in %s 
+        and category = {category_name}  %s 
+        group by platform, brand
+    ) base1 on base0.name=base1.brand and base0.platform=base1.platform;
+"""
+
+platfom_classify_count_coffee = """
+with base0 as (
+    select a.name, b.platform
+    from
+    (select name from view_dim_brand
+      where name in %s 
+      group by name) a cross join
+    (select name platform from dim_platform where json_contains(visible, '[4]') group by name) b
 ) select base0.name brand, base0.platform, ifnull(base1.count, 0) count
     from base0 left join (
     select platform, brand, sum(count) as  count
@@ -552,7 +569,7 @@ with base0 as (
     (select name from view_dim_brand
       where name in %s 
       group by name) a cross join
-    (select platform from vc_mp_platform_area_volume group by platform) b
+    (select name platform from dim_platform where json_contains(visible, '[2]') group by name) b
 ) select base0.name brand, base0.platform, ifnull(base1.count, 0) count
     from base0 left join (
     select platform, brand, sum(count) as count from vc_mp_platform_area_volume a

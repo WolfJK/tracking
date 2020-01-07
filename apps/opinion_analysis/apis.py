@@ -437,7 +437,10 @@ def get_platform_voice_from(bracket, range_time, category, platform='net'):
     # 获取平台声量来源 只有bbv全部和全网数据有平台来源
     if platform == 'net':
         sql_platform_sum = sqls.platform_voice_sum % (bracket, bracket, range_time)  # 平台的声量sum
-        sql_platform_classify = sqls.platfom_classify_count % (bracket, bracket, range_time)  # 各个平台的分类声量
+        if category.name == "奶粉":  # 奶粉和咖啡需要展示的平台名称不一样
+            sql_platform_classify = sqls.platfom_classify_count_milk % (bracket, bracket, range_time)  # 各个平台的分类声量
+        else:
+            sql_platform_classify = sqls.platfom_classify_count_coffee % (bracket, bracket, range_time)
     elif platform == '全部':  # 子类下面没有平台的声量数据
         sql_platform_sum = sqls.bbv_platform_voice_sum_all%(bracket, bracket, range_time) # 平台的声量sum
         sql_platform_classify = sqls.bbv_platform_voice_all_classify%(bracket, bracket, range_time)  # 各个平台的分类声量
