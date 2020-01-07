@@ -156,14 +156,12 @@ def get_vc_platform(type):
     :param type: bbv、dsm
     :return:
     '''
-    platforms = DimPlatform.objects.filter(visible__in=[1, 2]).values("id", "name")
+    data = list(DimPlatform.objects.filter(~Q(parent='all'), parent=type)
+                .extra(where=["JSON_CONTAINS(visible, '[1]')"]).values("id", "name"))
 
-    q = Q(parent="母垂")
-    if type == "dsm":
-        q = ~q
-    data = list(platforms.filter(q))
     if type == 'bbv':  # 添加bbv全部
         data.insert(0, {"id": -1, 'name': '全部'})
+
     return data
 
 
