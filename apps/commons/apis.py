@@ -162,7 +162,7 @@ def get_vc_platform(type):
         q = ~q
     data = list(platforms.filter(q))
     if type == 'bbv':  # 添加bbv全部
-        data.insert(0, {"id": -1, 'name': 'all'})
+        data.insert(0, {"id": -1, 'name': '全部'})
     return data
 
 

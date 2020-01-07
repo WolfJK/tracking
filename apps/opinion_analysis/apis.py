@@ -17,6 +17,13 @@ from django.forms.models import model_to_dict
 from itertools import chain
 from collections import defaultdict
 
+# 声量展示平台
+PLATFORM_DICT = {
+    'net_coffee': ['微博', "微信", 'bbv', '新闻', '视频', '其他'],
+    'net_milk': ['微博', "微信", '新闻', '视频', '客户端', '论坛', '其他'],
+    'all': list(DimPlatform.objects.filter(visible=2).values_list('name')).append('其他'),
+}
+
 
 def add_monitor_brand(request, monitor_id, category, brand, time_slot, competitor):
     """
@@ -172,7 +179,7 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
         if type == "net":
             sql = sqls.monitor_data_compete_voice % (bracket, range_time)  # 获取当前
             sql_previous = sqls.monitor_data_compete_voice% (bracket, range_time_previous)  # 获取上个阶段
-        elif type == "all":
+        elif type == "全部":
             # 只是针对深度bbv的全部
             sql = sqls.monitor_data_bbv_all_compete_voice % (bracket, range_time)  # 获取当前
             sql_previous = sqls.monitor_data_bbv_all_compete_voice % (bracket, range_time_previous)  # 获取上个阶段
@@ -191,7 +198,7 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
         if type == 'net':
             sql = sqls.all_monitor_voice % (range_time)
             sql_previous = sqls.all_monitor_voice % (range_time_previous)
-        elif type == 'all':
+        elif type == '全部':
             sql = sqls.bbv_all_sum_voice % (range_time)
             sql_previous = sqls.bbv_all_sum_voice % (range_time_previous)
         elif type in ["微博", "微信"]:
@@ -207,7 +214,7 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
     if type == 'net':
         new_sql = sqls.monitor_data_analysis_voice % (range_time)
         new_sql_previous = sqls.monitor_data_analysis_voice % (range_time_previous)
-    elif type == "all":
+    elif type == "全部":
         new_sql = sqls.self_brand_bbv_all % (range_time)
         new_sql_previous = sqls.self_brand_bbv_all % (range_time_previous)
     elif type in ["微博", "微信"]:
@@ -320,7 +327,7 @@ def get_data(bracket, competitors, range_time, category, platform='net'):
         sql_day = sqls.compete_day_month_week_voice % (range_time_new, bracket, bracket, range_time_new, "base2.date", "base2.date", "base2.date")
         sql_month = sqls.compete_day_month_week_voice % (range_time_new, bracket, bracket, range_time_new, "base2.month", "base2.month", "base2.month")
         sql_week = sqls.compete_day_month_week_voice % (range_time_new, bracket, bracket, range_time_new, "base2.week", "base2.week", "base2.week")
-    elif platform == 'all':  # bbv全部
+    elif platform == '全部':  # bbv全部
 
         sql_day = sqls.bbv_compete_day_month_week_voice % (range_time_new, bracket, bracket, range_time_new, "base2.date", "base2.date", "base2.date")
         sql_month = sqls.bbv_compete_day_month_week_voice % (range_time_new, bracket, bracket, range_time_new, "base2.month", "base2.month", "base2.month")
@@ -338,7 +345,7 @@ def get_data(bracket, competitors, range_time, category, platform='net'):
             sov_month = sqls.area_of_tend_sov % (range_time_new, bracket, "a.month",range_time_new, "a.month", "a.month")
             sov_day = sqls.area_of_tend_sov % (range_time_new, bracket, 'a.date', range_time_new, "a.date", "a.date")
             sov_week = sqls.area_of_tend_sov%(range_time_new, bracket, "a.week", range_time_new,  "a.week",  "a.week")
-        elif platform == 'all':
+        elif platform == '全部':
             sov_month = sqls.bbv_area_of_tend_sov % (range_time_new, bracket, "a.month", range_time_new,  "a.month", "a.month")
             sov_day = sqls.bbv_area_of_tend_sov % (range_time_new, bracket, "a.date", range_time_new, "a.date", "a.date")
             sov_week = sqls.bbv_area_of_tend_sov % (range_time_new, bracket, "a.week", range_time_new, "a.week", "week")
@@ -355,7 +362,7 @@ def get_data(bracket, competitors, range_time, category, platform='net'):
             sov_month = sqls.area_of_all_brand_tend_sov % (range_time_new, "a.month", range_time_new,  "a.month", "a.month")
             sov_day = sqls.area_of_all_brand_tend_sov % (range_time_new, "a.date", range_time_new,  "a.date", "a.date")
             sov_week = sqls.area_of_all_brand_tend_sov % (range_time_new, "a.week", range_time_new,  "a.week", "a.week")
-        elif platform == 'all':
+        elif platform == '全部':
             sov_month = sqls.bbv_area_all_brand_of_tend_sov % (range_time_new, "a.month", range_time_new,  "a.month", "a.month")
             sov_day = sqls.bbv_area_all_brand_of_tend_sov % (range_time_new, "a.date", range_time_new,  "a.date", "a.date")
             sov_week = sqls.bbv_area_all_brand_of_tend_sov % (range_time_new, "a.week", range_time_new,  "a.week", "a.week")
@@ -394,7 +401,7 @@ def get_data_voice_histogram(bracket, range_time, category, competitors, platfor
     bracket_platform = join_sql_bracket([platform, ])
     if platform == 'net':
         sql_his = sqls.brand_voice_histogram % (bracket, bracket, range_time,)
-    elif platform == 'all':
+    elif platform == '全部':
         sql_his = sqls.bbv_brand_voice_histogram % (bracket, bracket, range_time,)
     elif platform in ["微博", "微信"]:
         sql_his = sqls.brand_ww_voice_histogram % (bracket, bracket, bracket_platform, range_time,)
@@ -404,7 +411,7 @@ def get_data_voice_histogram(bracket, range_time, category, competitors, platfor
     if competitors:
         if platform == 'net':
             sql_round = sqls.round_sum_sov % (bracket, range_time)  # 声量总和计算sov环形图
-        elif platform == 'all':
+        elif platform == '全部':
             sql_round = sqls.bbv_round_sum_sov % (bracket, range_time)  # 柱形图数据和声量总和计算sov环形图合并在一起
         elif platform in ["微博", "微信"]:
             sql_round = sqls.round_ww_sum_sov % (bracket, bracket_platform, range_time)
@@ -413,7 +420,7 @@ def get_data_voice_histogram(bracket, range_time, category, competitors, platfor
     else:
         if platform == 'net':
             sql_round = sqls.round_all_brand_sum_sov % (range_time)  # 声量总和计算sov环形图
-        elif platform == 'all':
+        elif platform == '全部':
             sql_round = sqls.bbv_all_brand_round_sum_sov % (range_time)
         elif platform in ["微博", "微信"]:
             sql_round = sqls.ww_round_sum_sov % (bracket_platform, range_time)
@@ -431,7 +438,7 @@ def get_platform_voice_from(bracket, range_time, category, platform='net'):
     if platform == 'net':
         sql_platform_sum = sqls.platform_voice_sum % (bracket, bracket, range_time)  # 平台的声量sum
         sql_platform_classify = sqls.platfom_classify_count % (bracket, bracket, range_time)  # 各个平台的分类声量
-    elif platform == 'all':  # 子类下面没有平台的声量数据
+    elif platform == '全部':  # 子类下面没有平台的声量数据
         sql_platform_sum = sqls.bbv_platform_voice_sum_all%(bracket, bracket, range_time) # 平台的声量sum
         sql_platform_classify = sqls.bbv_platform_voice_all_classify%(bracket, bracket, range_time)  # 各个平台的分类声量
     else:
@@ -451,7 +458,7 @@ def get_area_voice_from(range_time, category, brand_name, platform='net'):
     bracket_platform = join_sql_bracket([platform, ])
     if platform == 'net':
         sql_area_classify = sqls.area_voice_classify % (range_time)  # 各个地域的分类声量
-    elif platform == 'all':
+    elif platform == '全部':
         sql_area_classify = sqls.bbv_area_voice_classify%(range_time)  # 各个地域的分类声量
     else:
         sql_area_classify = sqls.bbv_platform_area_voice_classify%(bracket_platform, range_time)
@@ -465,7 +472,7 @@ def get_keywords_from(range_time, category, brand_name, platform='net'):
     bracket_platform = join_sql_bracket([platform, ])
     if platform == 'net':
         net_keywords = sqls.net_keywords % (range_time)  # 获取全网关键词
-    elif platform == 'all':
+    elif platform == '全部':
         net_keywords = sqls.bbv_all_keywords%(range_time)  # 获取全网关键词
     else:
         net_keywords = sqls.bbv_platform_keywords_classify % (bracket_platform, range_time)  # 获取全网关键词
@@ -482,7 +489,7 @@ def get_content_from(bracket, range_time, competitors, category, brand_name, pla
         if platform == 'net':  # 全网的数据和bbv全部的数据时一样的
             sql_radar = sqls.content_radar%(bracket, range_time)
             sql_radar_classify = sqls.content_radar_classify%(bracket, range_time)
-        elif platform == 'all':
+        elif platform == '全部':
             sql_radar = sqls.content_radar_bbv_all % (bracket, range_time)
             sql_radar_classify = sqls.content_radar_classify_bbv_all % (bracket, range_time)
         else:
@@ -492,7 +499,7 @@ def get_content_from(bracket, range_time, competitors, category, brand_name, pla
         if platform == 'net':  # 全网的数据和bbv全部的数据时一样的
             sql_radar = sqls.content_radar%(str_brand, range_time)
             sql_radar_classify = sqls.content_radar_classify%(str_brand, range_time)
-        elif platform == 'all':
+        elif platform == '全部':
             sql_radar = sqls.content_radar_bbv_all % (str_brand, range_time)
             sql_radar_classify = sqls.content_radar_classify_bbv_all % (str_brand, range_time)
         else:
