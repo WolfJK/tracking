@@ -140,7 +140,8 @@ def report_template_list(user):
 
 
 def get_platform_info():
-    platforms_list = list(DimPlatform.objects.all().order_by("parent").values())
+    platforms_list = list(DimPlatform.objects.filter(~Q(parent='all'))
+                          .extra(where=["JSON_CONTAINS(visible, '[1]')"]).order_by("parent").values())
 
     platforms = []
     for k, v in groupby(platforms_list, itemgetter("parent")):
@@ -155,9 +156,12 @@ def get_vc_platform(type):
     :param type: bbv、dsm
     :return:
     '''
-    data = DB.search(sqls.navigation, {'parent': type})
+    data = list(DimPlatform.objects.filter(~Q(parent='all'), parent=type)
+                .extra(where=["JSON_CONTAINS(visible, '[1]')"]).values("id", "name"))
+
     if type == 'bbv':  # 添加bbv全部
         data.insert(0, {"id": -1, 'name': '全部'})
+
     return data
 
 
