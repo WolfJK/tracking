@@ -140,7 +140,8 @@ def report_template_list(user):
 
 
 def get_platform_info():
-    platforms_list = list(DimPlatform.objects.all().order_by("parent").values())
+    platforms_list = list(DimPlatform.objects.filter(~Q(parent='all'))
+                          .extra(where=["JSON_CONTAINS(visible, '[1]')"]).order_by("parent").values())
 
     platforms = []
     for k, v in groupby(platforms_list, itemgetter("parent")):
