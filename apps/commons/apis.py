@@ -155,13 +155,15 @@ def get_vc_platform(type):
     :param type: bbv、dsm
     :return:
     '''
-    platforms = DimPlatform.objects.filter(visible=True).values("id", "name")
+    platforms = DimPlatform.objects.filter(visible__in=[1, 2]).values("id", "name")
 
     q = Q(parent="母垂")
     if type == "dsm":
         q = ~q
-
-    return list(platforms.filter(q))
+    data = list(platforms.filter(q))
+    if type == 'bbv':  # 添加bbv全部
+        data.insert(0, {"id": -1, 'name': 'all'})
+    return data
 
 
 def competitor_list(param, user):
