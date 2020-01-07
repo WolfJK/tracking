@@ -30,20 +30,20 @@ select id, json_index(brand, -1, '.name') as brand_name, competitor, time_slot f
 
 # 当前品牌的声量
 monitor_data_analysis_voice = """
-select IFNULL(sum(count), 0) as voice from vc_saas_platform_volume where 
+select IFNULL(sum(count), 0) as voice from vc_saas_platform_volume where platform='全网' and 
 brand = {brand_name} and category = {category_name} %s;
 """
 
 # 竞品所有的声量
 monitor_data_compete_voice = """
 select IFNULL(sum(count), 0) as voice_all from  vc_saas_platform_volume  
-where brand in %s and category = {category_name}  %s ;
+where brand in %s and platform='全网' and category = {category_name}  %s ;
 """
 
 
 # 全品类的声量
 all_monitor_voice = """
-select IFNULL(sum(count), 0) as voice_all from vc_saas_platform_volume where category = {category_name} %s;
+select IFNULL(sum(count), 0) as voice_all from vc_saas_platform_volume where platform='全网' and category = {category_name} %s;
 """
 
 
@@ -74,7 +74,7 @@ with e as (
     select brand, category, sum(count) count, date
     from vc_saas_platform_volume a
     where %s and brand in %s
-        and category = {category_name}
+        and category = {category_name} and  platform='全网' 
     group by date, brand, category
 ),
 base1 as(
@@ -98,7 +98,7 @@ with e as (
     from vc_saas_platform_volume a
     where a.brand != {brand_name} 
     and a.category = {category_name} %s
-)select brand, sum(count) as count from e  group by brand order by count desc limit 5;
+)select brand, ifnull(sum(count), 0) as count from e  group by brand order by count desc limit 5;
 """
 
 # 品牌声量柱形图
@@ -112,6 +112,7 @@ left join (
     select a.brand, a.count
     from vc_saas_platform_volume a
     where a.brand in %s 
+    and platform='全网'
     and a.category =  {category_name}  %s
     ) b on a.name = b.brand
 group by a.name order by count desc ;
@@ -140,8 +141,9 @@ with e as (
     select a.count
     from vc_saas_platform_volume a
     where a.brand in %s
+    and  platform='全网'
     and a.category = {category_name}  %s
-)select sum(count) as count from e;
+)select ifnull(sum(count), 0) as count from e;
 """
 
 round_ww_sum_sov = """
@@ -151,7 +153,7 @@ with e as (
     where a.brand in %s
     and a.platform in %s 
     and a.category = {category_name}  %s
-)select sum(count) as count from e;
+)select ifnull(sum(count), 0) as count from e;
 """
 
 
@@ -159,8 +161,8 @@ round_all_brand_sum_sov = """
 with e as (
     select a.count
     from vc_saas_platform_volume a
-    where a.category = {category_name}  %s
-)select sum(count) as count from e;
+    where a.category = {category_name} and platform='全网'  %s
+)select ifnull(sum(count), 0) as count from e;
 """
 
 ww_round_sum_sov = """
@@ -169,7 +171,7 @@ with e as (
     from vc_saas_platform_volume a
     where a.platform in %s
     and a.category = {category_name}  %s
-)select sum(count) as count from e;
+)select ifnull(sum(count), 0) as count from e;
 """
 
 # 获取分类的年月周的分类数据总和 用于计算sov的趋势图
@@ -180,6 +182,7 @@ with e as (
     where %s 
     and a.brand in %s 
     and a.category = {category_name}
+    and platform='全网'
     group by a.date
 )
 select %s date,
@@ -196,6 +199,7 @@ with e as (
     from vc_saas_platform_volume a
     where %s 
     and a.category = {category_name}
+    and  platform='全网'
     group by a.date
 )
 select %s date, 
@@ -259,7 +263,7 @@ with base0 as (
 
 # 各个地域声量的总计
 area_voice_sum = """
-select area, sum(count) as count from vc_saas_area_volume a where brand in %s
+select area, ifnull(sum(count), 0) as count from vc_saas_area_volume a where brand in %s
  and category = {category_name} %s
 group by area;
 """
@@ -267,14 +271,14 @@ group by area;
 
 # 各个地域的分类的声量
 area_voice_classify = """
-select area, sum(count) count from vc_saas_area_volume a where brand={brand_name}
+select area, ifnull(sum(count), 0) count from vc_saas_area_volume a where brand={brand_name}
  and category = {category_name}  %s
 group by area order by count desc ;
 """
 
 # 全网关键词获取
 net_keywords = """
-select keywords, sum(count) as count from vc_mp_keywords_cloud a where
+select keywords, ifnull(sum(count), 0) as count from vc_mp_keywords_cloud a where
     brand={brand_name} and a.category= {category_name} %s
 group by keywords
 order by count desc limit 20;
@@ -283,14 +287,14 @@ order by count desc limit 20;
 
 # 内容分布雷达图总数
 content_radar = """
-select brand, sum(count) count  from vc_mp_first_level_cognition a
+select brand, ifnull(sum(count), 0) count  from vc_mp_first_level_cognition a
 where brand in %s 
 and category= {category_name} %s
 group by brand;
 """
 
 content_radar_bbv_all = """
-select brand, sum(count) count  from vc_mp_first_level_cognition a
+select brand, ifnull(sum(count), 0) count  from vc_mp_first_level_cognition a
 where brand in %s
 and category= {category_name}
 and a.type='bbv' %s
@@ -298,7 +302,7 @@ group by brand;
 """
 
 content_radar_other_platform = """
-select brand, sum(count) count  from vc_mp_first_level_cognition a
+select brand, ifnull(sum(count), 0) count  from vc_mp_first_level_cognition a
 where brand in %s
 and category= {category_name} 
 and a.platform in %s %s 
@@ -306,14 +310,14 @@ group by brand;
 """
 
 content_radar_classify = """
-select brand, cognition, sum(count) count  from vc_mp_first_level_cognition a
+select brand, cognition, ifnull(sum(count), 0) count  from vc_mp_first_level_cognition a
 where brand in %s 
 and category={category_name} %s
 group by  cognition, brand;
 """
 
 content_radar_classify_bbv_all = """
-select brand, cognition, sum(count) count  from vc_mp_first_level_cognition a
+select brand, cognition, ifnull(sum(count), 0) count  from vc_mp_first_level_cognition a
 where brand in %s 
 and a.type ='bbv'
 and category={category_name} %s
@@ -321,17 +325,17 @@ group by  cognition, brand;
 """
 
 content_radar_classify_other_platform = """
-select brand, cognition, sum(count) count  from vc_mp_first_level_cognition a
+select brand, cognition, ifnull(sum(count), 0) count  from vc_mp_first_level_cognition a
 where brand in %s
 and category= {category_name} 
 and a.platform in %s %s 
 group by brand, cognition;
 """
 
-# bbv竞品所有的声量
+# bbv竞品所有的声量全部品牌的话为0 bbv子集的话为1
 monitor_data_bbv_all_compete_voice = """
 select ifnull(sum(count), 0) as voice_all from vc_mp_platform_area_volume
-where brand in %s
+where brand in %s and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
 and category = {category_name} and type='bbv' %s;
 """
 
@@ -345,7 +349,8 @@ and category = {category_name} and platform in %s %s;
 # bbv获取全品类的声量
 bbv_all_sum_voice = """
 select IFNULL(sum(count), 0) as voice_all from vc_mp_platform_area_volume 
-where category = {category_name}  and type='bbv' %s;
+where platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
+and category = {category_name}  and type='bbv' %s;
 """
 
 bbv_platform_classify_voice = """
@@ -362,7 +367,8 @@ and platform in %s %s
 
 self_brand_bbv_all = """
 select IFNULL(sum(count), 0) as voice from vc_mp_platform_area_volume
-where brand = {brand_name} and category = {category_name}  and type='bbv' %s
+where platform in  (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
+and brand = {brand_name} and category = {category_name}  and type='bbv' %s
 """
 
 # ==========bbv================
@@ -373,7 +379,8 @@ with e as (
     from vc_mp_platform_area_volume a
     where %s and brand in %s 
         and category = {category_name}
-        and a.type = 'bbv'
+        and a.type = 'bbv' 
+        and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
     group by date, brand, category
 ),
 base1 as(
@@ -416,6 +423,7 @@ with e as (
     from vc_mp_platform_area_volume a
     where %s and category = {category_name}
     and a.brand in %s 
+    and a.platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
     and type = 'bbv'  group by date
 )
 select %s date,
@@ -432,6 +440,7 @@ with e as (
     select sum(count) count, date
     from vc_mp_platform_area_volume a
     where %s and category = {category_name}
+    and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
     and type = 'bbv'  group by date
 )
 select %s date,
@@ -486,6 +495,7 @@ left join (
     select a.brand, a.count
     from vc_mp_platform_area_volume a
     where a.brand in %s 
+    and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
     and a.category = {category_name}  and a.type = 'bbv' %s 
     ) b on a.name = b.brand
 group by a.name order by count desc;
@@ -514,8 +524,9 @@ with e as (
     from vc_mp_platform_area_volume a
     where a.brand in %s
     and a.category = {category_name}
+    and a.platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
     and a.type = 'bbv' %s 
-)select sum(count) as count from e;
+)select ifnull(sum(count), 0) as count from e;
 """
 
 
@@ -524,8 +535,9 @@ with e as (
     select a.count
     from vc_mp_platform_area_volume a
     where a.category = {category_name}
+    and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
     and a.type = 'bbv' %s 
-)select sum(count) as count from e;
+)select ifnull(sum(count), 0) as count from e;
 """
 
 bbv_platform_round_sum_sov = """
@@ -535,7 +547,7 @@ with e as (
     where a.brand in %s
     and a.category = {category_name}
     and a.platform in %s %s 
-)select sum(count) as count from e;
+)select ifnull(sum(count), 0) as count from e;
 """
 
 bbv_platform_all_brand_round_sum_sov = """
@@ -583,33 +595,33 @@ with base0 as (
 
 # 子集下面平台的分类的声量
 bbv_platfom_classify_sum = """
-select platform, brand, sum(count) as  count from vc_mp_platform_area_volume a where brand in %s
+select platform, brand, ifnull(sum(count), 0) as  count from vc_mp_platform_area_volume a where brand in %s
 and category = {category_name}  and a.platform in %s %s
 group by platform, brand;
 """
 
 bbv_platfom_classify_count = """
-select brand, sum(count) as  count from vc_mp_platform_area_volume a where brand in %s
+select brand, ifnull(sum(count), 0) as  count from vc_mp_platform_area_volume a where brand in %s
 and category = {category_name}  and a.platform in %s %s
 group by brand;
 """
 
 # bbv各个地域的分类的声量
 bbv_area_voice_classify = """
-select area, sum(count) count from vc_mp_platform_area_volume a where brand={brand_name}
+select area,ifnull(sum(count), 0) count from vc_mp_platform_area_volume a where brand={brand_name}
 and category = {category_name} and a.type='bbv'  %s
 group by area  order by count desc ;
 """
 
 bbv_platform_area_voice_classify = """
-select area, sum(count) count from vc_mp_platform_area_volume a where brand={brand_name}
+select area, ifnull(sum(count), 0) count from vc_mp_platform_area_volume a where brand={brand_name}
 and category = {category_name} and a.platform in %s  %s
 group by area  order by count desc ;
 """
 
 # bbv全网关键词获取
 bbv_all_keywords = """
-select keywords, sum(count) as count from vc_mp_keywords_cloud a where
+select keywords, ifnull(sum(count), 0) as count from vc_mp_keywords_cloud a where
     brand={brand_name} and
     a.category= {category_name} and a.type='bbv' %s
 group by keywords
@@ -617,7 +629,7 @@ order by count desc limit 20;
 """
 
 bbv_platform_keywords_classify = """
-select keywords, sum(count) as count from vc_mp_keywords_cloud a where
+select keywords, ifnull(sum(count), 0) as count from vc_mp_keywords_cloud a where
     brand={brand_name} and
     a.category= {category_name} and a.platform in %s %s
 group by keywords
@@ -626,23 +638,23 @@ order by count desc limit 20;
 
 # bbv内容分布雷达图总数
 bbv_content_radar = """
-select sum(count) count  from vc_mp_first_level_cognition a
+select ifnull(sum(count), 0) count  from vc_mp_first_level_cognition a
 where brand in %s and category= {category_name} and a.type='bbv' %s;
 """
 
 bbv_content_radar_classify = """
-select cognition, sum(count) count  from vc_mp_first_level_cognition a
+select cognition, ifnull(sum(count), 0) count  from vc_mp_first_level_cognition a
 where brand in %s and category= {category_name}  and a.type='bbv' %s
 group by  cognition
 """
 
 bbv_platform_content_radar = """
-select sum(count) count  from vc_mp_first_level_cognition a
+select ifnull(sum(count), 0) count  from vc_mp_first_level_cognition a
 where brand in %s and category= {category_name} and a.platform in %s %s;
 """
 
 bbv_platform_content_radar_classify = """
-select cognition, sum(count) count  from vc_mp_first_level_cognition a
+select cognition, ifnull(sum(count), 0) count  from vc_mp_first_level_cognition a
 where brand in %s and category= {category_name} and a.platform in %s %s
 group by  cognition
 """
