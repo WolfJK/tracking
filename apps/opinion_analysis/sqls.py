@@ -544,7 +544,7 @@ with e as (
     from vc_mp_platform_area_volume a
     where a.category = {category_name}
     and a.platform in %s %s 
-)select sum(count) as count from e;
+)select ifnull(sum(count), 0)  as count from e;
 """
 
 
