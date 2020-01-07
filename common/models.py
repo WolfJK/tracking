@@ -146,7 +146,7 @@ class DimPlatform(models.Model):
     渠道表
     """
     name = models.CharField(max_length=32, help_text="平台名称")
-    visible = models.BooleanField(help_text="是否展示, 是否可见", default=True)
+    visible = models.IntegerField(help_text="是否展示, 是否可见", default=True)
     parent = models.CharField(max_length=32, help_text="父平台名称")
 
     class Meta:
