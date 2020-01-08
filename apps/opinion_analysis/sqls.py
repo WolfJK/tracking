@@ -89,14 +89,49 @@ group by base1.name, %s
 order by base1.name, %s;
 """
 
-# top5声量 不含本品
-all_top5 = """
+# top5声量 全网不含本品
+net_all_top5 = """
 with e as (
     select a.brand,
            a.count,
            a.date
     from vc_saas_platform_volume a
     where a.brand != {brand_name} 
+    and a.category = {category_name} %s
+)select brand, ifnull(sum(count), 0) as count from e  group by brand order by count desc limit 5;
+"""
+
+
+bbv_classify_all_top5 = """
+with e as (
+    select a.brand,
+           a.count,
+           a.date
+    from vc_mp_platform_area_volume a
+    where a.brand != {brand_name}
+    and platform in %s
+    and a.category = {category_name} %s
+)select brand, ifnull(sum(count), 0) as count from e  group by brand order by count desc limit 5;
+"""
+
+bbv_all_top5 = """
+with e as (
+    select a.brand,
+           a.count,
+           a.date
+    from vc_mp_platform_area_volume a
+    where a.brand != {brand_name} and type='bbv' 
+    and a.category = {category_name} %s
+)select brand, ifnull(sum(count), 0) as count from e  group by brand order by count desc limit 5;
+"""
+
+ww_net_all_top5 = """
+with e as (
+    select a.brand,
+           a.count,
+           a.date
+    from vc_saas_platform_volume a
+    where a.brand != {brand_name} and platform in %s
     and a.category = {category_name} %s
 )select brand, ifnull(sum(count), 0) as count from e  group by brand order by count desc limit 5;
 """
@@ -335,7 +370,7 @@ group by brand, cognition;
 # bbv竞品所有的声量全部品牌的话为0 bbv子集的话为1
 monitor_data_bbv_all_compete_voice = """
 select ifnull(sum(count), 0) as voice_all from vc_mp_platform_area_volume
-where brand in %s and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
+where brand in %s and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[0]'))
 and category = {category_name} and type='bbv' %s;
 """
 
@@ -349,7 +384,7 @@ and category = {category_name} and platform in %s %s;
 # bbv获取全品类的声量
 bbv_all_sum_voice = """
 select IFNULL(sum(count), 0) as voice_all from vc_mp_platform_area_volume 
-where platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
+where platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[0]'))
 and category = {category_name}  and type='bbv' %s;
 """
 
@@ -367,7 +402,7 @@ and platform in %s %s
 
 self_brand_bbv_all = """
 select IFNULL(sum(count), 0) as voice from vc_mp_platform_area_volume
-where platform in  (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
+where platform in  (select name from dim_platform where parent='bbv' and json_contains(visible, '[0]'))
 and brand = {brand_name} and category = {category_name}  and type='bbv' %s
 """
 
@@ -380,7 +415,7 @@ with e as (
     where %s and brand in %s 
         and category = {category_name}
         and a.type = 'bbv' 
-        and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
+        and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[0]'))
     group by date, brand, category
 ),
 base1 as(
@@ -423,7 +458,7 @@ with e as (
     from vc_mp_platform_area_volume a
     where %s and category = {category_name}
     and a.brand in %s 
-    and a.platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
+    and a.platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[0]'))
     and type = 'bbv'  group by date
 )
 select %s date,
@@ -440,7 +475,7 @@ with e as (
     select sum(count) count, date
     from vc_mp_platform_area_volume a
     where %s and category = {category_name}
-    and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
+    and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[0]'))
     and type = 'bbv'  group by date
 )
 select %s date,
@@ -495,7 +530,7 @@ left join (
     select a.brand, a.count
     from vc_mp_platform_area_volume a
     where a.brand in %s 
-    and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
+    and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[0]'))
     and a.category = {category_name}  and a.type = 'bbv' %s 
     ) b on a.name = b.brand
 group by a.name order by count desc;
@@ -524,7 +559,7 @@ with e as (
     from vc_mp_platform_area_volume a
     where a.brand in %s
     and a.category = {category_name}
-    and a.platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
+    and a.platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[0]'))
     and a.type = 'bbv' %s 
 )select ifnull(sum(count), 0) as count from e;
 """
@@ -535,7 +570,7 @@ with e as (
     select a.count
     from vc_mp_platform_area_volume a
     where a.category = {category_name}
-    and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[1]'))
+    and platform in (select name from dim_platform where parent='bbv' and json_contains(visible, '[0]'))
     and a.type = 'bbv' %s 
 )select ifnull(sum(count), 0) as count from e;
 """

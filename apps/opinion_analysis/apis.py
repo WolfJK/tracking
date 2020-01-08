@@ -601,7 +601,7 @@ def get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform):
     """
 
     brand_name = vcBrand.get("brand")
-    bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
+    bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range, platform)
     dict_data = get_data(bracket, competitors, range_time, category, platform)
     # 获取声量助柱形图
     data_voice_histogram, data_voice_round = get_data_voice_histogram(bracket, range_time, category, competitors, platform)
@@ -642,18 +642,26 @@ def get_bbv_analysis(brand_id, date_range, platform):
     return vcBrand
 
 
-def get_bracket_datarange(vcBrand, category, date_range):
+def get_bracket_datarange(vcBrand, category, date_range, platform='net'):
     brand_name = vcBrand.get("brand")
     range_time = " and a.date between '{}' and '{}' ".format(date_range[0], date_range[1])
     competitors = vcBrand.get("competitor")
     list_compete = copy.deepcopy(competitors)
+    platform_bracket = join_sql_bracket([platform, ])
     if competitors:  # 有竞品
         if brand_name not in competitors:
             list_compete.append(brand_name)
         bracket = join_sql_bracket(list_compete)
     else:
         # 获取top5的声量
-        sql = sqls.all_top5 % (range_time)
+        if platform == 'net':
+            sql = sqls.net_all_top5 % (range_time)
+        elif platform == '全部':
+            sql = sqls.bbv_all_top5%(range_time)
+        elif platform in ["微博", "微信"]:
+            sql = sqls.ww_net_all_top5%(platform_bracket, range_time)
+        else:
+            sql = sqls.bbv_classify_all_top5%(platform_bracket, range_time)
         sql_brand = DB.search(sql, {"brand_name": brand_name, "category_name": category.name})
 
         for brand in sql_brand:
@@ -714,7 +722,7 @@ def link_relative(vcBrand, self_voice, sov, self_voice_previous, compete_voice_p
 def get_dsm_milk_day_month_week_analysis(vcBrand, category, date_range, platform):
 
     brand_name = vcBrand.get("brand")
-    bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range)
+    bracket, competitors, range_time = get_bracket_datarange(vcBrand, category, date_range, platform)
 
     # 获取日周月数据
     dict_data = get_data(bracket, competitors, range_time, category, platform)
