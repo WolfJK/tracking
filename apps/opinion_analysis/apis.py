@@ -269,6 +269,7 @@ def get_classify_sov_new(data_assert, dict_sov_classify, type, competers):
     # 选择全品类的时候加上其他
     data = []
     sum_sov = defaultdict(list)
+    sum_count = defaultdict(list)
     for list_s in data_assert.get(type):
         for item in list_s:
             for sov_count in dict_sov_classify:
@@ -277,6 +278,7 @@ def get_classify_sov_new(data_assert, dict_sov_classify, type, competers):
                     count_assert = item.get('count')
                     sov = get_all_sov(count_assert, count_sov)
                     sum_sov[item.get('date')].append(sov)
+                    sum_count[item.get('date')].append(count_assert)
                     item.update(sov=sov)
 
     if not competers:  # 没有竞争产品的时候添加其他
@@ -288,6 +290,12 @@ def get_classify_sov_new(data_assert, dict_sov_classify, type, competers):
             for date, value in sum_sov.items():
                 if i.get('date') == date:
                     i.update(sov=100-sum(value))
+        for i in data:
+            for date, value in sum_count.items():
+                for coun_voice in dict_sov_classify:
+                    if i.get('date') == date == coun_voice.get("date"):
+                        count_sov = coun_voice.get('count')
+                        i.update(count=float(count_sov)-float(sum(value)))
 
         data_assert.get(type).append(data)
 
