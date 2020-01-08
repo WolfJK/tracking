@@ -9,12 +9,12 @@ from dateutil.relativedelta import relativedelta
 
 
 def get_parameter(request_data, parameters):
-    '''
+    """
     简单获取 请求参数
     :param request_data: request_data.GET
     :param parameters:  例如 ('brand_id', '请输入brand_id')
     :return:
-    '''
+    """
     param = dict()
     hooks = []
     for parameter in parameters:
@@ -57,6 +57,11 @@ def get_parameter(request_data, parameters):
 
 
 def get_ip(request):
+    """
+    取货 访问 ip
+    :param request:
+    :return:
+    """
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
         ip = x_forwarded_for.split(',')[0]
@@ -99,34 +104,34 @@ def domains_2_ips(domains):
 
 
 def str2date(dts, ft="%Y-%m-%d"):
-    '''
+    """
     str 转为 date
     :param dts:
     :param ft:
     :return:
-    '''
+    """
     return datetime.strptime(dts, ft)
 
 
 def date2str(dt, ft="%Y-%m-%d"):
-    '''
+    """
     str 转为 date
     :param dt:
     :param ft:
     :return:
-    '''
+    """
     return dt.strftime(ft)
 
 
 def set_precision(data, keys, precision=2, pct=1.0):
-    '''
+    """
     设置 list<map> or map
     :param data: lsit<map>
     :param keys: 处理的 keys
     :param precision: 精度
     :param pct: 是否是百分比, 1 不是, 100 是
     :return:
-    '''
+    """
     if isinstance(data, dict):
         data = [data]
 
@@ -135,10 +140,10 @@ def set_precision(data, keys, precision=2, pct=1.0):
 
 
 def trend_type(begin, end):
-    '''
+    """
     过去数据趋势的时间类型: week  or day
     :return:
-    '''
+    """
     if (str2date(end) - str2date(begin)) + 1 > 30:
         return "week"
     else:
@@ -146,12 +151,12 @@ def trend_type(begin, end):
 
 
 def begin_date(begin, d_type):
-    '''
+    """
     将 begin 时间 向前推一年
     :param begin:
     :param d_type:
     :return:
-    '''
+    """
     begin = str2date(begin)
 
     if d_type == "week":
@@ -165,13 +170,13 @@ def begin_date(begin, d_type):
 
 
 def division_ratio(a, b, precision=2):
-    '''
+    """
     两个数的除法
     :param a:
     :param b:
     :param precision: 精度
     :return:
-    '''
+    """
     if not b:
         return 0.00
 
@@ -179,13 +184,13 @@ def division_ratio(a, b, precision=2):
 
 
 def ratio(data, column, precision=2):
-    '''
+    """
     求 一个字断的 占比
     :param data:
     :param column:
     :param precision:
     :return:
-    '''
+    """
     sum_data = sum([_[column] for _ in data])
 
     for _ in data:
@@ -195,11 +200,11 @@ def ratio(data, column, precision=2):
 
 
 def next_period(date):
-    '''
+    """
     获取 日期的下一个周期
     :param date:
     :return:
-    '''
+    """
     if len(date) == 10:
         date = str2date(date) + relativedelta(days=1)
         return date2str(date)
@@ -219,35 +224,35 @@ def next_period(date):
 
 
 def combine_list_map(lm1, lm2, key, default):
-    '''
+    """
     以 lm1 为基数合并 lm2
     :param lm1:
     :param lm2:
     :param key:
     :param default:
     :return:
-    '''
+    """
     lm2_map = {lm[key]: lm for lm in lm2}
     map(lambda lm: lm.update(lm2_map.get(lm[key], default)), lm1)
     return lm1
 
 
 def brand_to_name(brands):
-    '''
+    """
     将 [id_name, id_name, id_name] 转化为 name.name.name
     :param brands:
     :return:
-    '''
+    """
     return ".".join([brand.split("_")[1] for brand in brands])
 
 
 def brand_to_brand(params):
-    '''
+    """
     将 [id_name, id_name, id_name] 转化为 name.name.name
     将 [id_name-id_name, id_name-id_name-id_name, id_name] 转化为 [name.name, name.name.name, name]
     :param params:
     :return:
-    '''
+    """
     if params.has_key("brand"):
         params.update(brand=brand_to_name(params["brand"]))
 
@@ -255,4 +260,28 @@ def brand_to_brand(params):
         params.update(competitor=[brand_to_name(competitor.split("-")) for competitor in params["competitor"]])
 
     return params
+
+
+def month_to_day(params):
+    """
+    将 参数 为 月的开始时间 结束时间, 转换为 日的格式
+    :param params: {"start_date": "2019-10", "end_date": "2019-12"}
+    :return: {"start_date": "2019-10-01", "end_date": "2019-12-31"}
+    """
+    params.update(start_date=params["start_date"][:7] + "-01", end_date=last_day_of_month(params["end_date"]),)
+
+    return params
+
+
+def last_day_of_month(date):
+    """
+    求 一个 日期 所在月的最后一弹
+    :param date: 日期, eg: 2019-10-12
+    :return:
+    """
+    last_day = str2date(date[:7] + "-01") + relativedelta(months=1, days=-1)
+
+    return date2str(last_day)
+
+
 

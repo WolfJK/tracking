@@ -134,7 +134,7 @@ ao_params = [
         ("type", "请选择类型", "str"),
         ("platform", "请选择平台", "str"),
         ("start_date", "请选择开始时间", "str"),
-        ("end_date", "请选择结束时间", "str"),
+        ("end_date", "请选择结束时间", "str", apps_apis.month_to_day),
 ]
 
 activity_tag = [("activity_tag", "", "str")]
@@ -146,7 +146,6 @@ def ao_activity_tag_list(request):
     :param request:
     :return:
     '''
-
     params = apps_apis.get_parameter(request.POST, ao_params)
     data = apis.ao_activity_tag_list(params)
 
