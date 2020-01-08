@@ -308,6 +308,7 @@ group by area;
 area_voice_classify = """
 select area, ifnull(sum(count), 0) count from vc_saas_area_volume a where brand={brand_name}
  and category = {category_name}  %s
+ and area not in ('其他', '')
 group by area order by count desc ;
 """
 
@@ -644,13 +645,17 @@ group by brand;
 # bbv各个地域的分类的声量
 bbv_area_voice_classify = """
 select area,ifnull(sum(count), 0) count from vc_mp_platform_area_volume a where brand={brand_name}
-and category = {category_name} and a.type='bbv'  %s
+and category = {category_name} 
+and area not in ('其他', '')
+and a.type='bbv'  %s
 group by area  order by count desc ;
 """
 
 bbv_platform_area_voice_classify = """
 select area, ifnull(sum(count), 0) count from vc_mp_platform_area_volume a where brand={brand_name}
-and category = {category_name} and a.platform in %s  %s
+and category = {category_name} 
+and area not in ('其他', '') 
+and a.platform in %s  %s
 group by area  order by count desc ;
 """
 
