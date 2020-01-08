@@ -1002,5 +1002,14 @@ def set_engagement_to_invalid(data):
     return data
 
 
+def verify_date_len(params):
+    """
+    校验 时间选择, 最大不能超过 连续三个月 即 32 天
+    :param params:
+    :return:
+    """
+    num = apps_apis.str2date(params["end_date"]) - apps_apis.str2date(params["start_date"])
+    if num.days > 92:
+        raise Exception("时间跨度最大不能超过三个月")
 
 
