@@ -544,7 +544,7 @@ def get_report(report_id, user, status):
         reports = reports.filter(user__corporation=user.corporation)
 
     if len(reports) < 1:
-        raise Exception("权限不足")
+        raise Exception("权限不足/报告不存在")
 
     report = reports[0]
     if status and not report.status in status:
