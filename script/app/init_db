@@ -349,7 +349,7 @@ BEGIN
         select
         t1.category,
         t1.brand,
-        sum(if(t2.visible = 2, t1.count, 0)) as plat_count,
+        sum(if(JSON_CONTAINS(t2.visible, '[2]'), t1.count, 0)) as plat_count,
         sum(t1.count) as all_count,
         t1.date
         from
