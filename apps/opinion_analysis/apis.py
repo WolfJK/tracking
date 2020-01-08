@@ -259,13 +259,16 @@ def whole_net_analysis(brand_id, date_range):
     return vcBrand
 
 
-def get_classify_sov_new(data_assert, dict_sov_classify, type):
+def get_classify_sov_new(data_assert, dict_sov_classify, type, competers):
     """
         获取日周月的sov面积图
         :param vcBrand:
         :param data_assert:
         :return:
         """
+    # 选择全品类的时候加上其他
+    data = []
+    sum_sov = defaultdict(list)
     for list_s in data_assert.get(type):
         for item in list_s:
             for sov_count in dict_sov_classify:
@@ -273,7 +276,20 @@ def get_classify_sov_new(data_assert, dict_sov_classify, type):
                     count_sov = sov_count.get('count')
                     count_assert = item.get('count')
                     sov = get_all_sov(count_assert, count_sov)
+                    sum_sov[item.get('date')].append(sov)
                     item.update(sov=sov)
+
+    if not competers:  # 没有竞争产品的时候添加其他
+        for i in copy.deepcopy(data_assert.get((type))[0]):
+            i.update(brand='其他')
+            data.append(i)
+
+        for i in data:
+            for date, value in sum_sov.items():
+                if i.get('date') == date:
+                    i.update(sov=100-sum(value))
+
+        data_assert.get(type).append(data)
 
 
 def get_round_sov(data_voice_histogram, data_voice_round, compitors):
@@ -388,9 +404,9 @@ def get_data(bracket, competitors, range_time, category, platform='net'):
     assemble_data_new(month_assert, dict_data, "month")
     assemble_data_new(week_assert, dict_data, "week")
 
-    get_classify_sov_new(dict_data, day_sov_assert, 'day')
-    get_classify_sov_new(dict_data, month_sov_assert, 'month')
-    get_classify_sov_new(dict_data, week_sov_assert, 'week')
+    get_classify_sov_new(dict_data, day_sov_assert, 'day', competitors)
+    get_classify_sov_new(dict_data, month_sov_assert, 'month', competitors)
+    get_classify_sov_new(dict_data, week_sov_assert, 'week', competitors)
     return dict_data
 
 
