@@ -469,9 +469,10 @@ def get_unscramble(data, sales_points):
             sales_point_cognitive_ratio=abs(data["tags_concern"][i]["delta"]),
             sales_point=sales_points[i].split("_")[1],
         )
-        sp_unscramble.append(unscramble("effect_sales_point", sp_param))
 
-    unscramble_rule = dict(effect_sales_point=sp_unscramble)
+        sp_unscramble.append(unscramble("effect_sales_point", sp_param)["unscramble"])
+
+    unscramble_rule = dict(effect_sales_point="\n\n".join(sp_unscramble))
     # 处理其他
     for k in sqls.unscramble_rule.keys():
         if k == "effect_sales_point":
