@@ -472,7 +472,7 @@ def get_unscramble(data, sales_points):
 
         sp_unscramble.append(unscramble("effect_sales_point", sp_param)["unscramble"])
 
-    unscramble_rule = dict(effect_sales_point="\n\n".join(sp_unscramble))
+    unscramble_rule = dict(effect_sales_point=dict(unscramble="\n\n".join(sp_unscramble), user=None, date=None))
     # 处理其他
     for k in sqls.unscramble_rule.keys():
         if k == "effect_sales_point":
