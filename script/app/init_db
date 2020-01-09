@@ -326,7 +326,7 @@ BEGIN
             base1.category,
             base1.brand,
             '全部' as platform,
-            base1.count + b32.count as count,
+            base1.count + ifnull(b32.count, 0) as count,
             base1.date
         from
             base1
