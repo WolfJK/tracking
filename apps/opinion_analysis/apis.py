@@ -190,10 +190,10 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
             # 各个平台的, 包括深度社煤和深度bbv的所有子集
             sql = sqls.monitor_data_classify_compete_voice % (bracket, bracket_platform,  range_time)  # 获取当前
             sql_previous = sqls.monitor_data_classify_compete_voice % (bracket, bracket_platform, range_time_previous)  # 获取上个阶段
-        voice = DB.get(sql, {"category_name": category.name})  # 获取竞品声量
-        voice_previous = DB.get(sql_previous, {"category_name": category.name})  # 获取竞品声量
-        compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
-        compete_voice_previous = int(voice_previous.get("voice_all")) if voice_previous.get("voice_all") else 0
+        # voice = DB.get(sql, {"category_name": category.name})  # 获取竞品声量
+        # voice_previous = DB.get(sql_previous, {"category_name": category.name})  # 获取竞品声量
+        # compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
+        # compete_voice_previous = int(voice_previous.get("voice_all")) if voice_previous.get("voice_all") else 0
     else:  # 全品
         if type == 'net':
             sql = sqls.all_monitor_voice % (range_time)
@@ -207,10 +207,10 @@ def get_card_voice_sov(vcBrand, category, date_range, type="net"):
         else:
             sql = sqls.bbv_platform_classify_voice % (bracket_platform, range_time)
             sql_previous = sqls.bbv_platform_classify_voice % (bracket_platform, range_time_previous)
-        voice = DB.get(sql, {"category_name": category.name})  # 获取全品类声量
-        voice_previous = DB.get(sql_previous, {"category_name": category.name})  # 获取全品类声量
-        compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
-        compete_voice_previous = int(voice_previous.get("voice_all")) if voice_previous.get("voice_all") else 0
+    voice = DB.get(sql, {"category_name": category.name})  # 获取全品类声量
+    voice_previous = DB.get(sql_previous, {"category_name": category.name})  # 获取全品类声量
+    compete_voice = int(voice.get("voice_all")) if voice.get("voice_all") else 0
+    compete_voice_previous = int(voice_previous.get("voice_all")) if voice_previous.get("voice_all") else 0
     if type == 'net':
         new_sql = sqls.monitor_data_analysis_voice % (range_time)
         new_sql_previous = sqls.monitor_data_analysis_voice % (range_time_previous)
