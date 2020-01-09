@@ -568,7 +568,7 @@ def report_config_create(param, user, ip):
     for k in platforms:
         k.update(children=[])
         for _ in platform:
-            plat = DimPlatform.objects.get(id=_)
+            plat = DimPlatform.objects.get(code=_)
             if plat.parent == k.get("name"):
                 k.get("children").append(dict(id=_, name=plat.name))
         if k.get("children"):
