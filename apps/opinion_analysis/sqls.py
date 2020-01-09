@@ -30,20 +30,20 @@ select id, json_index(brand, -1, '.name') as brand_name, competitor, time_slot f
 
 # 当前品牌的声量
 monitor_data_analysis_voice = """
-select IFNULL(sum(count), 0) as voice from vc_saas_platform_volume where platform='全网' and 
+select IFNULL(sum(count), 0) as voice from vc_saas_platform_volume where platform='全部' and 
 brand = {brand_name} and category = {category_name} %s;
 """
 
 # 竞品所有的声量
 monitor_data_compete_voice = """
 select IFNULL(sum(count), 0) as voice_all from  vc_saas_platform_volume  
-where brand in %s and platform='全网' and category = {category_name}  %s ;
+where brand in %s and platform='全部' and category = {category_name}  %s ;
 """
 
 
 # 全品类的声量
 all_monitor_voice = """
-select IFNULL(sum(count), 0) as voice_all from vc_saas_platform_volume where platform='全网' and category = {category_name} %s;
+select IFNULL(sum(count), 0) as voice_all from vc_saas_platform_volume where platform='全部' and category = {category_name} %s;
 """
 
 
@@ -74,7 +74,7 @@ with e as (
     select brand, category, sum(count) count, date
     from vc_saas_platform_volume a
     where %s and brand in %s
-        and category = {category_name} and  platform='全网' 
+        and category = {category_name} and  platform='全部' 
     group by date, brand, category
 ),
 base1 as(
@@ -147,7 +147,7 @@ left join (
     select a.brand, a.count
     from vc_saas_platform_volume a
     where a.brand in %s 
-    and platform='全网'
+    and platform='全部'
     and a.category =  {category_name}  %s
     ) b on a.name = b.brand
 group by a.name order by count desc ;
@@ -176,7 +176,7 @@ with e as (
     select a.count
     from vc_saas_platform_volume a
     where a.brand in %s
-    and  platform='全网'
+    and  platform='全部'
     and a.category = {category_name}  %s
 )select ifnull(sum(count), 0) as count from e;
 """
@@ -196,7 +196,7 @@ round_all_brand_sum_sov = """
 with e as (
     select a.count
     from vc_saas_platform_volume a
-    where a.category = {category_name} and platform='全网'  %s
+    where a.category = {category_name} and platform='全部'  %s
 )select ifnull(sum(count), 0) as count from e;
 """
 
@@ -217,7 +217,7 @@ with e as (
     where %s 
     and a.brand in %s 
     and a.category = {category_name}
-    and platform='全网'
+    and platform='全部'
     group by a.date
 )
 select %s date,
@@ -234,7 +234,7 @@ with e as (
     from vc_saas_platform_volume a
     where %s 
     and a.category = {category_name}
-    and  platform='全网'
+    and  platform='全部'
     group by a.date
 )
 select %s date, 
@@ -255,7 +255,7 @@ from (select name from view_dim_brand
   group by name
 ) a
 left join (select brand, sum(count) as count from vc_saas_platform_volume a
-where brand in %s 
+where brand in %s and platform='全部' 
 and category = {category_name}  %s 
 group by brand) b on a.name = b.brand
 ;
@@ -604,7 +604,7 @@ from (select name from view_dim_brand
   group by name
 ) a
 left join (select brand, sum(count) as count from vc_mp_platform_area_volume a
-where brand in %s 
+where brand in %s and platform in (select name platform from dim_platform where json_contains(visible, '[2]') group by name)
 and category = {category_name}  and a.type = 'bbv'  %s 
 group by brand)b on a.name = b.brand
 ;
