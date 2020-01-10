@@ -403,7 +403,7 @@ and platform in %s %s
 
 self_brand_bbv_all = """
 select IFNULL(sum(count), 0) as voice from vc_mp_platform_area_volume
-where platform in  (select name from dim_platform where parent='bbv' and json_contains(visible, '[0]'))
+where platform !='其他' 
 and brand = {brand_name} and category = {category_name}  and type='bbv' %s
 """
 

@@ -17,13 +17,6 @@ from django.forms.models import model_to_dict
 from itertools import chain
 from collections import defaultdict
 
-# 声量展示平台
-PLATFORM_DICT = {
-    'net_coffee': ['微博', "微信", 'bbv', '新闻', '视频', '其他'],
-    'net_milk': ['微博', "微信", '新闻', '视频', '客户端', '论坛', '其他'],
-    'all': list(DimPlatform.objects.filter(visible=2).values_list('name')).append('其他'),
-}
-
 
 def add_monitor_brand(request, monitor_id, category, brand, time_slot, competitor):
     """
@@ -65,7 +58,6 @@ def search_monitor_brand(user, brand_name, category_id):
     result = list(VcMonitorBrand.objects.filter(category_id=category_id, user__corporation=user.corporation).order_by('-create_time').values())
     for brand in result:
         brand.update(brand=json.loads(brand.get("brand")))
-        brand.update(brand_name=brand.get("brand"))
         brand.update(competitor=json.loads(brand.get("competitor")))
         apps_apis.brand_to_brand(brand)
     data = list()
@@ -78,9 +70,8 @@ def search_monitor_brand(user, brand_name, category_id):
 
 
 def get_vcbrand_for_name(brand_id):
-    try:
-        result = DB.get(sqls.search_one_brand, {"brand_id": brand_id})
-    except Exception:
+    result = DB.get(sqls.search_one_brand, {"brand_id": brand_id})
+    if not result:
         raise Exception("监测id不存在")
     result.update(brand=json.loads(result.get("brand")))
     result.update(competitor=json.loads(result.get("competitor")))
@@ -136,12 +127,11 @@ def get_all_monitor_card_data(request, brand_name, category_id):
         data_sql = sqls.all_data_card_voice_assert %(range_time, range_time)
         data_assert = DB.search(data_sql, {"brand_name": brand_name, "category_name": category.name})  # 所有当前品牌的日期数据
         sov = get_all_sov(self_voice, compete_voice)
-        append_vc_brand(vcBrand, competitors, data_assert, self_voice, category, industry, compete_voice, sov)
+        append_vc_brand(vcBrand, data_assert, self_voice, category, industry, compete_voice, sov)
     return vcBrands
 
 
-def append_vc_brand(vcBrand, competitors, data_assert, self_voice, category, industry, compete_voice, sov):
-    # vcBrand.update(competitor=competitors)
+def append_vc_brand(vcBrand, data_assert, self_voice, category, industry, compete_voice, sov):
     vcBrand.update(data_assert=data_assert)
     vcBrand.update(self_voice=self_voice)
     vcBrand.update(category_name=category.name)
@@ -248,7 +238,7 @@ def whole_net_analysis(brand_id, date_range):
     self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range)
     data_assert, data_voice_histogram, vioce_platform, area_voice, net_keywords, data_radar_classify = get_net_day_month_week_analysis(vcBrand, category, date_range)
     sov = get_all_sov(self_voice, compete_voice)
-    append_vc_brand(vcBrand, competitors, data_assert, self_voice, category, industry, compete_voice, sov)
+    append_vc_brand(vcBrand, data_assert, self_voice, category, industry, compete_voice, sov)
     vcBrand.update(data_voice_histogram=data_voice_histogram)
     vcBrand.update(vioce_platform=vioce_platform)
     vcBrand.update(area_voice=area_voice)
@@ -655,7 +645,7 @@ def get_bbv_analysis(brand_id, date_range, platform):
     self_voice, competitors, compete_voice, self_voice_previous, compete_voice_previous = get_card_voice_sov(vcBrand, category, date_range, type=platform)
     data_assert, data_voice_histogram, vioce_platform, area_voice, net_keywords, data_radar_classify = get_bbv_day_month_week_analysis(vcBrand, category, date_range, platform)
     sov = get_all_sov(self_voice, compete_voice)
-    append_vc_brand(vcBrand, competitors, data_assert, self_voice, category, industry, compete_voice, sov)
+    append_vc_brand(vcBrand, data_assert, self_voice, category, industry, compete_voice, sov)
     vcBrand.update(data_voice_histogram=data_voice_histogram)
     vcBrand.update(vioce_platform=vioce_platform)
     vcBrand.update(area_voice=area_voice)
@@ -712,7 +702,7 @@ def get_dsm_milk_analysis(brand_id, date_range, platform):
     user_posts = get_top_20_user_posts(vcBrand, platform, date_range, category)  # 用户发帖
 
     sov = get_all_sov(self_voice, compete_voice)
-    append_vc_brand(vcBrand, competitors, data_assert, self_voice, category, industry, compete_voice, sov)
+    append_vc_brand(vcBrand, data_assert, self_voice, category, industry, compete_voice, sov)
     vcBrand.update(data_voice_histogram=data_voice_histogram)
     vcBrand.update(area_voice=data_voice_area_classify)
     vcBrand.update(net_keywords=net_keywords)
