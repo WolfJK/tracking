@@ -480,8 +480,19 @@ def get_area_voice_from(range_time, category, brand_name, platform='net'):
     else:
         sql_area_classify = sqls.bbv_platform_area_voice_classify%(bracket_platform, range_time)
     data_voice_area_classify = DB.search(sql_area_classify, {"category_name": category.name, "brand_name": brand_name})
-
+    dispose_standard_area(data_voice_area_classify)
     return data_voice_area_classify
+
+
+def dispose_standard_area(areas):
+    # 更新标准的地域名称
+    standard_areas = DB.search(sqls.get_standard_area)
+    for area in areas:
+        area_old = area.get('area')
+        for standard_area in standard_areas:
+            if standard_area.get('name') in area_old:
+                area.update(area=standard_area.get('name'))
+                break
 
 
 def get_keywords_from(range_time, category, brand_name, platform='net'):

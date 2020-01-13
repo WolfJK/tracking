@@ -877,3 +877,7 @@ group by level1, level2, level3) select level1, level2, level3, count2/count1*10
 """
 
 
+# 获取地域
+get_standard_area = """
+select * from dim_area
+"""
