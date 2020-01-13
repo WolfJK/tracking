@@ -645,7 +645,7 @@ def activity_contrast(param, user):
         user.activity_contrast_history = json.dumps(param["report_ids"], ensure_ascii=False)
         user.save()
 
-    all_platform, datas, user_types = [], [], []
+    all_platform, datas, user_types, compositions = [], [], [], []
 
     # 3、数据规整
     for report in reports:
@@ -656,8 +656,9 @@ def activity_contrast(param, user):
 
         all_platform.extend([m["name"] for m in platforms])
         user_types.extend([m["user_type"] for m in report["spread_overview"]["account_web"]])
+        compositions.extend([m["name"] for m in report["spread_efficiency"]["activity_composition"]])
 
-        composition = {us["type"]: us["value"] for us in report["spread_effectiveness"]["ugc_in_activity_composition"]}
+        ugc_composition = {us["type"]: us["value"] for us in report["spread_effectiveness"]["ugc_in_activity_composition"]}
         datas.append(dict(
             id=report["report_config"]["id"],
             brand=brand,
@@ -673,15 +674,15 @@ def activity_contrast(param, user):
             account_efficiency=report["spread_efficiency"]["account_web"],
             activity_efficiency=report["spread_efficiency"]["activity_web"],
 
-            activity_composition_efficiency=report["spread_efficiency"]["activity_composition"],
+            activity_composition_efficiency={m["name"]: m for m in report["spread_efficiency"]["activity_composition"]},
             user_type_efficiency=report["spread_efficiency"]["user_type_composition"],
 
             # 传播效果对比 -> 活动期间UGC总计
             ugc_count_effectiveness=report["spread_effectiveness"]["ugc_count"],
             # 传播效果对比 -> 活动 UGC【活动 ugc 构成】
             ugc_in_activity_composition={
-                "提及品牌": composition.get("提及品牌", 0),
-                "未提及品牌": composition.get("未提及品牌", 0)
+                "提及品牌": ugc_composition.get("提及品牌", 0),
+                "未提及品牌": ugc_composition.get("未提及品牌", 0)
             },
 
             # 品牌 UGC -> 活动期品牌 ugc
@@ -695,18 +696,22 @@ def activity_contrast(param, user):
             delta_brand_concern=report["brand_concern"]["delta"],
         ))
 
-    all_platform = list(set(chain.from_iterable(all_platform)))
     # 4、数据处理
     for data in datas:
         data["platform_overview"] = [data["platform_overview"].get(
             platform,
             dict(name=platform, value=0, brand=data["brand"], activity=data["activity"])
-        ) for platform in all_platform]
+        ) for platform in set(all_platform)]
 
         data["account_overview"] = [data["account_overview"].get(
             user_type,
             dict(post_count=0, account=0, brand=data["brand"], activity=data["activity"], user_type=user_type)
-        ) for user_type in user_types]
+        ) for user_type in set(user_types)]
+
+        data["activity_composition_efficiency"] = [data["activity_composition_efficiency"].get(
+            composition,
+            dict(value=0, value_ratio=0, brand=data["brand"], activity=data["activity"], name=composition)
+        ) for composition in set(compositions)]
 
         data["platform_all_efficiency"] = dict(
             brand=data["brand"],
