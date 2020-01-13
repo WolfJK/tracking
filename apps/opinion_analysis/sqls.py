@@ -871,7 +871,7 @@ from vc_mp_cognition
 where brand = {brand_name}
 and category = {category_name}
 and platform = {platform}
-and level1 in ('产品属性', '使用场景')
+and level1 in %s
 and level2 in %s %s
 group by level1, level2, level3) select level1, level2, level3, count2/count1*100 as count from e 
 """

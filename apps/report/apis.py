@@ -945,7 +945,7 @@ def read_url_excle(file_url):
 
     def verify_account(value):
         if value.lower() not in ("bgc", "kol"):
-            raise Exception("填写的帐号名必须是BGC或者KOL")
+            raise Exception("填写的帐号类型必须是BGC或者KOL")
 
     def verify_is_null(value):
         if not value:
@@ -963,6 +963,7 @@ def read_url_excle(file_url):
     df1 = df1[["帐号类型(必填)", "帖子链接(必填)", "子活动名称(选填总类型不超过5类)"]]
     df1.fillna("", inplace=True)
     df1["帐号类型(必填)"].apply(verify_type_is_null)
+    df1["帐号类型(必填)"].apply(verify_account)
     df1["帖子链接(必填)"].apply(verify_is_null)
 
     dict_dfs = df1.to_dict("records")

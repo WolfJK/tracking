@@ -827,6 +827,7 @@ def randar_patter_map(vcBrand, platform, date_range, category):
     """
     list_data = list()
     list_top3 = []
+    list_level1 = ['使用场景', '产品属性']
     if platform in ["微博", '小红书']:
         range_time = " and date between '{}' and '{}' ".format(date_range[0], date_range[1])
         brand_name = vcBrand.get("brand")
@@ -835,7 +836,7 @@ def randar_patter_map(vcBrand, platform, date_range, category):
         level2 = []
         data_second_top5.sort(key=itemgetter('level1'))
         for level1, items in groupby(data_second_top5, key=itemgetter('level1')):
-            if level1 in ['使用场景', '产品属性']:
+            if level1 in list_level1:
                 data = list(items)[:3]
                 for i in data:
                     i.update(name=i.get('level2'))
@@ -846,7 +847,8 @@ def randar_patter_map(vcBrand, platform, date_range, category):
 
         if level2:  # # 获取使用场景 产品属性的3级认知的全部的言论数计算玉珏图
             level2_bracket = join_sql_bracket(level2)
-            sql = sqls.region_three_for_randar%(level2_bracket, range_time)
+            level1_bracket = join_sql_bracket(list_level1)
+            sql = sqls.region_three_for_randar%(level1_bracket, level2_bracket, range_time)
             data_three_region = DB.search(sql, {"brand_name": brand_name, "category_name": category.name, "platform": platform})
             for i in data_three_region:
                 i.update(name=i.get('level3'))
