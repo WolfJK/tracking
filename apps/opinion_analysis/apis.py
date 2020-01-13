@@ -279,7 +279,7 @@ def get_classify_sov_new(data_assert, dict_sov_classify, type, competers):
         for i in data:
             for date, value in sum_sov.items():
                 if i.get('date') == date:
-                    i.update(sov=100-sum(value))
+                    i.update(sov=round(100-sum(value), 2))
         for i in data:
             for date, value in sum_count.items():
                 for coun_voice in dict_sov_classify:
@@ -771,11 +771,11 @@ def get_top_20_offical_posts(vcBrand, platform, date_range, category):
     brand_name = vcBrand.get("brand")
     if platform in ["微博", "微信", "小红书"]:
         if platform == "微博":
-            sql = sqls.dsm_weibo_official_top20 %range_time
+            sql = sqls.dsm_weibo_official_top20 %(range_time, range_time)
         elif platform == "微信":
-            sql = sqls.dsm_weixin_official_top20%range_time
+            sql = sqls.dsm_weixin_official_top20%(range_time, range_time)
         else:
-            sql = sqls.dsm_redbook_official_top20%range_time
+            sql = sqls.dsm_redbook_official_top20%(range_time, range_time)
         offcial_posts = DB.search(sql, {'type_from': 1, "platform": platform, "brand_name": brand_name, "category_name": category.name})
     else:
         offcial_posts = []
@@ -792,11 +792,11 @@ def get_top_20_user_posts(vcBrand, platform, date_range, category):
     brand_name = vcBrand.get("brand")
     if platform in ["微博", "小红书"]:
         if platform == "微博":
-            sql = sqls.dsm_weibo_official_top20 % range_time
+            sql = sqls.dsm_weibo_official_top20 %(range_time, range_time)
         # elif platform == "微信": 用户发帖没有微信
         #     sql = sqls.dsm_weixin_official_top20 % range_time
         else:
-            sql = sqls.dsm_redbook_official_top20 % range_time
+            sql = sqls.dsm_redbook_official_top20 % (range_time, range_time)
         users_posts = DB.search(sql, {'type_from': 2, "platform": platform, "brand_name": brand_name, "category_name": category.name})
     else:
         users_posts = []

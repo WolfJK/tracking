@@ -778,48 +778,66 @@ order by %s asc;
 # dsmtop20微博发帖
 dsm_weibo_official_top20 = """
 with e as (
-    select id, sum(ifnull(reviews, 0) + ifnull(retweets, 0) + ifnull(praise_points, 0)) count
+ select id, url, sum(ifnull(reviews, 0) + ifnull(retweets, 0) + ifnull(praise_points, 0)) count
     from vc_mp_consensus_content a
-      where %s
+      where  %s 
       and type={type_from}
       and a.platform ={platform}
       and a.brand ={brand_name}
       and a.category={category_name}
-    group by id
-    order by count desc
-    limit 20
-) select b.*,e.count from vc_mp_consensus_content b join e on b.id=e.id order by e.count desc;
+    group by id, url
+),base1 as
+    (select url, max(count) count, max(id) id from e  group by url limit 20)
+select a.*, base1.count from vc_mp_consensus_content a join base1 on base1.id=a.id
+    where %s 
+    and type={type_from}
+    and a.platform ={platform}
+    and a.brand ={brand_name}
+    and a.category={category_name}
+order by base1.count desc;
 """
 # 微信
 dsm_weixin_official_top20 = """
 with e as (
-    select id, sum(ifnull(praise_points, 0)) count
+ select id, url, sum(ifnull(praise_points, 0)) count
     from vc_mp_consensus_content a
-      where %s
+      where  %s 
       and type={type_from}
       and a.platform ={platform}
       and a.brand ={brand_name}
       and a.category={category_name}
-    group by id
-    order by count desc
-    limit 20
-) select b.*,e.count from vc_mp_consensus_content b join e on b.id=e.id order by e.count desc;
+    group by id, url
+),base1 as
+    (select url, max(count) count, max(id) id from e  group by url limit 20)
+select a.*, base1.count from vc_mp_consensus_content a join base1 on base1.id=a.id
+    where %s 
+    and type={type_from}
+    and a.platform ={platform}
+    and a.brand ={brand_name}
+    and a.category={category_name}
+order by base1.count desc;
 """
 
 # 小红书
 dsm_redbook_official_top20 = """
 with e as (
-    select id, sum(ifnull(reviews, 0) + ifnull(retweets, 0) + ifnull(praise_points, 0) + ifnull(favorite, 0)) count
+ select id, url, sum(ifnull(reviews, 0) + ifnull(retweets, 0) + ifnull(praise_points, 0) + ifnull(favorite, 0)) count
     from vc_mp_consensus_content a
-      where %s
+      where  %s 
       and type={type_from}
       and a.platform ={platform}
       and a.brand ={brand_name}
       and a.category={category_name}
-    group by id
-    order by count desc
-    limit 20
-) select b.*,e.count from vc_mp_consensus_content b join e on b.id=e.id order by e.count desc;
+    group by id, url
+),base1 as
+    (select url, max(count) count, max(id) id from e  group by url limit 20)
+select a.*, base1.count from vc_mp_consensus_content a join base1 on base1.id=a.id
+    where %s 
+    and type={type_from}
+    and a.platform ={platform}
+    and a.brand ={brand_name}
+    and a.category={category_name}
+order by base1.count desc;
 """
 
 

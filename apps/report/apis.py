@@ -814,7 +814,7 @@ def download_file(parametes, flag):
     output = BytesIO()
     writer = pandas.ExcelWriter(output, engine="xlsxwriter")
     if flag in ["1", "2"]:
-        parametes = DimPlatform.objects.filter(id__in=parametes).values_list('name', flat=True)
+        parametes = DimPlatform.objects.filter(code__in=parametes).values_list('name', flat=True)
         # dimension_df = pandas.DataFrame.from_records(list(), columns=["BGC/KOL", "所在地", "帐号"])
         dimension_df = pandas.DataFrame.from_records(list(), columns=["所在地", "帐号"])
         for paramete in parametes:
