@@ -645,14 +645,17 @@ def activity_contrast(param, user):
         user.activity_contrast_history = json.dumps(param["report_ids"], ensure_ascii=False)
         user.save()
 
-    all_platform, datas = [], []
+    all_platform, datas, user_types = [], [], []
+
     # 3、数据规整
     for report in reports:
         brand = report["report_config"]["brand"]
         platform_web = report["spread_overview"]["platform_web"]
         platforms = [p for p in chain.from_iterable([platform["children"] for platform in platform_web])]
+        platforms = [p for p in chain.from_iterable([platform["children"] for platform in platform_web])]
 
-        all_platform.append([m["name"] for m in platforms])
+        all_platform.extend([m["name"] for m in platforms])
+        user_types.extend([m["user_type"] for m in report["spread_overview"]["account_web"]])
 
         composition = {us["type"]: us["value"] for us in report["spread_effectiveness"]["ugc_in_activity_composition"]}
         datas.append(dict(
@@ -664,7 +667,7 @@ def activity_contrast(param, user):
             end_date=report["report_config"]["end_date"],
 
             platform_overview={m["name"]: m for m in platforms},
-            account_overview=report["spread_overview"]["account_web"],
+            account_overview={m["user_type"]: m for m in report["spread_overview"]["account_web"]},
 
             platform_efficiency=report["spread_efficiency"]["platform_web"],
             account_efficiency=report["spread_efficiency"]["account_web"],
@@ -699,6 +702,11 @@ def activity_contrast(param, user):
             platform,
             dict(name=platform, value=0, brand=data["brand"], activity=data["activity"])
         ) for platform in all_platform]
+
+        data["account_overview"] = [data["account_overview"].get(
+            user_type,
+            dict(post_count=0, account=0, brand=data["brand"], activity=data["activity"], user_type=user_type)
+        ) for user_type in user_types]
 
         data["platform_all_efficiency"] = dict(
             brand=data["brand"],
