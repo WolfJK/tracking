@@ -201,7 +201,7 @@ class Report(models.Model):
     error_info = models.TextField(help_text="错误信息", null=True)
     delete = models.BooleanField(default=False, help_text="是否删除")
     create_time = models.DateTimeField(help_text="创建时间", auto_now_add=True)
-    update_time = models.DateTimeField(help_text="更新时间", null=True)
+    update_time = models.DateTimeField(help_text="修改时间", auto_now=True)
 
     class Meta:
         db_table = "report"
@@ -247,7 +247,7 @@ class SmCompetitor(models.Model):
     user = models.ForeignKey(SmUser, help_text="所属用户", on_delete=models.DO_NOTHING)
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
-    update_time = models.DateTimeField(help_text="修改时间", null=True)
+    update_time = models.DateTimeField(help_text="修改时间", auto_now=True)
 
     class Meta:
         db_table = "sm_competitor"
@@ -264,7 +264,7 @@ class VcMonitorBrand(models.Model):
     user = models.ForeignKey(SmUser, help_text="所属用户", on_delete=models.DO_NOTHING)
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
-    update_time = models.DateTimeField(help_text="修改时间", null=True)
+    update_time = models.DateTimeField(help_text="修改时间", auto_now=True)
 
     class Meta:
         db_table = "vc_monitor_brand"
@@ -279,7 +279,7 @@ class VcSaasPlatformVolume(models.Model):
     date = models.DateField(help_text="日期")
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
-    update_time = models.DateTimeField(help_text="修改时间", null=True)
+    update_time = models.DateTimeField(help_text="修改时间", auto_now=True)
 
     class Meta:
         db_table = "vc_saas_platform_volume"
@@ -294,7 +294,7 @@ class VcSaasAreaVolume(models.Model):
     date = models.DateField(help_text="日期")
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
-    update_time = models.DateTimeField(help_text="修改时间", null=True)
+    update_time = models.DateTimeField(help_text="修改时间", auto_now=True)
 
     class Meta:
         db_table = "vc_saas_area_volume"
@@ -311,7 +311,7 @@ class VcMpPlatformAreaVolume(models.Model):
     date = models.DateField(help_text="日期")
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
-    update_time = models.DateTimeField(help_text="修改时间", null=True)
+    update_time = models.DateTimeField(help_text="修改时间", auto_now=True)
 
     class Meta:
         db_table = "vc_mp_platform_area_volume"
@@ -329,7 +329,7 @@ class VcMpKeywordsCloud(models.Model):
     date = models.DateField(help_text="日期")
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
-    update_time = models.DateTimeField(help_text="修改时间", null=True)
+    update_time = models.DateTimeField(help_text="修改时间", auto_now=True)
 
     class Meta:
         db_table = "vc_mp_keywords_cloud"
@@ -346,7 +346,7 @@ class VcMpFirstLevelCognition(models.Model):
     date = models.DateField(help_text="日期")
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
-    update_time = models.DateTimeField(help_text="修改时间", null=True)
+    update_time = models.DateTimeField(help_text="修改时间", auto_now=True)
 
     class Meta:
         db_table = "vc_mp_first_level_cognition"
@@ -364,7 +364,7 @@ class VcMpCognition(models.Model):
     date = models.DateField(help_text="日期")
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
-    update_time = models.DateTimeField(help_text="修改时间", null=True)
+    update_time = models.DateTimeField(help_text="修改时间", auto_now=True)
 
     class Meta:
         db_table = "vc_mp_cognition"
@@ -389,7 +389,7 @@ class VcMpConsensusContent(models.Model):
     date = models.DateField(help_text="发帖日期[每日 top20]")
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
-    update_time = models.DateTimeField(help_text="修改时间", null=True)
+    update_time = models.DateTimeField(help_text="修改时间", auto_now=True)
 
     class Meta:
         db_table = "vc_mp_consensus_content"
@@ -416,7 +416,7 @@ class VcMpActivityContent(models.Model):
     date = models.DateField(help_text="发帖日期[每日 top20]")
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
-    update_time = models.DateTimeField(help_text="修改时间", null=True)
+    update_time = models.DateTimeField(help_text="修改时间", auto_now=True)
 
     class Meta:
         db_table = "vc_mp_activity_content"
@@ -433,7 +433,7 @@ class VcMpActivityTags(models.Model):
     date = models.DateField(help_text="发帖日期")
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
-    update_time = models.DateTimeField(help_text="修改时间", null=True)
+    update_time = models.DateTimeField(help_text="修改时间", auto_now=True)
 
     class Meta:
         db_table = "vc_mp_activity_tags"
@@ -447,7 +447,7 @@ class VcMpRecommendActivatePeriod(models.Model):
     date = models.DateField(help_text="活动日期")
 
     create_time = models.DateTimeField(help_text="访问时间", auto_now_add=True)
-    update_time = models.DateTimeField(help_text="修改时间", null=True)
+    update_time = models.DateTimeField(help_text="修改时间", auto_now=True)
 
     class Meta:
         db_table = "vc_mp_recommend_activity_period"
