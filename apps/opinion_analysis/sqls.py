@@ -57,9 +57,10 @@ with base0 as (
 base1 as (
     select brand, date, sum(count) count
         from vc_saas_platform_volume a
-        where brand = {brand_name} and category={category_name} %s
+        where brand = {brand_name} and  platform='全部' and category={category_name} %s 
         group by date, brand order by date
-) select base0.name brand, base0.date, ifnull(count, 0) count from base0 left join base1 on base0.date=base1.date;
+) select base0.name brand, base0.date, ifnull(count, 0) count from base0 left join base1 on base0.date=base1.date
+order by base0.date;
 """
 
 # 按照id获取某一个品牌的name
