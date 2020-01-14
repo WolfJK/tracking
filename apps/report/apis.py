@@ -153,7 +153,7 @@ def formatted_report(reports):
         report.update(industry_name=DimIndustry.objects.get(id=report.get("industry_id")).name)
         report.update(category_name=DimCategory.objects.get(id=report.get("category_id")).name)
 
-        report.update(sales_point_name=json.loads(report["sales_points"]))
+        report.update(sales_point_name=[n.split("_")[1] for n in json.loads(report["sales_points"])])
         report.update(sales_points=json.loads(report["sales_points"]))
         if user.brand.name == brand_name:
             report.update(is_owner="本品")
