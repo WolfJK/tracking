@@ -873,8 +873,17 @@ def randar_patter_map(vcBrand, platform, date_range, category):
     return list_data, list_top3
 
 
+#  ############################# 活动定位: activity orientation #################################
 
-# ############################# 活动定位: activity orientation #################################
+#  ######### 根据 平台不同, 标注 文本中的 指标
+nums = ["reading", "reviews", "retweets", "praise_points", "favorite"]
+engagement = {
+    "微博": ['retweets', 'reviews', 'praise_points'],
+    "微信": ['reading', 'praise_points'],
+    "小红书": ['retweets', 'reviews', 'praise_points', 'favorite'],
+    "知乎": ['reviews', 'praise_points'],
+    "bbv": ['reading', 'reviews']
+}
 
 
 def bbv_all_and_date(params):
@@ -983,8 +992,10 @@ def ao_activity_content(params):
     :return:
     '''
     bbv_all_and_date(params)
+    platform = "bbv" if params["type"] == "bbv" else params["platform"]
+
     activity_content = VcMpActivityContent.objects.filter(**params).annotate(
-        interaction=F("reading") + F("reviews") + F("retweets") + F("praise_points") + F("favorite"),
+        interaction=sum([F(eng) for eng in engagement.get(platform)]),
         engagement=Case(
             When(type='bbv', then=Value("bbv")),
             default=F("platform"),
@@ -1002,17 +1013,6 @@ def ao_activity_content(params):
     ).order_by("user_type_order", "-interaction")[:30]
 
     return set_engagement_to_invalid(list(activity_content))
-
-
-########## 根据 平台不同, 标注 文本中的 指标
-nums = ["reading", "reviews", "retweets", "praise_points", "favorite"]
-engagement = {
-    "微博": ['retweets', 'reviews', 'praise_points'],
-    "微信": ['reading', 'praise_points'],
-    "小红书": ['retweets', 'reviews', 'praise_points', 'favorite'],
-    "知乎": ['reviews', 'praise_points'],
-    "bbv": ['reading', 'reviews']
-}
 
 
 def set_engagement_to_invalid(data):
