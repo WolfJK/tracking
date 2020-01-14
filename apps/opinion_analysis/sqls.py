@@ -856,7 +856,7 @@ with t as (
           and category = {category_name}
           and platform = {platform} %s
           group by level1, level2) e
-) select * from t where rn<=5;
+) select * from t where rn<=5 order by count asc;
 """
 
 # 三级认知的计算玉珏图
