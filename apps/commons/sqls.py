@@ -18,12 +18,14 @@ on c1.category_id = c2.id
 left join
     dim_industry c3
 on c2.industry_id = c3.id
+inner join
+    (select id from sm_user where corporation = 'corporation') c4
+on c1.user_id = c4.id
 where
-    (c3.name regexp {queue_filter}
+    c3.name regexp {queue_filter}
  or c2.name regexp {queue_filter}
  or json_index(brand, -1, '') regexp {queue_filter}
  or '' = {queue_filter}
- ) and user_id = {user_id}
  order by c1.update_time desc
 ;
 
