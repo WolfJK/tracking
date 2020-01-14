@@ -118,47 +118,31 @@ def get_report_list(user, report_status, monitor_end_time, monitor_cycle, key_wo
 
 
 def formatted_report(reports):
-    # 格式化表格
-    data_format1 = "%Y-%m-%d"
-    data_format2 = "%Y-%m-%d %H:%M:%S"
-
     for report in reports:
         report.pop("data")  # 数据太大 去除data
-        # 一周内的报告加上NEW
-        if report.get("create_time") >= datetime.datetime.now() - relativedelta(weeks=1):
-            report.update(is_new=True)
-        else:
-            report.update(is_new=False)
-        monitor_start_date = report.get("monitor_start_date").strftime(data_format1)
-        monitor_end_date = report.get("monitor_end_date").strftime(data_format1)
-        create_time = report.get("create_time").strftime(data_format2)
-        update_time = report.get("update_time").strftime(data_format2) if report.get("update_time") else None
-        report.update(monitor_start_date=monitor_start_date)
-        report.update(create_time=create_time)
-        report.update(update_time=update_time)
-        report.update(monitor_end_date=monitor_end_date)
-        status_values = Report.objects.get(id=report.get("id")).get_status_display()
-        report.update(status_values=status_values)
-        user = SmUser.objects.get(id=report.get("user_id"))
-        report.update(username=user.username)
-        report.update(platform=json.loads(report.get("platform")))
-        report.update(tag=json.loads(report.get("tag")))
-        report.update(accounts=json.loads(report.get("accounts")))
-        report.update(competitors=[c.split("-")[-1].split("_")[1] for c in json.loads(report.get("competitors"))])
-        brand_list = json.loads(report.get("brand_id"))
-        brand_id = brand_list[-1].split("_")[0]
-        brand_name = brand_list[-1].split("_")[1]
-        report.update(brand_id=brand_id)
-        report.update(brand_name=brand_name)
-        report.update(industry_name=DimIndustry.objects.get(id=report.get("industry_id")).name)
-        report.update(category_name=DimCategory.objects.get(id=report.get("category_id")).name)
 
-        report.update(sales_point_name=[n.split("_")[1] for n in json.loads(report["sales_points"])])
-        report.update(sales_points=json.loads(report["sales_points"]))
-        if user.brand.name == brand_name:
-            report.update(is_owner="本品")
-        else:
-            report.update(is_owner="竞品")
+        user = SmUser.objects.get(id=report.get("user_id"))
+        brand_list = json.loads(report.get("brand_id"))
+        brand_id, brand_name = brand_list[-1].split("_")
+
+        report.update(
+            is_new=report.get("create_time") >= apps_apis.date_after(None, weeks=-1),  # 一周内的报告加上NEW
+            status_values=Report.objects.get(id=report.get("id")).get_status_display(),
+            username=user.username,
+            platform=json.loads(report.get("platform")),
+            tag=json.loads(report.get("tag")),
+            accounts=json.loads(report.get("accounts")),
+            competitors=[c.split("-")[-1].split("_")[1] for c in json.loads(report.get("competitors"))],
+            brand=brand_list,
+            brand_id=brand_id,
+            brand_name=brand_name,
+            industry_name=DimIndustry.objects.get(id=report.get("industry_id")).name,
+            category_name=DimCategory.objects.get(id=report.get("category_id")).name,
+            sales_point_name=[n.split("_")[1] for n in json.loads(report["sales_points"])],
+            sales_points=json.loads(report["sales_points"]),
+            is_owner="本品" if user.brand.name == brand_name else "竞品"
+        )
+
     return reports
 
 

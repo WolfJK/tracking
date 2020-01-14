@@ -123,6 +123,19 @@ def date2str(dt, ft="%Y-%m-%d"):
     return dt.strftime(ft)
 
 
+def date_after(d1, **params):
+    """
+    获取一个 日期 之后 都少 天的 日期
+    :param d1:
+    :param params:
+    :return:
+    """
+    if not d1:
+        d1 = datetime.now()
+
+    return d1 + relativedelta(**params)
+
+
 def set_precision(data, keys, precision=2, pct=1.0):
     """
     设置 list<map> or map
