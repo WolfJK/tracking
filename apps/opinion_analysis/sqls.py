@@ -856,7 +856,7 @@ with t as (
           and category = {category_name}
           and platform = {platform} %s
           group by level1, level2) e
-) select * from t where rn<=5 order by count asc;
+) select * from t where rn<=5 order by count DESC;
 """
 
 # 三级认知的计算玉珏图
@@ -874,7 +874,15 @@ and category = {category_name}
 and platform = {platform}
 and level1 in %s
 and level2 in %s %s
-group by level1, level2, level3) select level1, level2, level3, count2/count1*100 as count from e 
+group by level1, level2, level3),
+base0 as (
+    select level1,
+       level2,
+       level3,
+       round(count2/count1*100, 2) as count ,
+       row_number() over(partition by level1,level2 order by count2 desc) as rn
+    from e
+  )select * from base0 where rn<=5
 """
 
 
