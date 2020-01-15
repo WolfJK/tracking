@@ -855,7 +855,7 @@ def randar_patter_map(vcBrand, platform, date_range, category):
                     level2.append(i.get('level2'))
                 list_top3.append({'name': level1, 'children': data})
             else:
-                list_data.append({"name": level1, "children": [{"name": i.get('level2'), "value": i.get('count')} for i in items]})
+                list_data.append({"name": level1, "children": sorted([{"name": i.get('level2'), "value": i.get('count')} for i in items], key=lambda x: x.get('value'))})
 
         if level2:  # # 获取使用场景 产品属性的3级认知的全部的言论数计算玉珏图
             level2_bracket = join_sql_bracket(level2)
