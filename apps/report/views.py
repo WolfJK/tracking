@@ -287,7 +287,7 @@ def activity_contrast_history(request):
     :param request:
     :return:
     '''
-    data = json.loads(request.user.activity_contrast_history)
+    data = apis.activity_contrast_history(request.user)
 
     return JsonResponse(data, safe=False)
 

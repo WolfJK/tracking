@@ -748,6 +748,20 @@ def get_competitor(param, user):
     return []
 
 
+def activity_contrast_history(user):
+    '''
+    获取活动对比 的历史记录
+    :param user:
+    :return:
+    '''
+    data = json.loads(user.activity_contrast_history)
+
+    if len(Report.objects.filter(id__in=data, delete=False, status=0)) != len(data):
+        data = []
+
+    return data
+
+
 def delete_report(user, report_id):
     # 只有生成成功之后的报告才能删除
     error_message = "只有生成之后的报告才能执行删除操作或你没有权限"
