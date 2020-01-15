@@ -846,7 +846,7 @@ def randar_patter_map(vcBrand, platform, date_range, category):
         sql_second_top5 = sqls.randar_patter_map%(range_time)
         data_second_top5 = DB.search(sql_second_top5, {"brand_name": brand_name, "category_name": category.name, "platform": platform})
         level2 = []
-        data_second_top5.sort(key=itemgetter('level1'))
+        data_second_top5.sort(key=itemgetter('level1', "count"), reverse=True)
         for level1, items in groupby(data_second_top5, key=itemgetter('level1')):
             if level1 in list_level1:
                 data = list(items)[:3]
@@ -855,7 +855,7 @@ def randar_patter_map(vcBrand, platform, date_range, category):
                     level2.append(i.get('level2'))
                 list_top3.append({'name': level1, 'children': data})
             else:
-                list_data.append({"name": level1, "children": sorted([{"name": i.get('level2'), "value": i.get('count')} for i in items], key=lambda x: x.get('value'))})
+                list_data.append({"name": level1, "children": [{"name": i.get('level2'), "value": i.get('count')} for i in items]})
 
         if level2:  # # 获取使用场景 产品属性的3级认知的全部的言论数计算玉珏图
             level2_bracket = join_sql_bracket(level2)
@@ -864,12 +864,14 @@ def randar_patter_map(vcBrand, platform, date_range, category):
             data_three_region = DB.search(sql, {"brand_name": brand_name, "category_name": category.name, "platform": platform})
             for i in data_three_region:
                 i.update(name=i.get('level3'))
-            data_three_region.sort(key=itemgetter('level2'))
+            data_three_region.sort(key=itemgetter('level1', "level2"))
             for level2, items in groupby(data_three_region, key=itemgetter('level2')):
+                data_level3 = list(items)
                 for val in list_top3:
                     for list_level2 in val.get('children'):
                         if level2 == list_level2.get('level2'):
-                            list_level2.update(children=list(items))
+                            if data_level3 and data_level3[0].get('level1') == val.get('name'):
+                                list_level2.update(children=data_level3)
 
     return list_data, list_top3
 
