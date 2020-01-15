@@ -816,16 +816,17 @@ def get_top_20_user_posts(vcBrand, platform, date_range, category):
 
 
 def show_comment(posts):
-    for i in posts:
-        if i.get("platform") == "微博":  # 评论 转发 点赞
-            i.update(reading=-1)
-            i.update(favorite=-1)
-        if i.get('platform') == "微信":  # 阅读数， 点赞数
-            i.update(reviews=-1)
-            i.update(retweets=-1)
-            i.update(favorite=-1)
-        if i.get("platform") == "小红书":  # 评论 转发 点赞 收藏
-            i.update(reading=-1)
+    """
+    微博:   评论 转发 点赞
+    微信:   阅读数， 点赞数
+    小红书:   评论 转发 点赞 收藏
+    :param posts:
+    :return:
+    """
+    for dt in posts:
+        for num in nums:
+            if num not in engagement.get(dt["platform"]):
+                dt.update({num: -1})
 
 
 def randar_patter_map(vcBrand, platform, date_range, category):

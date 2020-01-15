@@ -594,7 +594,7 @@ def get_report_config(report_id, user):
     :param user: 当前用户
     :return:
     """
-    report = get_report(report_id, user, status=(0, 1, 2, 3, 4, 5, 6))
+    report = get_report(report_id, user, status=(-1, 0, 1, 2, 3, 4, 5, 6))
     return report
 
 
