@@ -17,4 +17,3 @@ python-dateutil==2.7.3
 
 pandas==0.23.3
 DjangoCaptcha==0.3.5
-
