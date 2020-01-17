@@ -582,7 +582,8 @@ def parse_url_accounts(url_accounts):
         platform = parse_url(i.get('帖子链接(必填)'))
         if platform[0]:
             platform_list.add(platform[0])
-
+    if not platform_list:
+        raise Exception("指定的url帐号不属于我们的抓取范围")
     return parse_platform(platform_list)
 
 
@@ -976,6 +977,8 @@ def read_url_excle(file_url):
     df1["帖子链接(必填)"].apply(verify_is_null)
 
     dict_dfs = df1.to_dict("records")
+    # 检查帐号是否可以抓取
+    parse_url_accounts(dict_dfs)
     data_dict.update(url=dict_dfs)
     data_dict.update(kol=list())
     data_dict.update(bgc=list())
