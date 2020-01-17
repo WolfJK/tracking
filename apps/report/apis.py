@@ -532,22 +532,13 @@ def report_config_create(param, user, ip):
     :return:
     """
     # 拼接帐号格式
-    platforms = get_platform_info()
     platform = param["platform"]
-    return_list = list()
-    for k in platforms:
-        k.update(children=[])
-        for _ in platform:
-            plat = DimPlatform.objects.get(code=_)
-            if plat.parent == k.get("name"):
-                k.get("children").append(dict(id=_, name=plat.name))
-        if k.get("children"):
-            return_list.append(k)
+    platform_list = parse_platform(platform)
 
     param.update(
         user=user,
         tag=json.dumps(param["tag"], ensure_ascii=False),
-        platform=json.dumps(return_list, ensure_ascii=False),
+        platform=json.dumps(platform_list, ensure_ascii=False),
         competitors=json.dumps(param["competitors"], ensure_ascii=False),
         brand_id=json.dumps(param["brand_id"], ensure_ascii=False),
         sales_points=json.dumps(param["sales_points"], ensure_ascii=False),
@@ -557,13 +548,9 @@ def report_config_create(param, user, ip):
     accounts = param["accounts"]
     accounts.update(choose_bgc=param['bgc'])
     accounts.update(choose_kol=param['kol'])
-    # if accounts:
-    #     if accounts.get('url'):
-    #         accounts.update(type=list())
-    #     else:
-    #         accounts.update(type=param["type"])
-    # else:
-    #     accounts.update(url=list(), bgc=list(), kol=list(), type=param["type"] )
+    if accounts:
+        if accounts.get('url'):
+            param.update(platform=json.dumps(parse_url_accounts(accounts.get('url')), ensure_ascii=False))
     param.pop('bgc')
     param.pop('kol')
 
@@ -585,6 +572,32 @@ def report_config_create(param, user, ip):
 
     ReportStatus(report=report, status=1, ip=ip).save()
     return report
+
+
+def parse_url_accounts(url_accounts):
+    # 解析url帐号
+    platform_list = set()
+    from crawl_url_parser import parse_url
+    for i in url_accounts:
+        platform = parse_url(i.get('帖子链接(必填)'))
+        if platform[0]:
+            platform_list.add(platform[0])
+
+    return parse_platform(platform_list)
+
+
+def parse_platform(platform):
+    platforms = get_platform_info()
+    platform_list = list()
+    for k in platforms:
+        k.update(children=[])
+        for _ in platform:
+            plat = DimPlatform.objects.get(code=_)
+            if plat.parent == k.get("name"):
+                k.get("children").append(dict(id=_, name=plat.name))
+        if k.get("children"):
+            platform_list.append(k)
+    return platform_list
 
 
 def get_report_config(report_id, user):
