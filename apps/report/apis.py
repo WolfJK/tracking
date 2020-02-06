@@ -140,7 +140,8 @@ def formatted_report(reports):
             category_name=DimCategory.objects.get(id=report.get("category_id")).name,
             sales_point_name=[n.split("_")[1] for n in json.loads(report["sales_points"])],
             sales_points=json.loads(report["sales_points"]),
-            is_owner="本品" if user.brand.name == brand_name else "竞品"
+            is_owner="本品" if user.brand.name == brand_name else "竞品",
+            create_time=report.get("create_time").strftime('%Y-%m-%d %H:%M:%S')
         )
 
     return reports
