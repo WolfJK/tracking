@@ -474,10 +474,12 @@ def get_reprot_period(begin, end):
     :return:
     '''
     period = DimDate.objects.filter(date__range=[begin, end])
+    week_period = list(period.values("week").distinct().order_by("week"))
+    month_period = list(period.values("month").distinct().order_by("month"))
 
     return dict(
-        week_period=list(period.values("week").distinct().order_by("week")),
-        month_period=list(period.values("month").distinct().order_by("month"))
+        week_period=[k["week"] for k in week_period],
+        month_period=[k["month"] for k in month_period]
     )
 
 
