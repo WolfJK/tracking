@@ -166,7 +166,7 @@ def report_details(report_id, user, need_unscramble=True):
     brand = ".".join([b.split("_")[1] for b in json.loads(report.brand_id)])
     sales_points = json.loads(report.sales_points)
 
-    config = dict(sales_points=sales_points, brand=brand, activity=report.title)
+    config = dict(sales_points=sales_points, brand=brand, activity=report.title, name=report.name)
     data = data_transform(json.loads(report.data), config)
 
     if not data.get("unscramble") and need_unscramble:
@@ -201,6 +201,7 @@ def data_transform(data, config):
     sales_points = config["sales_points"]
     brand = config["brand"]
     activity = config["activity"]
+    report_name = config["name"]
 
     # 投放渠道分布 转换
     platform = data["spread_overview"]["platform"]
@@ -210,11 +211,11 @@ def data_transform(data, config):
             name="微博",
             brand=brand,
             value=platform["weibo"],
-            children=[dict(name="微博", value=platform["weibo"], brand=brand, activity=activity)]
+            children=[dict(name="微博", value=platform["weibo"], brand=brand, activity=activity, report_name=report_name)]
         ))
 
     if len(platform["motherbaby"]) > 0:
-        map(lambda x: x.update(brand=brand, activity=activity), platform["motherbaby"])
+        map(lambda x: x.update(brand=brand, activity=activity, report_name=report_name), platform["motherbaby"])
         platform_web.append(dict(
             name="母垂",
             brand=brand,
@@ -271,8 +272,8 @@ def data_transform(data, config):
     apps_apis.set_precision(data["brand_concern"]["trend"], keys=("value", "value_year"), precision=1, pct=100.0)
     apps_apis.set_precision(data["brand_concern"], keys=("annual", "activity", "delta"), precision=1, pct=100.0)
 
-    map(lambda x: x.update(brand=brand, activity=activity), data["spread_efficiency"]["activity_composition"])
-    map(lambda x: x.update(brand=brand, activity=activity), data["spread_efficiency"]["user_type_composition"])
+    map(lambda x: x.update(brand=brand, activity=activity, report_name=report_name), data["spread_efficiency"]["activity_composition"])
+    map(lambda x: x.update(brand=brand, activity=activity, report_name=report_name), data["spread_efficiency"]["user_type_composition"])
 
     apps_apis.ratio(data["spread_efficiency"]["activity_composition"], "value", precision=1)
     apps_apis.ratio(data["spread_efficiency"]["user_type_composition"], "value", precision=1)
@@ -649,6 +650,7 @@ def activity_contrast(param, user):
             id=report["report_config"]["id"],
             brand=brand,
             activity=report["report_config"]["activity"],
+            report_name=report["report_config"]["name"],
             name=report["report_config"]["name"],
             start_date=report["report_config"]["start_date"],
             end_date=report["report_config"]["end_date"],
@@ -686,22 +688,23 @@ def activity_contrast(param, user):
     for data in datas:
         data["platform_overview"] = [data["platform_overview"].get(
             platform,
-            dict(name=platform, value=0, brand=data["brand"], activity=data["activity"])
+            dict(name=platform, value=0, brand=data["brand"], activity=data["activity"], report_name=data["name"])
         ) for platform in set(all_platform)]
 
         data["account_overview"] = [data["account_overview"].get(
             user_type,
-            dict(post_count=0, account=0, brand=data["brand"], activity=data["activity"], user_type=user_type)
+            dict(post_count=0, account=0, brand=data["brand"], activity=data["activity"], user_type=user_type, report_name=data["name"])
         ) for user_type in set(user_types)]
 
         data["activity_composition_efficiency"] = [data["activity_composition_efficiency"].get(
             composition,
-            dict(value=0, value_ratio=0, brand=data["brand"], activity=data["activity"], name=composition)
+            dict(value=0, value_ratio=0, brand=data["brand"], activity=data["activity"], name=composition, report_name=data["name"])
         ) for composition in set(compositions)]
 
         data["platform_all_efficiency"] = dict(
             brand=data["brand"],
             activity=data["activity"],
+            report_name=data["name"],
             value=sum([s["value"] for s in data["platform_efficiency"]]),
             avg_value=sum([s["avg_value"] for s in data["platform_efficiency"]]),
             breadth=sum([s["breadth"] for s in data["platform_efficiency"]]),
@@ -718,6 +721,7 @@ def activity_contrast(param, user):
                 brand=data["brand"],
                 name=e["name"],
                 activity=data["activity"],
+                report_name=data["name"],
                 value=e["value"],
                 avg_value=e["avg_value"],
                 interaction=e["interaction"],
