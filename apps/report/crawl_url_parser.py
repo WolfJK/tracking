@@ -136,7 +136,7 @@ def rule(domain_name, url):
     elif domain_name == "mmbang":
         if re.findall("bang\/(\d+)\/(\d+)", url):
             category_id, post_id = re.findall("bang\/(\d+)\/(\d+)", url)[0]
-        if re.findall("bang\/(\d+)", url):
+        elif re.findall("bang\/(\d+)", url):
             post_id = re.findall("bang\/(\d+)", url)[0]
         elif re.findall("ask\/q(\d+)", url):
             post_id = re.findall("ask\/q(\d+)", url)[0]
