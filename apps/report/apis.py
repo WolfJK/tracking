@@ -233,6 +233,7 @@ def data_transform(data, config):
     account_web = pandas.merge(account_web, post_web, how="left", on="user_type")
     account_web["brand"] = brand
     account_web["activity"] = activity
+    account_web["report_name"] = report_name
     data["spread_overview"]["account_web"] = account_web.to_dict(orient="records")
 
     #  子活动UGC构成
