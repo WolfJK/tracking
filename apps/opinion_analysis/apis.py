@@ -984,7 +984,7 @@ def ao_keywords_cloud(params):
     '''
     bbv_all_and_date(params)
     data = list(VcMpKeywordsCloud.objects.filter(**params)
-                .values("keywords").annotate(count=Sum("count")).values("keywords", "count")[30])
+                .values("keywords").annotate(count=Sum("count")).values("keywords", "count")[:30])
 
     return data
 
