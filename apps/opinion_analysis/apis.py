@@ -912,6 +912,7 @@ def ao_activity_tag_list(params):
     :return:
     '''
     bbv_all_and_date(params)
+    print(json.dumps(params))
     activity_tags = list(VcMpActivityTags.objects.filter(**params)
                          .values("activity_tag").annotate(count=Sum("count"))
                          .order_by("-count").values("activity_tag")[:20])
@@ -983,7 +984,7 @@ def ao_keywords_cloud(params):
     '''
     bbv_all_and_date(params)
     data = list(VcMpKeywordsCloud.objects.filter(**params)
-                .values("keywords").annotate(count=Sum("count")).values("keywords", "count"))
+                .values("keywords").annotate(count=Sum("count")).values("keywords", "count")[30])
 
     return data
 
