@@ -984,6 +984,8 @@ def ao_keywords_cloud(params):
     '''
     bbv_all_and_date(params)
     data = list(VcMpKeywordsCloud.objects.filter(**params)
+                .extra(where=["keywords not in ('。', '；', '，', '：', '“', '”', '（', '）','、', '？', '《' '》', ' ', '', '/', '*', '…', '」', '「', '↓', '-', 'Ⅱ', '', '·', '—', '', '‘', '+', ',', '##', '\"', '&#', '～', ')', '(', '☕', '	', '	', ' 	', '⃣ ', '❤', '$', '|', '➕', '✨', ' ', '')",
+                              "activity_tag not in ('##')", "(keywords regexp '[^\x00-\xff]') or (keywords regexp '^\w+$' and length(keywords) > 2)"])
                 .values("keywords").annotate(count=Sum("count")).values("keywords", "count").order_by("-count")[:30])
 
     return data
