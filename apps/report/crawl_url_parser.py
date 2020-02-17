@@ -18,7 +18,7 @@ platform = {
     "haoyunma": "1105",
     "hibb": "1127",  # NO
     "ibabyzone": "1117",  # NO
-    "ibabyzonepc": "1011",
+    "ibabyzonepc": "1011",  # NO
     "ihealthbaby": "1109",  # NO
     "iyaya": "1016",  # NO
     "j": "1125",  # NO
@@ -54,10 +54,12 @@ platform = {
     "zhilehuo": "1111",  # NO
     "weibo": "3002",
     "zhihu": "5002",
+    "weixin": "3101",
 }
 socials = [
     "3002",
-    "5002"
+    "5002",
+    "3101",
 ]
 
 
@@ -110,12 +112,15 @@ def rule(domain_name, url):
             post_id = re.findall("[^a-zA-Z0-9_]id\=(\d+)", url)[0]
             platform_id = "1113"
     elif domain_name == "drcuiyutao":
-        post_id = re.findall("[^a-zA-Z0-9_]id=(\d+)", url)[0] if re.findall("[^a-zA-Z0-9_]id=(\d+)", url) else ""
+        if re.findall("[^a-zA-Z0-9_]id=(\d+)", url):
+            post_id = re.findall("[^a-zA-Z0-9_]id=(\d+)", url)[0]
+        elif re.findall("[^a-zA-Z0-9_]coupId=(\d+)", url):
+            post_id = re.findall("[^a-zA-Z0-9_]coupId=(\d+)", url)[0]
     elif domain_name == "haoyunma":
         post_id = re.findall("[^a-zA-Z0-9_]id=(\d+)", url)[0] if re.findall("[^a-zA-Z0-9_]id=(\d+)", url) else ""
     elif domain_name == "haoyunbang":
         post_id = re.findall("info\/(\w+)", url)[0] if re.findall("info\/(\d+)", url) else ""
-    elif domain_name == "ibabyzonepc":
+    elif domain_name == "ibabyzone":
         post_id = re.findall("topic\-(\d+)", url)[0] if re.findall("topic\-(\d+)", url) else ""
     elif domain_name == "ladybirdedu":
         post_id = re.findall("[^a-zA-Z0-9_]id=(\d+)", url)[0] if re.findall("[^a-zA-Z0-9_]id=(\d+)", url) else ""
@@ -163,12 +168,14 @@ def rule(domain_name, url):
         post_id = re.findall("post_id=(\d+)", url)[0] if re.findall("post_id=(\d+)", url) else ""
     elif domain_name == "weibo":
         post_id = url.split("?")[0].split("/")[-1]
+    elif domain_name == "weixin":
+        post_id = re.findall("\/s\/(\w+)", url)[0] if re.findall("\/s\/(\w+)", url) else ""
     elif domain_name == "zhihu":
         if re.findall("question\/(\d+)", url):
             post_id = re.findall("question\/(\d+)", url)[0]
             channel = "1"
-        elif re.findall("q\/(\d+)", url):
-            post_id = re.findall("q\/(\d+)", url)[0]
+        elif re.findall("p\/(\d+)", url):
+            post_id = re.findall("p\/(\d+)", url)[0]
             channel = "2"
     if post_id != "" and platform_id not in socials:
         post_id = "{}:{}:{}".format(platform_id, channel, post_id)
