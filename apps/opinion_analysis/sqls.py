@@ -316,7 +316,7 @@ group by area order by count desc ;
 # 全网关键词获取
 net_keywords = """
 select keywords, ifnull(sum(count), 0) as count from vc_mp_keywords_cloud a where
-    brand={brand_name} and a.category= {category_name} %s
+    brand={brand_name} and a.category= {category_name} %s and %s
 group by keywords
 order by count desc limit 20;
 """
@@ -664,7 +664,7 @@ group by area  order by count desc ;
 bbv_all_keywords = """
 select keywords, ifnull(sum(count), 0) as count from vc_mp_keywords_cloud a where
     brand={brand_name} and
-    a.category= {category_name} and a.type='bbv' %s
+    a.category= {category_name} and a.type='bbv' %s  and %s
 group by keywords
 order by count desc limit 20;
 """
@@ -672,7 +672,7 @@ order by count desc limit 20;
 bbv_platform_keywords_classify = """
 select keywords, ifnull(sum(count), 0) as count from vc_mp_keywords_cloud a where
     brand={brand_name} and
-    a.category= {category_name} and a.platform in %s %s
+    a.category= {category_name} and a.platform in %s %s and  %s
 group by keywords
 order by count desc limit 20;
 """

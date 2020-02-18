@@ -499,12 +499,14 @@ def dispose_standard_area(areas):
 def get_keywords_from(range_time, category, brand_name, platform='net'):
     # 获取关键词
     bracket_platform = join_sql_bracket([platform, ])
+    special_character = "keywords not in ('{0}')".format("', '".join(sqls.keywords_cloud_exclude))
+    sxclude_condition = special_character + "and ((keywords regexp '[^\x00-\xff]') or (keywords regexp '[A-Za-z0-9_]+' and length(keywords) > 2))"
     if platform == 'net':
-        net_keywords = sqls.net_keywords % (range_time)  # 获取全网关键词
+        net_keywords = sqls.net_keywords % (range_time, sxclude_condition)  # 获取全网关键词
     elif platform == '全部':
-        net_keywords = sqls.bbv_all_keywords%(range_time)  # 获取全网关键词
+        net_keywords = sqls.bbv_all_keywords%(range_time, sxclude_condition)  # 获取全网关键词
     else:
-        net_keywords = sqls.bbv_platform_keywords_classify % (bracket_platform, range_time)  # 获取全网关键词
+        net_keywords = sqls.bbv_platform_keywords_classify % (bracket_platform, range_time, sxclude_condition)  # 获取全网关键词
     keywords = DB.search(net_keywords, {"category_name": category.name, "brand_name": brand_name})
 
     return keywords
