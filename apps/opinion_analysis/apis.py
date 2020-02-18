@@ -16,6 +16,7 @@ from operator import itemgetter
 from django.forms.models import model_to_dict
 from itertools import chain
 from collections import defaultdict
+import sqls
 
 
 def add_monitor_brand(request, monitor_id, category, brand, time_slot, competitor):
@@ -983,10 +984,11 @@ def ao_keywords_cloud(params):
     :return:
     '''
     bbv_all_and_date(params)
-    data = list(VcMpKeywordsCloud.objects.filter(**params)
-                .extra(where=["keywords not in ('。', '；', '，', '：', '“', '”', '（', '）','、', '？', '《' '》', ' ', '', '/', '*', '…', '」', '「', '↓', '-', 'Ⅱ', '', '·', '—', '', '‘', '+', ',', '##', '\"', '&#', '～', ')', '(', '☕', '	', '	', ' 	', '⃣ ', '❤', '$', '|', '➕', '✨', ' ', '')",
-                              "activity_tag not in ('##')", "(keywords regexp '[^\x00-\xff]') or (keywords regexp '^\w+$' and length(keywords) > 2)"])
-                .values("keywords").annotate(count=Sum("count")).values("keywords", "count").order_by("-count")[:30])
+    data = list(VcMpKeywordsCloud.objects.filter(**params).extra(where=[
+        "keywords not in ('{0}')".format("', '".join(sqls.keywords_cloud_exclude)),
+        "activity_tag not in ('##')",
+        "(keywords regexp '[^\x00-\xff]') or (keywords regexp '^\w+$' and length(keywords) > 2)"
+    ]).values("keywords").annotate(count=Sum("count")).values("keywords", "count").order_by("-count")[:30])
 
     return data
 
