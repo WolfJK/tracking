@@ -989,7 +989,7 @@ def ao_keywords_cloud(params):
     data = list(VcMpKeywordsCloud.objects.filter(**params).extra(where=[
         "keywords not in ('{0}')".format("', '".join(sqls.keywords_cloud_exclude)),
         "activity_tag not in ('##')",
-        "(keywords regexp '[^\x00-\xff]') or (keywords regexp '\\w+' and length(keywords) > 2)"
+        "(keywords regexp '[^\x00-\xff]') or (keywords regexp '[A-Za-z0-9_]+' and length(keywords) > 2)"
     ]).values("keywords").annotate(count=Sum("count")).values("keywords", "count").order_by("-count")[:30])
 
     return data
