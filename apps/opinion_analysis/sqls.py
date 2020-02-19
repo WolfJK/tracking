@@ -854,7 +854,7 @@ with t as (
           from vc_mp_cognition
           where brand = {brand_name}
           and category = {category_name}
-          and platform = {platform} %s
+          and platform = {platform} %s and level2 !=''
           group by level1, level2) e
 ) select * from t where rn<=5;
 """
@@ -873,7 +873,7 @@ where brand = {brand_name}
 and category = {category_name}
 and platform = {platform}
 and level1 in %s
-and level2 in %s %s
+and level2 in %s %s and level2!='' and level3!=''
 group by level1, level2, level3),
 base0 as (
     select level1,
