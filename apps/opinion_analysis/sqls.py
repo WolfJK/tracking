@@ -847,10 +847,11 @@ randar_patter_map = """
 with t as (
     select level1, 
            level2, 
-           count, 
-           ROW_NUMBER() OVER(PARTITION BY level1 ORDER BY count DESC) as rn
+           round(count2/count1*100, 2) as count ,
+           ROW_NUMBER() OVER(PARTITION BY level1 ORDER BY count2 DESC) as rn
     from (select level1, level2,
-          sum(count) count
+          sum(sum(count)) over(partition by level1) count1,
+          sum(count) count2
           from vc_mp_cognition
           where brand = {brand_name}
           and category = {category_name}
@@ -873,7 +874,7 @@ where brand = {brand_name}
 and category = {category_name}
 and platform = {platform}
 and level1 in %s
-and level2 in %s %s and level2!='' and level3!=''
+and level2 in %s %s and level2!=''
 group by level1, level2, level3),
 base0 as (
     select level1,
