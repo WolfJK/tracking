@@ -1,2 +1,2 @@
 ﻿## libs install
-pip install -r /opt/project/tracking_v1/requirements.txt
+pip install -r /opt/project/tracking/requirements.txt
