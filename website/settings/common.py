@@ -80,8 +80,8 @@ INSTALLED_APPS += (
 
 ## Middlewares settings
 MIDDLEWARE_CLASSES += (
-    'website.middleware.GatewayMiddleware',
-    'website.middleware.AuthMiddleware',
+    # 'website.middleware.GatewayMiddleware',
+    # 'website.middleware.AuthMiddleware',
 )
 
 # user backends
