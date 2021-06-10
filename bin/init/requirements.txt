@@ -1,5 +1,5 @@
 # framework
-Django==1.8.7
+Django==2.2.24
 uwsgi==2.0.18
 
 # network
